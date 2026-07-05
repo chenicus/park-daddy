@@ -17,6 +17,11 @@ if (params.get('arrive')) {
   $('arrive').value = `${String(d.getHours()).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
 }
 $('walk').addEventListener('input', (e) => $('walkval').textContent = e.target.value);
+// re-rank whenever the trip inputs change (only once a destination is set)
+const rerun = () => { if (lastLoc) run(lastLoc); };
+$('arrive').addEventListener('change', rerun);
+$('dur').addEventListener('change', rerun);
+$('walk').addEventListener('change', rerun);
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const TILES = {
