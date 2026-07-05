@@ -95,7 +95,7 @@ async function run(preLoc) {
   const arrival = arriveMins();
   const duration = Math.round(parseFloat($('dur').value) * 60);
   const maxWalkMin = parseInt($('walk').value);
-  const sort = document.querySelector('.seg button.active')?.dataset.sort || 'balanced';
+  const sort = document.querySelector('.seg button.active')?.dataset.sort || 'cheap';
 
   const ranked = rankMeters(meters, { lat: loc.lat, lon: loc.lon, arrival, duration, maxWalkMin, sort });
 
