@@ -40,15 +40,11 @@
   .grip { padding: 10px 0 6px; flex: none; cursor: grab; touch-action: none; }
   .grip:active { cursor: grabbing; }
   .handle { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto; }
-  .trip { padding: 2px 16px 12px; border-bottom: 1px solid var(--line); flex: none; }
-  .trip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .fld label { display: block; font-size: 11px; color: var(--muted); margin: 0 0 4px 2px; }
-  .fld input { width: 100%; height: 46px; border: 1px solid var(--line); background: var(--sheet);
-    color: var(--text); border-radius: 10px; padding: 0 10px; font-size: 15px; font-family: inherit; }
-  .fld input[type=time] { text-align: center; }
-  .walk-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-  .walk-row label { font-size: 13px; color: var(--muted); white-space: nowrap; }
-  input[type=range] { flex: 1; accent-color: var(--accent); }
+  .trip { padding: 6px 16px 14px; border-bottom: 1px solid var(--line); flex: none; }
+  .slider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .sld-lab { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .sld-lab span { color: var(--text); font-weight: 500; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
 
   #results { overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1; }
   .status { padding: 20px 16px; color: var(--muted); font-size: 14px; text-align: center; }
@@ -99,13 +95,15 @@
 <div class="sheet" id="sheet">
   <div class="grip" id="grip"><div class="handle"></div></div>
   <div class="trip">
-    <div class="trip-grid">
-      <div class="fld"><label>Arrive <span id="drivehint"></span></label><input id="arrive" type="time" /></div>
-      <div class="fld"><label>Park (hrs)</label><input id="dur" type="number" min="0.5" step="0.5" value="2" /></div>
-    </div>
-    <div class="walk-row">
-      <label>Walk ≤ <span id="walkval">8</span> min</label>
-      <input id="walk" type="range" min="1" max="20" value="8" />
+    <div class="slider-grid">
+      <div class="sld">
+        <div class="sld-lab">Park <span id="durval">2h</span></div>
+        <input id="dur" type="range" min="0.5" max="8" step="0.5" value="2" />
+      </div>
+      <div class="sld">
+        <div class="sld-lab">Walk ≤ <span id="walkval">8</span> min</div>
+        <input id="walk" type="range" min="1" max="20" value="8" />
+      </div>
     </div>
   </div>
   <div id="results"><div class="status">Search a destination to see parking near it.</div></div>

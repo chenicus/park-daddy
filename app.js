@@ -1,4 +1,4 @@
-import { rankMeters, distMeters } from './rank.js';
+import { rankMeters } from './rank.js';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -8,19 +8,18 @@ let sheetSnaps = null;
 
 const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
-if (params.get('dur')) $('dur').value = params.get('dur');
-if (params.get('walk')) { $('walk').value = params.get('walk'); $('walkval').textContent = params.get('walk'); }
-setArriveNow();
-function setArriveNow() {
-  const d = new Date();
-  const mins = Math.round(d.getMinutes() / 5) * 5;
-  $('arrive').value = `${String(d.getHours()).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`;
-}
+if (params.get('dur')) { $('dur').value = params.get('dur'); }
+if (params.get('walk')) { $('walk').value = params.get('walk'); }
+const fmtDur = (v) => `${parseFloat(v)}h`;
+$('durval').textContent = fmtDur($('dur').value);
+$('walkval').textContent = $('walk').value;
+$('dur').addEventListener('input', (e) => $('durval').textContent = fmtDur(e.target.value));
 $('walk').addEventListener('input', (e) => $('walkval').textContent = e.target.value);
-const rerun = () => { if (lastLoc) run(lastLoc, false); };
-$('arrive').addEventListener('change', rerun);
+const rerun = () => { if (lastLoc) rankAndRender(lastLoc, false); };
 $('dur').addEventListener('change', rerun);
 $('walk').addEventListener('change', rerun);
+// arrival is always "now" — you're parking now
+function nowMins() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const TILES = {
@@ -62,27 +61,6 @@ function getPosition() {
     );
   });
 }
-async function driveMinutes(dest) {
-  const pos = await getPosition();
-  if (!pos) return null;
-  try {
-    const u = `https://router.project-osrm.org/route/v1/driving/${pos.lon},${pos.lat};${dest.lon},${dest.lat}?overview=false`;
-    const j = await fetch(u).then((r) => r.json());
-    const s = j.routes && j.routes[0] && j.routes[0].duration;
-    if (s) return Math.max(1, Math.round(s / 60));
-  } catch (e) { /* fall through */ }
-  const m = distMeters(pos.lat, pos.lon, dest.lat, dest.lon);
-  return Math.max(1, Math.round(m / (28000 / 60))); // ~28 km/h city fallback
-}
-function setArrivalFromDrive(driveMin) {
-  const d = new Date();
-  let t = d.getHours() * 60 + d.getMinutes() + driveMin;
-  t = Math.round(t / 5) * 5;
-  const h = Math.floor(t / 60) % 24, m = t % 60;
-  $('arrive').value = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-  $('drivehint').textContent = `· ${driveMin} min drive`;
-}
-
 // ---- geocode ----------------------------------------------------------------
 async function geocodeOne(q) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ca&q=${encodeURIComponent(q + ', Vancouver, BC')}`;
@@ -97,7 +75,6 @@ async function geocode(q) {
   }
   return loc;
 }
-function arriveMins() { const [h, m] = $('arrive').value.split(':').map(Number); return h * 60 + m; }
 const navUrl = (r) => `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
 const NAV_SVG = '<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
 function clearMap() { markers.forEach((m) => map.removeLayer(m)); markers = []; }
@@ -110,19 +87,11 @@ async function run(preLoc, isNew) {
   if (!loc) { setStatus('Locating…'); try { loc = await geocode(q); } catch { loc = null; } }
   if (!loc) { setStatus('Could not find that place. Try an address or nearby landmark.'); return; }
   lastLoc = loc;
-
   rankAndRender(loc, isNew);
-  // ETA runs in the background so the list never waits on the location prompt
-  if (isNew) { $('drivehint').textContent = ''; updateETA(loc); }
-}
-
-async function updateETA(loc) {
-  const dm = await driveMinutes(loc);
-  if (dm != null && loc === lastLoc) { setArrivalFromDrive(dm); rankAndRender(loc, false); }
 }
 
 function rankAndRender(loc, isNew) {
-  const arrival = arriveMins();
+  const arrival = nowMins();
   const duration = Math.round(parseFloat($('dur').value) * 60);
   const maxWalkMin = parseInt($('walk').value);
   const ranked = rankMeters(meters, { lat: loc.lat, lon: loc.lon, arrival, duration, maxWalkMin, sort: 'cheap' });
@@ -266,4 +235,4 @@ $('here').addEventListener('click', async () => {
   $('dest').value = 'My location';
   run({ lat: pos.lat, lon: pos.lon, name: 'My location' }, true);
 });
-$('dest').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); $('drivehint').textContent = ''; run(null, true); } });
+$('dest').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.target.blur(); run(null, true); } });
