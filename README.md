@@ -1,7 +1,10 @@
-# 🅿️ Vancouver Parking
+# 🚗 Park Daddy
 
-Finds the cheapest street-meter parking near a destination, ranked by price then walk
-distance, with "free after 10 PM" detection. Zero build — plain HTML + Leaflet + vanilla JS.
+Find street parking rates across Vancouver. Finds the cheapest street-meter parking near a
+destination, ranked by price then walk distance, with "free after 10 PM" detection.
+Zero build — plain HTML + Leaflet + vanilla JS.
+
+Live: https://chenicus.github.io/park-daddy/
 
 ## Run
 ```
