@@ -1,6 +1,6 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "van-parking", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8770"], "port": 8770 }
+    { "name": "park-daddy", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8770"], "port": 8770 }
   ]
 }
