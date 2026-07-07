@@ -560,17 +560,25 @@ const fmtClock = (m) => {
 // rate2 6pm–10pm, free after 10pm — with adjacent equal-price windows merged so a
 // flat all-day meter reads as one "9am–10pm" row instead of two identical ones.
 function daySegments(b) {
-  const raw = [
-    { from: 0, to: ENF_START, rate: 0 },
-    { from: ENF_START, to: MID, rate: b.rate1 || 0 },
-    { from: MID, to: ENF_END, rate: b.rate2 || 0 },
-    { from: ENF_END, to: 1440, rate: 0 },
-  ];
+  const rushes = b.rushes || [];
+  const rateAt = (m) => (m < ENF_START || m >= ENF_END) ? 0 : (m < MID ? (b.rate1 || 0) : (b.rate2 || 0));
+  const towAt = (m) => rushes.some((r) => m >= r[0] && m < r[1]);
+  // cut the day at every window edge AND every tow-away boundary, then classify
+  // each slice by its midpoint so rush hours carve "no parking" gaps out of the rates
+  const bounds = new Set([0, ENF_START, MID, ENF_END, 1440]);
+  for (const r of rushes) {
+    if (r[0] > 0 && r[0] < 1440) bounds.add(r[0]);
+    if (r[1] > 0 && r[1] < 1440) bounds.add(r[1]);
+  }
+  const pts = [...bounds].sort((x, y) => x - y);
   const segs = [];
-  for (const s of raw) {
+  for (let i = 0; i < pts.length - 1; i++) {
+    const from = pts[i], to = pts[i + 1], mid = (from + to) / 2;
+    const tow = towAt(mid);
+    const rate = tow ? 0 : rateAt(mid);
     const last = segs[segs.length - 1];
-    if (last && last.rate === s.rate) last.to = s.to;
-    else segs.push({ ...s });
+    if (last && last.tow === tow && last.rate === rate) last.to = to;
+    else segs.push({ from, to, rate, tow });
   }
   return segs;
 }
@@ -586,11 +594,11 @@ function renderSchedule(b, mins) {
   const segs = daySegments(b);
   el.innerHTML = segs.map((s) => {
     const active = mins >= s.from && mins < s.to;
-    const free = s.rate === 0;
-    const cost = free ? 'Free' : `${fmtRate(s.rate)}/hr`;
+    const free = !s.tow && s.rate === 0;
+    const cost = s.tow ? 'No parking' : (free ? 'Free' : `${fmtRate(s.rate)}/hr`);
     // "Now" only when arrival IS now; a planned arrival labels its window with the time
     const now = active ? `<span class="now">${trip.mode === 'now' ? 'Now' : fmtClock(mins)}</span>` : '';
-    return `<div class="seg ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
+    return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
       `<span class="when">${segLabel(s)}${now}</span><span class="cost">${cost}</span></div>`;
   }).join('');
   el.hidden = false;
@@ -666,7 +674,9 @@ function showSpotCard(b) {
   } else if (lim === Infinity) {
     rows.push(`${IC.clock} No time limit`);
   }
-  const tow = towSoon(b, mins, 24 * 60);
+  // the full-day schedule table already shows every tow-away window; this row is
+  // only an urgency nudge when one is about to start (the table can be scrolled past)
+  const tow = towSoon(b, mins, 90);
   if (tow) {
     // compact range: drop :00 and the leading meridiem when both ends share it → "3–7pm"
     const short = (m) => {
