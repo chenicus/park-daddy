@@ -864,7 +864,30 @@ function initLiveLabels() {
       driving.start();
     }
   });
-  $('scstart').addEventListener('click', () => { if (cardBlock) startNav(cardBlock); });
+  // First tap on Start shows a one-time disclaimer (no live traffic/closures);
+  // after they choose "Use Start anyway" we remember it and go straight through.
+  const NAVWARN_KEY = 'pd_navwarn_seen';
+  let warnBlock = null;
+  const closeNavWarn = () => $('navwarn').classList.remove('show');
+  $('scstart').addEventListener('click', () => {
+    if (!cardBlock) return;
+    let seen = false;
+    try { seen = !!localStorage.getItem(NAVWARN_KEY); } catch {}
+    if (seen) { startNav(cardBlock); return; }
+    warnBlock = cardBlock;
+    $('navwarn').classList.add('show');
+  });
+  $('nwStart').addEventListener('click', () => {
+    try { localStorage.setItem(NAVWARN_KEY, '1'); } catch {}
+    closeNavWarn();
+    if (warnBlock) startNav(warnBlock);
+  });
+  $('nwMaps').addEventListener('click', () => {
+    closeNavWarn();
+    if (warnBlock) window.open(navUrl(warnBlock), '_blank', 'noopener');
+  });
+  $('nwClose').addEventListener('click', closeNavWarn);
+  $('navwarn').addEventListener('click', (e) => { if (e.target === $('navwarn')) closeNavWarn(); });
   $('navend').addEventListener('click', () => endNav(false));
   $('compass').addEventListener('click', () => {
     orientMode = orientMode === 'heading' ? 'north' : 'heading';
