@@ -145,7 +145,7 @@ export function rankMeters(meters, opts) {
     const afterSix = overlap(arrival, end, MID, ENF_END) > 0;
     let rateNote;
     if (beforeSix && afterSix && rate1 != null && rate2 != null && rate1 !== rate2) {
-      rateNote = `$${rate1.toFixed(2)}/hr, $${rate2.toFixed(2)} after 6 PM`;
+      rateNote = `$${rate1.toFixed(2)}/hr, $${rate2.toFixed(2)} after 6pm`;
     } else {
       const hr = arrival < MID ? rate1 : (arrival < ENF_END ? rate2 : 0);
       rateNote = hr ? `$${hr.toFixed(2)}/hr` : 'free right now';
@@ -184,7 +184,7 @@ export function rankMeters(meters, opts) {
 
 export function minsToLabel(mins) {
   let h = Math.floor(mins / 60) % 24, m = mins % 60;
-  const ap = h >= 12 ? 'PM' : 'AM';
+  const ap = h >= 12 ? 'pm' : 'am';
   let hh = h % 12; if (hh === 0) hh = 12;
-  return `${hh}:${String(m).padStart(2, '0')} ${ap}`;
+  return `${hh}:${String(m).padStart(2, '0')}${ap}`;
 }

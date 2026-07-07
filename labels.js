@@ -85,8 +85,29 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
   map.createPane('pills').style.zIndex = 620;
   const canvas = L.canvas({ pane: 'mdots', padding: 0.3 });
   const pillCache = new Map();      // sig -> marker
+  const pillByBlock = new Map();    // block.id -> currently-shown pill marker
+  let selectedId = null, selMarker = null;
+  let filter = { free: true, paid: true };
+  const keep = (free) => (free && filter.free) || (!free && filter.paid);
   let dotGroup = null;
   let focus = null;                 // car position while driving
+
+  // Highlight the selected block's pill in its active (darker-tier) state.
+  function applySel() {
+    if (selMarker) {
+      const el = selMarker.getElement();
+      if (el && el.firstElementChild) el.firstElementChild.classList.remove('sel');
+      selMarker.setZIndexOffset(0);
+      selMarker = null;
+    }
+    if (selectedId == null) return;
+    const mk = pillByBlock.get(selectedId);
+    if (!mk) return;
+    const el = mk.getElement();
+    if (el && el.firstElementChild) el.firstElementChild.classList.add('sel');
+    mk.setZIndexOffset(10000);   // lift above every other pill
+    selMarker = mk;
+  }
 
   function visibleActive(mins) {
     const b = map.getBounds().pad(0.1);
@@ -100,33 +121,58 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
     const ctr = focus || map.getCenter();
     const ctrLat = ctr.lat, ctrLon = ctr.lng != null ? ctr.lng : ctr.lon;
 
-    if (z <= 14) {   // area minimum per ~300 m cell
+    if (z < 13) return [];   // dots paint the coverage; no text this far out
+
+    if (z <= 14) {   // area minimum per ~800 m cell — sparse chips over the dot texture
+      // nearly every cell contains SOME free block, so a plain minimum would read "$0"
+      // everywhere — instead the chip is "$0" only where free dominates, else cheapest paid.
       const cells = new Map();
       for (const bl of vis) {
-        const ck = Math.floor(bl.lat / 0.0027) + ',' + Math.floor(bl.lon / 0.004);
+        const ck = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
         const r = rateNow(bl.rate1, bl.rate2, mins);
-        const cur = cells.get(ck);
-        if (!cur || r.rate < cur.rate) cells.set(ck, { rate: r.rate, free: r.free, lat: bl.lat, lon: bl.lon });
+        if (!keep(r.free)) continue;
+        let c = cells.get(ck);
+        if (!c) { c = { nFree: 0, nPaid: 0, minPaid: Infinity, lat: bl.lat, lon: bl.lon }; cells.set(ck, c); }
+        if (r.free) c.nFree++;
+        else { c.nPaid++; if (r.rate < c.minPaid) c.minPaid = r.rate; }
       }
-      const out = [];
+      const items = [];
       for (const [ck, c] of cells) {
-        const text = c.free ? 'FREE' : 'from ' + fmtRate(c.rate);
-        out.push({ sig: 'g' + ck + '|' + text, lat: c.lat, lon: c.lon, text, cls: bucket(c.rate, c.free), block: null });
+        const free = c.nFree >= c.nPaid;
+        if (!free && c.minPaid === Infinity) continue;
+        const text = free ? '$0' : fmtRate(c.minPaid);
+        items.push({
+          sig: 'g' + ck + '|' + text, lat: c.lat, lon: c.lon, text, cluster: true,
+          cls: bucket(free ? 0 : c.minPaid, free), block: null,
+          d: distMeters(ctrLat, ctrLon, c.lat, c.lon),
+        });
       }
-      return out;
+      items.sort((a, b) => a.d - b.d);   // chips near the center win the space
+      const kept = [], keptPx = [];
+      for (const it of items) {
+        if (kept.length >= 12) break;
+        const px = map.latLngToContainerPoint([it.lat, it.lon]);
+        let clash = false;
+        for (const k of keptPx) {
+          if (Math.abs(k.x - px.x) < 78 && Math.abs(k.y - px.y) < 40) { clash = true; break; }
+        }
+        if (clash) continue;
+        kept.push(it); keptPx.push(px);
+      }
+      return kept;
     }
 
     const items = vis.map((bl) => {
       const r = rateNow(bl.rate1, bl.rate2, mins);
       const lim = z >= 16 ? limitNow(bl.limits, mins, wknd) : null;
-      const limTxt = lim != null && lim !== Infinity && !r.free ? ' · ' + fmtLimit(lim) : '';
-      const text = (r.free ? 'FREE' : fmtRate(r.rate)) + limTxt;
+      const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
+      const text = (r.free ? '$0' : fmtRate(r.rate)) + limTxt;
       return {
-        sig: 'b' + bl.id + '|' + text, lat: bl.lat, lon: bl.lon, text,
+        sig: 'b' + bl.id + '|' + text, lat: bl.lat, lon: bl.lon, text, free: r.free,
         cls: bucket(r.rate, r.free), block: bl, rate: r.rate,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
-    });
+    }).filter((it) => keep(it.free));
     items.sort(z === 15 ? (a, b) => a.rate - b.rate || a.d - b.d : (a, b) => a.d - b.d);
 
     const kept = [], keptPx = [];
@@ -145,14 +191,16 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
 
   function refreshDots(z, mins) {
     if (dotGroup) { map.removeLayer(dotGroup); dotGroup = null; }
-    if (z < 15) return;
-    const op = z >= 16 ? 0.9 : 0.4;
-    const rad = z >= 16 ? 3.5 : 2.5;
+    if (z < 11) return;
+    const op = z >= 16 ? 0.9 : z >= 15 ? 0.4 : 0.6;
+    const rad = z >= 16 ? 3.5 : z >= 15 ? 2.5 : 3;
     const marks = [];
     for (const bl of visibleActive(mins)) {
       const r = rateNow(bl.rate1, bl.rate2, mins);
-      const col = { 'p-free': '#188038', p1: '#97C459', p2: '#C0DD97', p3: '#FAC775', p4: '#F09595' }[bucket(r.rate, r.free)];
-      for (const [la, lo] of bl.pts) {
+      if (!keep(r.free)) continue;
+      const col = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' }[bucket(r.rate, r.free)];
+      const pts = bl.pts.length ? bl.pts : [[bl.lat, bl.lon]];   // free blocks have no meter points
+      for (const [la, lo] of pts) {
         marks.push(L.circleMarker([la, lo], {
           renderer: canvas, radius: rad, stroke: false, fillColor: col, fillOpacity: op, interactive: false,
         }));
@@ -171,16 +219,23 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
     for (const [sig, mk] of pillCache) {
       if (!want.has(sig)) { map.removeLayer(mk); pillCache.delete(sig); }
     }
+    pillByBlock.clear();
     for (const d of desired) {
-      if (pillCache.has(d.sig)) continue;
-      const mk = L.marker([d.lat, d.lon], {
-        pane: 'pills', interactive: !!d.block, keyboard: false,
-        icon: L.divIcon({ className: '', html: `<div class="plabel ${d.cls}">${d.text}</div>`, iconSize: [0, 0] }),
-      }).addTo(map);
-      if (d.block) mk.on('click', () => onTap(d.block));
-      pillCache.set(d.sig, mk);
+      let mk = pillCache.get(d.sig);
+      if (!mk) {
+        mk = L.marker([d.lat, d.lon], {
+          pane: 'pills', interactive: !!d.block || !!d.cluster, keyboard: false,
+          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}">${d.text}</div>`, iconSize: [0, 0] }),
+        }).addTo(map);
+        if (d.block) mk.on('click', () => onTap(d.block));
+        // area chip → zoom in so its individual block pills appear
+        else if (d.cluster) mk.on('click', () => map.setView([d.lat, d.lon], 16, { animate: true }));
+        pillCache.set(d.sig, mk);
+      }
+      if (d.block) pillByBlock.set(d.block.id, mk);
     }
     refreshDots(z, mins);
+    applySel();
     layer.lastRefreshMs = performance.now() - t0;
   }
 
@@ -189,6 +244,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
   const layer = {
     refresh,
     lastRefreshMs: 0,
+    setSelected(id) { selectedId = id; applySel(); },
+    setFilter(f) { filter = f; refresh(); },
     setFocus(pos) { focus = pos; },
     destroy() { clearInterval(timer); map.off('moveend zoomend', refresh); },
   };

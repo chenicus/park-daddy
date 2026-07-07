@@ -1,36 +1,41 @@
-import { rankMeters, rateNow, limitNow, minsToLabel, distMeters, MID, ENF_END } from './rank.js?v=11';
-import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit } from './labels.js?v=11';
-import { createDriving, SIM_START } from './driving.js?v=11';
-import { fetchRoute, createNav, fmtDist } from './nav.js?v=11';
+import { rankMeters, rateNow, limitNow, costFor, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
+import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit, bucket } from './labels.js?v=13';
+import { createDriving, SIM_START } from './driving.js?v=13';
+import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
+const filters = { free: true, paid: true };
 let map, tileLayer, markers = [], destMarker, lastLoc = null, cachedPos = null;
-let sheetSnaps = null;
 
 const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
-if (params.get('dur')) { $('dur').value = params.get('dur'); }
-if (params.get('walk')) { $('walk').value = params.get('walk'); }
-const fmtDur = (v) => `${parseFloat(v)}h`;
-$('durval').textContent = fmtDur($('dur').value);
-$('walkval').textContent = $('walk').value;
-$('dur').addEventListener('input', (e) => $('durval').textContent = fmtDur(e.target.value));
-$('walk').addEventListener('input', (e) => $('walkval').textContent = e.target.value);
-const rerun = () => { if (lastLoc) rankAndRender(lastLoc, false); };
-$('dur').addEventListener('change', rerun);
-$('walk').addEventListener('change', rerun);
-// arrival is always "now" — you're parking now.
+// ---- trip: when you'll arrive + how long you'll stay -------------------------
+// clockMins() is the real wall clock (or the ?t= mock). The trip's ARRIVAL can
+// differ from it — you can plan for a destination's drive-time ETA or a set time.
+// Everything downstream (price pills, spot card, ranking) reads nowMins(), which
+// resolves to the trip arrival, so a planned arrival re-prices the whole map.
 // ?t=HH:MM mocks the clock (rate-flip testing); ?wknd=1 forces weekend limits.
 const mockT = (() => {
   const m = (params.get('t') || '').match(/^([0-9]{1,2}):([0-9]{2})$/);
   return m ? parseInt(m[1]) * 60 + parseInt(m[2]) : null;
 })();
-function nowMins() {
+function clockMins() {
   if (mockT != null) return mockT;
   const d = new Date(); return d.getHours() * 60 + d.getMinutes();
 }
+// duration slider stops (hours); 99 = "All day" (spans the enforced 9am–10pm window)
+const DUR_STOPS = [0.5, 1, 1.5, 2, 3, 4, 6, 99];
+const durLabel = (h) => h >= 99 ? 'All day' : (h % 1 ? Math.round(h * 60) + 'm' : h + 'h');
+const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, userSet: false };
+function arrivalMins() {
+  if (trip.mode === 'set' && trip.setMins != null) return trip.setMins;
+  if (trip.mode === 'eta' && trip.etaMins != null) return trip.etaMins;
+  return clockMins();
+}
+function nowMins() { return arrivalMins(); }
+function durationMins() { return Math.min(trip.durH, 13) * 60; }
 function isWeekend() {
   if (params.get('wknd')) return true;
   const day = new Date().getDay(); return day === 0 || day === 6;
@@ -38,7 +43,7 @@ function isWeekend() {
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const TILES = {
-  light: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
   dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
 };
 map = L.map('map', { zoomControl: false }).setView([49.2606, -123.114], 13);
@@ -51,10 +56,25 @@ function setTiles() {
 setTiles();
 darkMedia.addEventListener('change', setTiles);
 
-fetch('data/meters.json')
-  .then((r) => r.json())
-  .then((d) => {
-    meters = d;
+// free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
+// that ride the same pill/filter/card machinery as meters, but always read as FREE.
+let freeBlocks = [];
+function buildFreeBlocks(arr) {
+  return arr.map((f, i) => ({
+    id: 1e6 + i, lat: f.lat, lon: f.lon, isFree: true, hblock: f.h, tickets: f.n,
+    rate1: null, rate2: null, flat: null,
+    limits: { day: 180, eve: null, wkndDay: 180, wkndEve: null },
+    rushes: [], pts: [], count: 0, spaces: 0, card: false,
+  }));
+}
+
+Promise.all([
+  fetch('data/meters.json').then((r) => r.json()),
+  fetch('data/free.json').then((r) => r.json()).catch(() => []),
+])
+  .then(([m, f]) => {
+    meters = m;
+    freeBlocks = buildFreeBlocks(f);
     initLiveLabels();
     if (params.get('lat') && params.get('lon')) {
       run({ lat: +params.get('lat'), lon: +params.get('lon'), name: params.get('dest') || 'Dropped pin' }, true);
@@ -64,7 +84,7 @@ fetch('data/meters.json')
   })
   .catch(() => setStatus('Failed to load meter data. Run ./refresh.sh'));
 
-function setStatus(msg) { $('results').innerHTML = `<div class="status">${msg}</div>`; }
+function setStatus(msg) { toast(msg, 4000); }
 
 // ---- geolocation + drive-time ETA -------------------------------------------
 function getPosition() {
@@ -93,6 +113,13 @@ async function geocode(q) {
 }
 const navUrl = (r) => `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
 const NAV_SVG = '<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
+// Lucide (shadcn) inline icons — inherit color via currentColor.
+const IC = {
+  clock: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  alert: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+  dollar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>',
+  info: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+};
 function clearMap() { markers.forEach((m) => map.removeLayer(m)); markers = []; }
 
 let current = [];
@@ -103,45 +130,102 @@ async function run(preLoc, isNew) {
   if (!loc) { setStatus('Locating…'); try { loc = await geocode(q); } catch { loc = null; } }
   if (!loc) { setStatus('Could not find that place. Try an address or nearby landmark.'); return; }
   lastLoc = loc;
-  rankAndRender(loc, isNew);
+  addRecent(loc, q);
+  trip.userSet = false;   // a fresh destination re-arms the "arrive on arrival" default
+  rankAndRender(loc);
+  resolveEta(loc);
 }
 
-function rankAndRender(loc, isNew) {
-  const arrival = nowMins();
-  const duration = Math.round(parseFloat($('dur').value) * 60);
-  const maxWalkMin = parseInt($('walk').value);
-  const ranked = rankMeters(meters, { lat: loc.lat, lon: loc.lon, arrival, duration, maxWalkMin, sort: 'cheap' });
-  current = ranked.slice(0, 40);
+// ---- recent destinations -----------------------------------------------------
+// Persisted list of places you've searched — surfaced when the search box is
+// focused so you can jump back without re-typing. Newest first, capped at 5.
+const REC_KEY = 'vanpark.recents', REC_MAX = 5;
+const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-  clearMap();
+function loadRecents() { try { return JSON.parse(localStorage.getItem(REC_KEY)) || []; } catch { return []; } }
+function saveRecents(a) { try { localStorage.setItem(REC_KEY, JSON.stringify(a)); } catch {} }
+
+// prefer what the user typed as the label; fall back to the geocoder's first segment
+function addRecent(loc, q) {
+  const label = (q && q.trim()) || (loc.name || '').split(',')[0].trim();
+  if (!label || label === 'My location') return;   // "here" searches aren't a destination
+  const a = loadRecents().filter((r) =>
+    r.label.toLowerCase() !== label.toLowerCase() &&
+    !(Math.abs(r.lat - loc.lat) < 1e-4 && Math.abs(r.lon - loc.lon) < 1e-4));
+  a.unshift({ label, lat: loc.lat, lon: loc.lon });
+  saveRecents(a.slice(0, REC_MAX));
+}
+
+function renderRecents() {
+  const a = loadRecents();
+  $('rcList').innerHTML = a.map((r, i) =>
+    `<div class="rc-item" data-i="${i}"><span class="rc-ic">${PIN_SVG}</span>` +
+    `<span class="rc-name">${esc(r.label)}</span>` +
+    `<button class="rc-del" type="button" data-del="${i}" aria-label="Remove">${X_SVG}</button></div>`
+  ).join('');
+  return a.length;
+}
+function showRecents() { if (renderRecents()) $('recents').hidden = false; }
+function hideRecents() { $('recents').hidden = true; }
+
+$('dest').addEventListener('focus', showRecents);
+// keep the panel open until you pick, clear, or tap away — not on every input blur
+document.addEventListener('click', (e) => {
+  if ($('recents').hidden) return;
+  if (e.target.closest('#recents') || e.target.closest('#searchform')) return;
+  hideRecents();
+});
+$('rcList').addEventListener('click', (e) => {
+  const del = e.target.closest('.rc-del');
+  if (del) {
+    e.stopPropagation();   // rebuilding the list detaches this node — keep the outside-click closer from firing
+    const a = loadRecents(); a.splice(+del.dataset.del, 1); saveRecents(a);
+    if (!renderRecents()) hideRecents();
+    return;
+  }
+  const item = e.target.closest('.rc-item');
+  const r = item && loadRecents()[+item.dataset.i];
+  if (!r) return;
+  $('dest').value = r.label;
+  $('dest').blur();
+  hideRecents();
+  run({ lat: r.lat, lon: r.lon, name: r.label }, true);
+});
+$('rcClear').addEventListener('click', () => { saveRecents([]); hideRecents(); });
+
+// Get the drive-time ETA to the destination and, unless the user picked an arrival
+// themselves, default the trip to "arrive on arrival". Silently no-ops without a
+// location fix or on a routing failure — the ETA segment just stays hidden.
+async function resolveEta(loc) {
+  const pos = cachedPos || await getPosition();
+  if (!pos) return;
+  let r;
+  try { r = await fetchRoute(pos, loc); } catch { return; }
+  trip.etaMins = (((clockMins() + Math.round(r.duration / 60)) % 1440) + 1440) % 1440;
+  $('tcEta').hidden = false;
+  $('tcEta').textContent = fmtClock(trip.etaMins);   // e.g. "6:20pm" — the "Arrive" label carries the meaning
+  if (!trip.userSet) trip.mode = 'eta';
+  syncTrip();
+}
+
+function rankAndRender(loc) {
+  const arrival = nowMins();
+  const duration = durationMins(), maxWalkMin = 10;
+  const ranked = rankMeters(meters, { lat: loc.lat, lon: loc.lon, arrival, duration, maxWalkMin, sort: 'cheap' });
+  current = ranked.slice(0, 40);   // kept only to frame the map around nearby spots
+
+  if (labelLayer) labelLayer.setSelected(null);
+  clearSpotLine();
   if (destMarker) map.removeLayer(destMarker);
   destMarker = L.marker([loc.lat, loc.lon], {
-    icon: L.divIcon({ className: '', html: '<div class="destpin"></div>', iconSize: [20, 20], iconAnchor: [10, 10] }),
+    // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it
+    icon: L.divIcon({ className: '', html: '<svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>', iconSize: [34, 34], iconAnchor: [17, 32] }),
     zIndexOffset: 2000,
   }).addTo(map);
 
-  current.forEach((r, i) => {
-    const top = i < TOPN;
-    const size = top ? 30 : 12;
-    const html = top ? `<div class="pin" data-i="${i}">${i + 1}</div>` : `<div class="dot" data-i="${i}"></div>`;
-    const mk = L.marker([r.lat, r.lon], {
-      icon: L.divIcon({ className: '', html, iconSize: [size, size], iconAnchor: [size / 2, size / 2] }),
-      zIndexOffset: top ? 1000 - i : 0,
-    }).addTo(map);
-    // pin tap → spot-detail card with Start/Close (Google-Maps journey)
-    mk.on('click', () => {
-      select(i, false);
-      collapseSheet();
-      const b = blockForMeter(r.meter);
-      if (b) showSpotCard(b); else select(i, true);
-    });
-    markers.push(mk);
-    r._marker = mk;
-  });
-
   frameMap(loc, current);
-  renderList(current);
-  if (isNew) collapseSheet();
 }
 
 // center on destination, keep the 3 closest spots in view (symmetric so dest stays centred)
@@ -150,118 +234,88 @@ function frameMap(loc, list) {
   let dLat = 0.0016, dLon = 0.0022;
   for (const r of near) { dLat = Math.max(dLat, Math.abs(r.lat - loc.lat)); dLon = Math.max(dLon, Math.abs(r.lon - loc.lon)); }
   const bounds = [[loc.lat - dLat, loc.lon - dLon], [loc.lat + dLat, loc.lon + dLon]];
-  const mobile = window.innerWidth < 760;
   map.fitBounds(bounds, {
-    paddingTopLeft: [40, 90],
-    paddingBottomRight: [40, mobile ? Math.round(window.innerHeight * 0.46) : 40],
+    paddingTopLeft: [40, 120],
+    paddingBottomRight: [40, 40],
     maxZoom: 17, animate: false,
   });
 }
-
-function select(i, fromMap) {
-  document.querySelectorAll('.card').forEach((c) => c.classList.toggle('sel', +c.dataset.i === i));
-  document.querySelectorAll('.pin, .dot').forEach((p) => p.classList.toggle('sel', +p.dataset.i === i));
-  if (fromMap) { expandSheet(); const card = document.querySelector(`.card[data-i="${i}"]`); if (card) card.scrollIntoView({ block: 'nearest' }); }
-  else { map.panTo([current[i].lat, current[i].lon]); }
-}
-
-function renderList(list) {
-  if (!list.length) { setStatus('No meters within that walk time. Try a longer walk.'); return; }
-  const durLabel = `${parseFloat($('dur').value)}h`;
-  $('results').innerHTML = list.map((r, i) => {
-    const price = r.free ? 'FREE' : '$' + r.cost.toFixed(2);
-    const tags = [];
-    if (r.free) tags.push('<span class="tag free">free your whole stay</span>');
-    else if (r.freeAfter) tags.push('<span class="tag free">free after 10 PM</span>');
-    if (r.blockCount >= 6) tags.push(`<span class="tag">${r.blockCount} spots on block</span>`);
-    if (r.flat != null) tags.push(`<span class="tag">$${r.flat.toFixed(2)} flat</span>`);
-    if (r.overLimit) tags.push(`<span class="tag">over ${r.limit / 60}h limit</span>`);
-    return `<div class="card" data-i="${i}">
-      <div class="num ${i < TOPN ? '' : 'dim'}">${i + 1}</div>
-      <div class="body">
-        <div class="price ${r.free ? 'free' : ''}">${price}<span class="sub" style="display:inline;margin-left:8px">${r.free ? '' : 'for ' + durLabel}</span></div>
-        <div class="sub">${r.rateNote} · ${r.walkMin} min walk ${r.dir}</div>
-        <div class="tags">${tags.join('')}</div>
-      </div>
-      <button class="dir" type="button" data-i="${i}" aria-label="Navigate">
-        <span class="btn">${NAV_SVG}</span><span class="t">${r.walkMin} min</span>
-      </button>
-    </div>`;
-  }).join('');
-  document.querySelectorAll('.card').forEach((el) => el.addEventListener('click', (e) => {
-    const i = +el.dataset.i;
-    if (e.target.closest('.dir')) { startNav(current[i]); return; }
-    select(i, false);
-    map.setView([current[i].lat, current[i].lon], 17);
-  }));
-  computeSnaps();
-}
-
-// ---- draggable bottom sheet (mobile) ----------------------------------------
-// Track height in `curH` instead of reading offsetHeight — reading it mid-transition
-// returns the stale (pre-animation) value and breaks the snap decision.
-const sheet = $('sheet');
-let curH = null;
-function isMobile() { return window.innerWidth < 760; }
-function setSheetHeight(h, animate) {
-  sheet.style.transition = animate ? 'height .25s ease' : 'none';
-  sheet.style.height = h + 'px';
-  curH = h;
-}
-function computeSnaps() {
-  if (!isMobile()) { sheet.style.height = ''; sheet.style.transition = ''; sheetSnaps = null; curH = null; return; }
-  const expanded = Math.round(window.innerHeight * 0.86);
-  const gripH = 24;
-  const tripH = document.querySelector('.trip').offsetHeight;
-  const firstCard = document.querySelector('.card');
-  const collapsed = Math.min(expanded, gripH + tripH + (firstCard ? firstCard.offsetHeight : 96) + 4);
-  sheetSnaps = { collapsed, expanded };
-}
-function collapseSheet() { if (sheetSnaps) setSheetHeight(sheetSnaps.collapsed, true); }
-function expandSheet() { if (sheetSnaps) setSheetHeight(sheetSnaps.expanded, true); }
-
-const grip = $('grip');
-let dragY = null, dragH = 0, lastH = 0;
-function dStart(y) {
-  if (!isMobile() || !sheetSnaps) return;
-  dragY = y; dragH = curH != null ? curH : sheetSnaps.collapsed; lastH = dragH;
-  sheet.style.transition = 'none';
-}
-function dMove(y) {
-  if (dragY == null) return;
-  let h = dragH + (dragY - y);
-  h = Math.max(sheetSnaps.collapsed * 0.7, Math.min(sheetSnaps.expanded, h));
-  sheet.style.height = h + 'px';
-  curH = h; lastH = h;
-}
-function dEnd() {
-  if (dragY == null) return;
-  const mid = (sheetSnaps.collapsed + sheetSnaps.expanded) / 2;
-  setSheetHeight(lastH < mid ? sheetSnaps.collapsed : sheetSnaps.expanded, true);
-  dragY = null;
-}
-grip.addEventListener('touchstart', (e) => dStart(e.touches[0].clientY), { passive: true });
-grip.addEventListener('touchmove', (e) => dMove(e.touches[0].clientY), { passive: true });
-grip.addEventListener('touchend', dEnd);
-grip.addEventListener('mousedown', (e) => {
-  dStart(e.clientY);
-  const mm = (ev) => dMove(ev.clientY);
-  const mu = () => { dEnd(); document.removeEventListener('mousemove', mm); document.removeEventListener('mouseup', mu); };
-  document.addEventListener('mousemove', mm); document.addEventListener('mouseup', mu);
-});
-window.addEventListener('resize', () => { computeSnaps(); if (sheetSnaps && sheet.offsetHeight > sheetSnaps.expanded) sheet.style.height = sheetSnaps.expanded + 'px'; });
 
 // ---- misc controls ----------------------------------------------------------
 $('here').addEventListener('click', async () => {
   const pos = await getPosition();
   if (!pos) { alert('Could not get your location.'); return; }
   $('dest').value = 'My location';
+  hideRecents();
   run({ lat: pos.lat, lon: pos.lon, name: 'My location' }, true);
 });
-$('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest').blur(); run(null, true); });
+$('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest').blur(); hideRecents(); run(null, true); });
+
+// ---- Free / Paid filters ------------------------------------------------------
+function applyFilters() {
+  if (labelLayer) labelLayer.setFilter(filters);
+}
+$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
+$('chipPaid').addEventListener('click', () => { filters.paid = !filters.paid; $('chipPaid').classList.toggle('on', filters.paid); applyFilters(); });
+
+// ---- Trip: arrival + duration -------------------------------------------------
+function updatePill() {
+  const arr = trip.mode === 'eta' && trip.etaMins != null ? fmtClock(trip.etaMins)
+    : trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
+  $('tpArr').textContent = arr;
+  $('tpDur').textContent = durLabel(trip.durH);
+}
+function syncSeg() {
+  $('tcArr').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === trip.mode));
+  $('tcTime').hidden = trip.mode !== 'set';
+}
+// re-render everything the trip affects, WITHOUT reframing the map
+function syncTrip() {
+  updatePill(); syncSeg();
+  if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
+  if (cardBlock) showSpotCard(cardBlock);         // spot card totals reflect arrival + duration
+}
+$('tripPill').addEventListener('click', () => { $('tripcard').hidden = !$('tripcard').hidden; });
+$('tcClose').addEventListener('click', () => { $('tripcard').hidden = true; });
+$('tcArr').addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn || btn.hidden) return;
+  trip.mode = btn.dataset.m; trip.userSet = true;
+  if (trip.mode === 'set') {
+    if (trip.setMins == null) trip.setMins = clockMins();
+    const t = $('tcTime');
+    t.value = `${String(Math.floor(trip.setMins / 60)).padStart(2, '0')}:${String(trip.setMins % 60).padStart(2, '0')}`;
+    syncTrip();
+    t.focus();
+    if (t.showPicker) { try { t.showPicker(); } catch {} }
+  } else {
+    syncTrip();
+  }
+});
+$('tcTime').addEventListener('input', () => {
+  const [h, m] = $('tcTime').value.split(':').map(Number);
+  if (!isNaN(h)) { trip.setMins = h * 60 + (m || 0); trip.mode = 'set'; trip.userSet = true; syncTrip(); }
+});
+$('tcDur').addEventListener('input', () => {
+  trip.durH = DUR_STOPS[+$('tcDur').value];
+  $('tcDurV').textContent = durLabel(trip.durH);
+  updatePill();
+  if (cardBlock) showSpotCard(cardBlock);         // duration changes totals, not the pills
+});
+updatePill();
 
 // ---- live price labels + driving mode ----------------------------------------
-let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null;
+let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null, preDrive = null, spotLine = null;
+
+// straight connector from the tapped spot to the searched destination
+function drawSpotLine(b) {
+  clearSpotLine();
+  if (!lastLoc) return;
+  spotLine = L.polyline([[b.lat, b.lon], [lastLoc.lat, lastLoc.lon]], {
+    color: '#1a1a1a', weight: 3, opacity: 0.7, dashArray: '1 9', lineCap: 'round', interactive: false,
+  }).addTo(map);
+}
+function clearSpotLine() { if (spotLine) { map.removeLayer(spotLine); spotLine = null; } }
 let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 
 // match a ranked meter back to its label-layer block (same rate/limit tuple, nearest)
@@ -305,8 +359,9 @@ async function onNavFix(pos) {
   $('nbdist').textContent = p.stepDist < 20 ? 'Now' : fmtDist(p.stepDist);
   $('nbtext').textContent = p.step.text;
   const eta = new Date(Date.now() + p.remainS * 1000);
+  const eap = eta.getHours() >= 12 ? 'pm' : 'am';
   $('etamin').textContent = `${Math.max(1, Math.round(p.remainS / 60))} min`;
-  $('etasub').textContent = ` · ${fmtDist(p.remainM)} · ${eta.getHours() % 12 || 12}:${String(eta.getMinutes()).padStart(2, '0')}`;
+  $('etasub').textContent = ` · ${fmtDist(p.remainM)} · arrive ${eta.getHours() % 12 || 12}:${String(eta.getMinutes()).padStart(2, '0')}${eap}`;
   if (p.offRoute && Date.now() - lastRerouteT > 8000) {
     lastRerouteT = Date.now();
     toast('Rerouting…', 2000);
@@ -331,8 +386,52 @@ function toast(msg, ms = 5000) {
   setTimeout(() => { t.style.display = 'none'; }, ms);
 }
 
-function updateRateChip() {
-  $('ratechip').textContent = `${minsToLabel(nowMins())} · rates live`;
+
+// Clock formatter for schedule ranges: 540 -> "9am", 1080 -> "6pm", 1350 -> "10:30pm".
+const fmtClock = (m) => {
+  m = ((m % 1440) + 1440) % 1440;
+  const h = Math.floor(m / 60), mm = m % 60;
+  return (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : '') + (h >= 12 ? 'pm' : 'am');
+};
+
+// Full-day price schedule for a metered block: free before 9am, rate1 9am–6pm,
+// rate2 6pm–10pm, free after 10pm — with adjacent equal-price windows merged so a
+// flat all-day meter reads as one "9am–10pm" row instead of two identical ones.
+function daySegments(b) {
+  const raw = [
+    { from: 0, to: ENF_START, rate: 0 },
+    { from: ENF_START, to: MID, rate: b.rate1 || 0 },
+    { from: MID, to: ENF_END, rate: b.rate2 || 0 },
+    { from: ENF_END, to: 1440, rate: 0 },
+  ];
+  const segs = [];
+  for (const s of raw) {
+    const last = segs[segs.length - 1];
+    if (last && last.rate === s.rate) last.to = s.to;
+    else segs.push({ ...s });
+  }
+  return segs;
+}
+
+function segLabel(s) {
+  if (s.from === 0) return 'Before ' + fmtClock(s.to);
+  if (s.to === 1440) return 'After ' + fmtClock(s.from);
+  return fmtClock(s.from) + '–' + fmtClock(s.to);
+}
+
+function renderSchedule(b, mins) {
+  const el = $('scsched');
+  const segs = daySegments(b);
+  el.innerHTML = segs.map((s) => {
+    const active = mins >= s.from && mins < s.to;
+    const free = s.rate === 0;
+    const cost = free ? 'Free' : `${fmtRate(s.rate)}/hr`;
+    // "Now" only when arrival IS now; a planned arrival labels its window with the time
+    const now = active ? `<span class="now">${trip.mode === 'now' ? 'Now' : fmtClock(mins)}</span>` : '';
+    return `<div class="seg ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
+      `<span class="when">${segLabel(s)}${now}</span><span class="cost">${cost}</span></div>`;
+  }).join('');
+  el.hidden = false;
 }
 
 function showSpotCard(b) {
@@ -340,48 +439,82 @@ function showSpotCard(b) {
   const p = driving && driving.lastPos();
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
+
+  // walk from the searched destination to this block (only meaningful after a search)
+  if (lastLoc) {
+    const dM = distMeters(lastLoc.lat, lastLoc.lon, b.lat, b.lon);
+    const dist = dM < 1000 ? `${Math.round(dM)} m` : `${(dM / 1000).toFixed(1)} km`;
+    $('scsub').textContent = `${Math.max(1, Math.round(dM / 80))} min walk · ${dist} away`;
+    $('scsub').style.display = '';
+  } else {
+    $('scsub').style.display = 'none';
+  }
+  drawSpotLine(b);
+
+  // free residential block: unmetered, bylaw 3h limit — its own clean card
+  if (b.isFree) {
+    $('scsched').hidden = true;
+    $('scprice').textContent = 'Free';
+    $('scprice').classList.add('free');
+    $('scrows').innerHTML = [
+      `${IC.clock} Max stay <b>3h</b> · 8am–6pm`,
+      `${IC.info} Residential street — no meter. Check posted signs.`,
+    ].map((h) => `<div>${h}</div>`).join('');
+    $('scmaps').href = navUrl(b);
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
+
   const r = rateNow(b.rate1, b.rate2, mins);
-
-  $('scprice').textContent = r.free ? 'FREE right now' : `${fmtRate(r.rate)}/hr now`;
+  $('scprice').textContent = r.free ? 'Free right now' : `${fmtRate(r.rate)}/hr`;
   $('scprice').classList.toggle('free', r.free);
-  $('scsub').textContent = `${b.count} meter${b.count > 1 ? 's' : ''} · ~${b.spaces} space${b.spaces > 1 ? 's' : ''} on this block`;
 
-  const chips = [];
-  if (mins < MID && b.rate2 != null && b.rate2 !== b.rate1) chips.push(`${fmtRate(b.rate2)} after 6 PM`);
-  if (mins < ENF_END) chips.push('free after 10 PM');
-  if (b.flat != null) chips.push(`or ${fmtRate(b.flat)} flat`);
-  $('scchips').innerHTML =
-    `<span class="sc-chip now">${r.free ? 'FREE' : fmtRate(r.rate) + '/hr'} now</span>` +
-    chips.map((c) => `<span class="sc-chip">${c}</span>`).join('');
+  // full-day price breakdown so a "free right now" spot still shows its paid window
+  renderSchedule(b, mins);
 
   const rows = [];
+  // headline: what THIS stay actually costs, given the trip's arrival + duration
+  const c = costFor(mins, durationMins(), b.rate1, b.rate2, b.flat);
+  const durTxt = durLabel(trip.durH);
+  rows.push(c.cost > 0
+    ? `${IC.dollar} <b>≈ ${fmtRate(c.cost)}</b> for ${durTxt}${c.freeAfter ? ' · free after 10pm' : ''}`
+    : `${IC.dollar} <b>Free</b> for your ${durTxt} stay`);
+  if (b.flat != null) rows.push(`${IC.dollar} ${fmtRate(b.flat)} flat evening rate`);
   const lim = limitNow(b.limits, mins, isWeekend());
   if (lim != null && lim !== Infinity) {
     const eve = isWeekend() ? b.limits.wkndEve : b.limits.eve;
-    const flip = mins < MID && eve != null && eve !== lim && eve !== Infinity ? ` · ${fmtLimit(eve)} after 6 PM` : '';
-    rows.push(`⏱ Max stay <b>${fmtLimit(lim)}</b>${flip}`);
+    const flip = mins < MID && eve != null && eve !== lim && eve !== Infinity ? ` · ${fmtLimit(eve)} after 6pm` : '';
+    rows.push(`${IC.clock} Max stay <b>${fmtLimit(lim)}</b>${flip}`);
   } else if (lim === Infinity) {
-    rows.push('⏱ No time limit');
+    rows.push(`${IC.clock} No time limit`);
   }
   const tow = towSoon(b, mins, 24 * 60);
   if (tow) {
-    const soon = tow[0] - mins <= 90 ? ` · starts in ${tow[0] - mins} min` : '';
-    rows.push(`<span class="warn">⚠ No parking ${minsToLabel(tow[0])}–${minsToLabel(tow[1])} — tow-away${soon}</span>`);
+    // compact range: drop :00 and the leading meridiem when both ends share it → "3–7pm"
+    const short = (m) => {
+      const h = Math.floor(m / 60) % 24, mm = m % 60;
+      return { t: (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : ''), ap: h >= 12 ? 'pm' : 'am' };
+    };
+    const s = short(tow[0]), e = short(tow[1]);
+    const range = (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap;
+    const soon = tow[0] - mins <= 90 ? ` starts in ${tow[0] - mins} min` : '';
+    rows.push(`<span class="warn">${IC.alert} No parking ${range} · tow-away${soon}</span>`);
   }
-  rows.push(b.card ? '💳 Pays by card + PayByPhone' : '🪙 Coins + PayByPhone');
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
   $('scmaps').href = navUrl(b);
   $('spotcard').hidden = false;
+  if (labelLayer) labelLayer.setSelected(b.id);
 }
-$('scclose').addEventListener('click', () => { $('spotcard').hidden = true; cardBlock = null; });
+$('scclose').addEventListener('click', () => { $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); if (labelLayer) labelLayer.setSelected(null); });
 
 function updateRecenter() {
-  const show = driving.isActive() ? !driving.isFollowing() : true;
+  const show = driving.isActive() ? !driving.isFollowing() : false;
   $('recenter').classList.toggle('show', show);
 }
 
 function initLiveLabels() {
-  blocks = buildBlocks(meters);
+  blocks = buildBlocks(meters).concat(freeBlocks);
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, onTap: showSpotCard });
   labelLayer.refresh();
   nav = createNav({ map });
@@ -390,7 +523,6 @@ function initLiveLabels() {
     map,
     onFix(pos) {
       labelLayer.setFocus(pos);
-      updateRateChip();
       if (nav.isActive()) onNavFix(pos);
       // auto-dismiss the card only once you've driven PAST its block —
       // never while approaching a spot you tapped up ahead
@@ -405,17 +537,31 @@ function initLiveLabels() {
     onActiveChange(state) {
       document.body.classList.toggle('driving', !!state);
       if (state === 'nolock') toast('Keep your screen on — this browser can\'t hold a wake lock.');
-      updateRateChip();
       updateRecenter();
       labelLayer.refresh();
     },
     onFollowChange: () => updateRecenter(),
   });
 
-  $('drivebtn').addEventListener('click', () => driving.start());
-  $('exitdrive').addEventListener('click', () => { endNav(false); driving.stop(); });
+  $('drivebtn').addEventListener('click', () => {
+    if (driving.isActive()) {
+      endNav(false);
+      driving.stop();
+      // return to the exact screen we left — restore map view + any open spot card
+      if (preDrive) {
+        map.setView(preDrive.center, preDrive.zoom, { animate: false });
+        if (preDrive.block) showSpotCard(preDrive.block);
+        preDrive = null;
+      }
+    } else {
+      // snapshot, then clear the card so live rates fill the screen while driving
+      preDrive = { center: map.getCenter(), zoom: map.getZoom(), block: cardBlock };
+      $('spotcard').hidden = true; cardBlock = null; clearSpotLine();
+      if (labelLayer) labelLayer.setSelected(null);
+      driving.start();
+    }
+  });
   $('scstart').addEventListener('click', () => { if (cardBlock) startNav(cardBlock); });
-  $('ratechip').addEventListener('click', () => { labelLayer.refresh(); updateRateChip(); });
   $('recenter').addEventListener('click', async () => {
     if (driving.isActive()) { driving.setFollow(true); return; }
     const pos = await getPosition();
