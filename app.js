@@ -50,7 +50,7 @@ const TILES = {
 map = L.map('map', { zoomControl: false }).setView([49.2606, -123.114], 13);
 function setTiles() {
   if (tileLayer) map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(darkMedia.matches ? TILES.dark : TILES.light, {
+  tileLayer = L.tileLayer(TILES.light, {   // forced light for now (was: darkMedia.matches ? TILES.dark : TILES.light)
     maxZoom: 20, attribution: '© OpenStreetMap © CARTO',
   }).addTo(map);
 }
@@ -208,7 +208,6 @@ async function run(preLoc, isNew) {
   if (!q && !preLoc) return;
   let loc = preLoc;
   if (!loc) {
-    setStatus('Locating…');
     $('searchform').classList.add('loading');
     try { loc = await geocode(q); }
     catch (e) {
