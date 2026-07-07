@@ -61,7 +61,10 @@
      rubber-band-drag instead of the map panning. position:fixed locks it to the screen. */
   body { position: fixed; inset: 0; }
   #map { position: absolute; inset: 0; z-index: 1; }
-  .leaflet-control-attribution { font-size: var(--fs-micro); }
+  .leaflet-control-attribution { font-size: var(--fs-micro); background: transparent !important;
+    color: var(--tertiary); box-shadow: none; padding: 0 6px; }
+  .leaflet-control-attribution a { color: var(--tertiary); text-decoration: none; }
+  .leaflet-control-attribution svg { display: none; }
 
   /* ===== ICON SYSTEM ==========================================================
      Every icon is Lucide (24×24 viewBox, 2px stroke, round caps).
