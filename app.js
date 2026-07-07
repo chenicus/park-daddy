@@ -1,7 +1,8 @@
 import { rankMeters, rateNow, limitNow, costFor, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
-import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit, bucket } from './labels.js?v=13';
+import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit, bucket } from './labels.js?v=14';
 import { createDriving, SIM_START } from './driving.js?v=13';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
+import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -125,6 +126,81 @@ const IC = {
   info: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
 };
 function clearMap() { markers.forEach((m) => map.removeLayer(m)); markers = []; }
+
+// ---- crowd reports ("this spot is wrong") -----------------------------------
+// flags: rptKey -> { count, items[] }. Drives the pill warning badge / auto-hide
+// (labels.js) and the spot-card report banner + list.
+let flags = new Map();
+function flagFor(b) { return flags.get(rptKey(b)); }
+function flagState(b) {
+  const c = flagFor(b)?.count || 0;
+  return { flagged: c >= FLAG_MIN, hidden: c >= HIDE_MIN };
+}
+async function loadFlags() {
+  flags = await fetchFlags();
+  if (labelLayer) labelLayer.refresh();
+}
+
+const REASONS_FREE = [
+  { code: 'not_free', label: 'Not actually free' },
+  { code: 'permit', label: 'Sign says permit only' },
+  { code: 'no_parking', label: 'No parking here' },
+  { code: 'other', label: 'Other' },
+];
+const REASONS_PAID = [
+  { code: 'rate_wrong', label: 'Rate is wrong' },
+  { code: 'permit', label: 'Sign says permit only' },
+  { code: 'no_parking', label: 'No parking here' },
+  { code: 'other', label: 'Other' },
+];
+const REASON_LABEL = {
+  not_free: 'Not actually free', rate_wrong: 'Rate is wrong', permit: 'Sign says permit only',
+  no_parking: 'No parking here', other: 'Other',
+};
+const reasonText = (r) => r.reason === 'other' ? (r.detail || 'Other') : (REASON_LABEL[r.reason] || r.reason);
+const PHOTO_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>';
+const CAMERA_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
+
+// "1100 ALBERNI ST" -> "1100 block Alberni St"; null for metered blocks (no street on record)
+function blockLabel(b) {
+  if (!b.hblock) return null;
+  const parts = String(b.hblock).trim().split(/\s+/);
+  const num = /^\d+$/.test(parts[0]) ? parts.shift() : null;
+  const street = parts.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  return num ? `${num} block ${street}` : street;
+}
+
+function timeAgo(iso) {
+  const s = (Date.now() - new Date(iso)) / 1000;
+  if (s < 3600) return Math.max(1, Math.round(s / 60)) + 'm ago';
+  if (s < 86400) return Math.round(s / 3600) + 'h ago';
+  return Math.round(s / 86400) + 'd ago';
+}
+
+function reportRow(r) {
+  const hasPhoto = !!r.photo_url;
+  const thumb = hasPhoto && r.photo_url !== '#local'
+    ? `<a class="rp-thumb" href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="sign photo"></a>`
+    : `<span class="rp-thumb ph">${PHOTO_SVG}</span>`;
+  const sub = (hasPhoto ? 'Photo attached · ' : '') + timeAgo(r.created_at);
+  return `<div class="rp-item">${thumb}<div class="rp-txt">` +
+    `<div class="rp-reason">${esc(reasonText(r))}</div><div class="rp-sub">${esc(sub)}</div></div></div>`;
+}
+
+const CHEV_R = '<svg class="fl-chev" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>';
+
+// spot card shows a one-line summary; the full list lives in the slide-in #reportlist panel
+function renderFlag(b) {
+  const f = flagFor(b);
+  const banner = $('scflag');
+  if (!f) { banner.hidden = true; return; }
+  banner.hidden = false;
+  banner.innerHTML = `${IC.alert}<span class="fl-txt"><b>${f.count} report${f.count > 1 ? 's' : ''}</b> say this may be wrong</span>${CHEV_R}`;
+  // prime the detail panel (opened on tap)
+  $('rlSub').textContent = b._label || (b.isFree ? 'Free spot' : 'Metered spot');
+  $('rlList').innerHTML = f.items.map(reportRow).join('');
+}
+function closeReportList() { $('reportlist').classList.remove('open'); }
 
 let current = [];
 async function run(preLoc, isNew) {
@@ -503,6 +579,7 @@ function renderSchedule(b, mins) {
 
 function showSpotCard(b) {
   cardBlock = b;
+  closeReportList();
   const p = driving && driving.lastPos();
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
@@ -517,6 +594,10 @@ function showSpotCard(b) {
     $('scsub').style.display = 'none';
   }
   drawSpotLine(b);
+
+  // crowd reports (if any) — banner + detail list; also stamp a label for reports
+  b._label = blockLabel(b);
+  renderFlag(b);
 
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
@@ -573,7 +654,78 @@ function showSpotCard(b) {
   $('spotcard').hidden = false;
   if (labelLayer) labelLayer.setSelected(b.id);
 }
-$('scclose').addEventListener('click', () => { $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); if (labelLayer) labelLayer.setSelected(null); });
+$('scclose').addEventListener('click', () => { $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); closeReportList(); if (labelLayer) labelLayer.setSelected(null); });
+
+// tap the summary line → slide the full report list in; back returns to the card
+$('scflag').addEventListener('click', () => { if (!$('scflag').hidden) $('reportlist').classList.add('open'); });
+$('rlBack').addEventListener('click', closeReportList);
+
+// ---- report flow -------------------------------------------------------------
+let reportBlock = null, reportReason = null;
+
+function resetPhotoLabel() {
+  $('rsPhotoInner').innerHTML = CAMERA_SVG +
+    '<span class="rs-phead">Add a photo of the sign</span>' +
+    '<span class="rs-psub">Proof helps others trust the report — optional</span>';
+}
+function buildReasons(isFree) {
+  const list = isFree ? REASONS_FREE : REASONS_PAID;
+  $('rsReasons').innerHTML = list.map((o) =>
+    `<button type="button" class="rs-reason" data-code="${o.code}"><span>${o.label}</span><span class="rs-radio"></span></button>`
+  ).join('');
+}
+function openReport(b) {
+  closeReportList();
+  reportBlock = b; reportReason = null;
+  buildReasons(!!b.isFree);
+  $('rsOther').hidden = true; $('rsOther').value = '';
+  $('rsPhoto').value = ''; resetPhotoLabel();
+  $('rsSub').textContent = (b._label || (b.isFree ? 'Free spot' : 'Metered spot'));
+  $('rsSubmit').disabled = false; $('rsSubmit').textContent = 'Submit report';
+  $('spotcard').hidden = true;
+  $('reportsheet').hidden = false;
+}
+function closeReport(reopen) {
+  $('reportsheet').hidden = true;
+  const b = reportBlock; reportBlock = null;
+  if (reopen && b) showSpotCard(b);
+}
+$('screport').addEventListener('click', () => { if (cardBlock) openReport(cardBlock); });
+$('rsClose').addEventListener('click', () => closeReport(true));
+$('rsReasons').addEventListener('click', (e) => {
+  const btn = e.target.closest('.rs-reason');
+  if (!btn) return;
+  reportReason = btn.dataset.code;
+  $('rsReasons').querySelectorAll('.rs-reason').forEach((x) => x.classList.toggle('sel', x === btn));
+  const other = reportReason === 'other';
+  $('rsOther').hidden = !other;
+  if (other) $('rsOther').focus();
+});
+$('rsPhoto').addEventListener('change', () => {
+  const f = $('rsPhoto').files[0];
+  if (!f) { resetPhotoLabel(); return; }
+  const url = URL.createObjectURL(f);
+  $('rsPhotoInner').innerHTML = `<img class="rs-thumb" src="${url}" alt="chosen photo"><span class="rs-psub">Tap to change photo</span>`;
+});
+$('rsSubmit').addEventListener('click', async () => {
+  if (!reportBlock) return;
+  if (!reportReason) { toast('Pick what’s wrong first.'); return; }
+  const detail = reportReason === 'other' ? $('rsOther').value.trim() : '';
+  if (reportReason === 'other' && !detail) { toast('Add a short description.'); $('rsOther').focus(); return; }
+  $('rsSubmit').disabled = true; $('rsSubmit').textContent = 'Sending…';
+  try {
+    await submitReport({ block: reportBlock, reason: reportReason, detail, photoFile: $('rsPhoto').files[0] || null });
+    const b = reportBlock;
+    closeReport(false);
+    toast('Thanks — report submitted. 💛');
+    await loadFlags();          // pull the new report back so the badge/hide + card update
+    showSpotCard(b);
+  } catch (e) {
+    console.warn('[reports] submit failed', e);
+    toast('Could not submit — please try again.');
+    $('rsSubmit').disabled = false; $('rsSubmit').textContent = 'Submit report';
+  }
+});
 
 function updateRecenter() {
   const show = driving.isActive() ? !driving.isFollowing() : false;
@@ -582,8 +734,9 @@ function updateRecenter() {
 
 function initLiveLabels() {
   blocks = buildBlocks(meters).concat(freeBlocks);
-  labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, onTap: showSpotCard });
+  labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, onTap: showSpotCard, flagState });
   labelLayer.refresh();
+  loadFlags();   // fetch crowd reports, then refresh pills to show warnings / hide 3+ flagged
   nav = createNav({ map });
 
   driving = createDriving({
@@ -636,6 +789,6 @@ function initLiveLabels() {
     else toast('Could not get your location.');
   });
   updateRecenter();
-  window.__pk = { map, layer: labelLayer, driving, blocks };  // debug handle
+  window.__pk = { map, layer: labelLayer, driving, blocks, showSpotCard, loadFlags, flagFor };  // debug handle
   if (params.get('sim')) driving.start();
 }
