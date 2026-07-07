@@ -60,7 +60,7 @@ export function createNav({ map }) {
     clear();
     route = r;
     casing = L.polyline(r.coords, { color: '#fff', weight: 10, opacity: 0.85, interactive: false }).addTo(map);
-    line = L.polyline(r.coords, { color: '#111', weight: 6, interactive: false }).addTo(map);
+    line = L.polyline(r.coords, { color: '#1e1e20', weight: 6, interactive: false }).addTo(map);
   }
   function clear() {
     if (casing) map.removeLayer(casing);

@@ -480,6 +480,37 @@ function drawSpotLine(b) {
 function clearSpotLine() { if (spotLine) { map.removeLayer(spotLine); spotLine = null; } }
 let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 
+// ---- map orientation: heading-up (POV) ⇄ north-up, toggled by the compass -----
+let orientMode = 'heading';   // 'heading' = POV (default) | 'north'
+let contRot = 0;              // continuous rotation (never wraps → shortest turn)
+function setMapRot(deg) {
+  contRot = deg;
+  document.documentElement.style.setProperty('--map-rot', deg.toFixed(1) + 'deg');
+}
+// Called on nav start/end, each fix, and on compass toggle. Rotates the map to the
+// current heading in POV mode; snaps back to north otherwise. invalidateSize only
+// when the container actually resizes (entering/leaving heading-up).
+function applyOrientation() {
+  const headingUp = !!(nav && nav.isActive() && orientMode === 'heading');
+  const was = document.body.classList.contains('headingup');
+  document.body.classList.toggle('headingup', headingUp);
+  if (headingUp) {
+    const hdg = (driving && driving.lastPos() && driving.lastPos().hdg) || 0;
+    const delta = ((-hdg - contRot) % 360 + 540) % 360 - 180;   // shortest turn to -heading
+    setMapRot(contRot + delta);
+  } else {
+    setMapRot(Math.round(contRot / 360) * 360);                 // nearest visual north
+  }
+  if (was !== headingUp) {
+    // the container just resized (CSS). Force layout, then tell Leaflet and re-center
+    // on the car so the oversized square stays centered (no exposed corners).
+    void map.getContainer().offsetWidth;
+    map.invalidateSize({ animate: false });
+    const lp = driving && driving.lastPos();
+    if (lp && driving.isFollowing()) map.setView([lp.lat, lp.lon], map.getZoom(), { animate: false });
+  }
+}
+
 // match a ranked meter back to its label-layer block (same rate/limit tuple, nearest)
 const blockKey = (m) => [m.rate_9am_6pm, m.rate_6pm_10pm, m.flat_rate, m.time_limit_9am_6pm,
   m.time_limit_6pm_10pm, m.direction].join('|');
@@ -508,6 +539,7 @@ async function startNav(target) {
   clearMap();                       // search pins off; dest marker + price pills stay
   nav.begin(r);
   document.body.classList.add('nav');
+  applyOrientation();               // POV by default → rotate the map heading-up
   driving.setSimTrack(r.coords);
   if (!driving.isActive()) driving.start(); else driving.setFollow(true);
   onNavFix(from);
@@ -517,6 +549,7 @@ async function onNavFix(pos) {
   const p = nav.update(pos);
   if (!p || !navTarget) return;
   if (p.arrived || distMeters(pos.lat, pos.lon, navTarget.lat, navTarget.lon) < 25) { endNav(true); return; }
+  applyOrientation();               // keep the map pointed heading-up as we move
   $('nbarrow').textContent = p.step.arrow;
   $('nbdist').textContent = p.stepDist < 20 ? 'Now' : fmtDist(p.stepDist);
   $('nbtext').textContent = p.step.text;
@@ -539,6 +572,7 @@ function endNav(arrived) {
   navTarget = null;
   nav.clear();
   document.body.classList.remove('nav');
+  applyOrientation();                          // nav off → un-rotate back to north-up
   if (arrived) toast('You’ve arrived — pick a spot from the price pills.', 7000);
 }
 
@@ -731,6 +765,16 @@ function closeReport(reopen) {
   if (reopen && b) showSpotCard(b);
 }
 $('screport').addEventListener('click', () => { if (cardBlock) openReport(cardBlock); });
+
+// share the spot as a Google Maps pin — native share sheet, clipboard fallback
+function shareSpot(b) {
+  const label = b._label || blockLabel(b) || 'this parking spot';
+  const url = `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lon}`;
+  if (navigator.share) { navigator.share({ title: 'Park Daddy', text: `Parking at ${label}`, url }).catch(() => {}); return; }
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => toast('Link copied to clipboard.'), () => window.open(url, '_blank', 'noopener')); return; }
+  window.open(url, '_blank', 'noopener');
+}
+$('scshare').addEventListener('click', () => { if (cardBlock) shareSpot(cardBlock); });
 $('rsClose').addEventListener('click', () => closeReport(true));
 $('rsReasons').addEventListener('click', (e) => {
   const btn = e.target.closest('.rs-reason');
@@ -823,6 +867,10 @@ function initLiveLabels() {
   });
   $('scstart').addEventListener('click', () => { if (cardBlock) startNav(cardBlock); });
   $('navend').addEventListener('click', () => endNav(false));
+  $('compass').addEventListener('click', () => {
+    orientMode = orientMode === 'heading' ? 'north' : 'heading';
+    applyOrientation();
+  });
   $('recenter').addEventListener('click', async () => {
     if (driving.isActive()) { driving.setFollow(true); return; }
     const pos = await getPosition();

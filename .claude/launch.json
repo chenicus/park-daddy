@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "park-daddy", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8770"], "port": 8770 }
+    { "name": "park-daddy", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8770"], "port": 8770 },
+    { "name": "parking-toast", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server"], "port": 8771, "autoPort": true }
   ]
 }

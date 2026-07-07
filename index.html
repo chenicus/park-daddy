@@ -122,11 +122,11 @@
 
   /* tactile press feedback — a subtle spring-scale on tap, the core "iOS" micro-interaction */
   .iconbtn, .drivebtn-top, .tc-seg button, .sc-actions .primary, .sc-actions .ghost,
-  .wc-ok, .wc-close, .rc-item, .sc-report, .rs-reason, .sc-flag, .rc-del {
+  .wc-ok, .wc-close, .rc-item, .rs-reason, .sc-flag, .rc-del {
     transition: transform .13s cubic-bezier(.4,0,.2,1), filter .13s ease, background .15s ease; }
   .iconbtn:active, .drivebtn-top:active, .tc-seg button:active, .sc-actions .primary:active,
   .sc-actions .ghost:active, .wc-ok:active, .wc-close:active, .rc-del:active { transform: scale(.93); }
-  .rc-item:active, .sc-report:active, .rs-reason:active, .sc-flag:active { transform: scale(.985); }
+  .rc-item:active, .rs-reason:active, .sc-flag:active { transform: scale(.985); }
 
   /* recent destinations — drops under the searchbar when it's focused */
   .recents { position: absolute; z-index: 600; left: 16px; right: 78px;
@@ -283,6 +283,9 @@
     background: rgba(0,0,0,.08); }
   .chev { width: 22px; height: 26px; background: var(--accent);
     clip-path: polygon(50% 0, 100% 100%, 50% 78%, 0 100%);
+    /* the arrow's centroid sits ~2px below its box center; nudge up so it's centered on
+       the GPS point/route line, and rotate about that centroid (not the box center) */
+    position: relative; top: -2px; transform-origin: 50% 60%;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); transition: transform .4s linear; }
 
   /* ---- driving-mode chrome ---- */
@@ -302,10 +305,12 @@
   #recenter.show { opacity: 1; transform: scale(1); pointer-events: auto; }
   #recenter.show:active { transform: scale(.9); }
   body.driving #recenter { right: auto; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
+  /* during turn-by-turn, recenter + compass float as a right-side stack above the full-width ETA bar */
+  body.nav #recenter { left: auto; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
   /* compass toggle — heading-up (POV) ⇄ north-up; only during turn-by-turn.
      The whole needle rotates by --map-rot so its red tip always points to true north. */
-  #compass { position: absolute; z-index: 600; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 96px);
-    width: 44px; height: 44px; border-radius: 50%; border: none; box-shadow: var(--shadow);
+  #compass { position: absolute; z-index: 600; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
+    width: 52px; height: 52px; border-radius: 50%; border: none; box-shadow: var(--shadow);
     display: none; place-items: center; color: var(--muted-strong); cursor: pointer; }
   body.nav #compass { display: grid; }
   #compass:active { filter: brightness(.94); }
@@ -323,24 +328,19 @@
   .nb-arrow { font-size: var(--fs-display); line-height: 1; flex: none; }
   .nb-dist { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.4px; }
   .nb-text { font-size: var(--fs-body); opacity: .92; margin-top: 1px; letter-spacing: -.2px; }
-  #etabar { position: absolute; z-index: 640; left: 50%; transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); max-width: calc(100vw - 16px);
-    border-radius: 22px; box-shadow: var(--shadow); padding: 9px 14px; font-size: var(--fs-body);
+  /* full-width bar mirroring the top turn banner: ETA text left, Exit CTA right */
+  #etabar { position: absolute; z-index: 640; left: 16px; right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+    border-radius: 18px; box-shadow: var(--shadow); padding: 11px 12px 11px 20px; font-size: var(--fs-body);
     color: var(--muted); display: none; white-space: nowrap; letter-spacing: -.2px;
-    align-items: center; gap: 10px; }
+    align-items: center; gap: 12px; }
   body.nav #etabar { display: flex; }
-  #etabar .eta-info { min-width: 0; overflow: hidden; text-overflow: ellipsis; }  /* trims arrive-time first if cramped */
+  #etabar .eta-info { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }  /* text left, Exit pushed right */
   #etabar b { font-size: var(--fs-headline); color: #16a34a; font-weight: 600; }  /* match green pills */
   #navend { flex: none; border: none; cursor: pointer; font: inherit; font-weight: 600;
-    letter-spacing: -.2px; color: #fff; background: #dc2626; border-radius: 16px;   /* match red pills */
+    letter-spacing: -.2px; color: #fff; background: #dc2626; border-radius: 11px;   /* match red pills */
     padding: 8px 18px; }
   #navend:active { opacity: .85; }
-  /* the re-center button lives inside the ETA bar (left end) during nav so it takes
-     no extra space; it's display:none until you pan off-route (updateRecenter adds .show) */
-  #etabar #recenter { position: static; inset: auto; width: 36px; height: 36px; flex: none;
-    background: var(--chip); box-shadow: none; }
-  #etabar #recenter:not(.show) { display: none; }
-  #etabar #recenter svg { width: 20px; height: 20px; }
 
   /* ---- spot-detail card (iOS bottom sheet) ---- */
   .spotcard { position: absolute; z-index: 650; left: 0; right: 0; background: var(--sheet-strong);
@@ -353,7 +353,11 @@
   body.driving .spotcard { bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);
     left: 10px; right: 10px; border-radius: 22px; }
   .sc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-  .sc-head #scclose { flex: none; margin: -6px -10px 0 0; }
+  .sc-tools { flex: none; display: flex; align-items: center; gap: 2px; margin: -6px -10px 0 0; }
+  .iconbtn.mini { width: 34px; height: 34px; color: var(--muted-strong); }
+  .iconbtn.mini svg { width: 19px; height: 19px; }
+  .sc-tools #scclose { width: 30px; height: 30px; margin-left: 4px; background: var(--chip); color: var(--muted-strong); }
+  .sc-tools #scclose svg { width: 16px; height: 16px; }
   .sc-price { font-size: var(--fs-large); font-weight: 600; letter-spacing: -.5px; line-height: 1.15; }
   .sc-price .sc-unit { font-size: var(--fs-headline); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
   .sc-price.free { color: var(--free); }
@@ -428,13 +432,6 @@
   .rp-txt { flex: 1; min-width: 0; }
   .rp-reason { font-size: var(--fs-body); letter-spacing: -.2px; }
   .rp-sub { font-size: var(--fs-caption); color: var(--muted); margin-top: 1px; }
-  /* low-key report CTA under the actions — always available */
-  .sc-report { width: 100%; margin-top: 12px; height: 38px; border: none; background: none;
-    color: var(--muted-strong); font-family: inherit; font-size: var(--fs-body); font-weight: 500;
-    letter-spacing: -.2px; display: flex; align-items: center; justify-content: center;
-    gap: 8px; cursor: pointer; border-radius: 12px; }
-  .sc-report:active { background: var(--chip); }
-  .sc-report svg { width: 1.1em; height: 1.1em; stroke: currentColor; fill: none; }
 
   /* ---- report sheet (reasons + photo) ---- */
   .rs-reasons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
@@ -529,7 +526,7 @@
 </div>
 
 <button class="fab mat" id="recenter" type="button" aria-label="Re-center on my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
-<button class="mat" id="compass" type="button" aria-label="Toggle heading-up or north-up"><svg viewBox="0 0 24 24"><path d="M12 3 L16.5 12 L12 10 L7.5 12 Z" fill="#dc2626"/><path d="M12 21 L7.5 12 L12 14 L16.5 12 Z" fill="currentColor" opacity="0.35"/></svg></button>
+<button class="mat" id="compass" type="button" aria-label="Toggle heading-up or north-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></button>
 <div id="rotattr">© OpenStreetMap © CARTO</div>
 
 <div id="navbanner">
@@ -550,7 +547,11 @@
       <div class="sc-price" id="scprice"></div>
       <div class="sc-sub" id="scsub"></div>
     </div>
-    <button class="iconbtn" id="scclose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <div class="sc-tools">
+      <button class="iconbtn mini" id="scshare" type="button" aria-label="Share this spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" x2="15.4" y1="10.5" y2="6.5"/><line x1="8.6" x2="15.4" y1="13.5" y2="17.5"/></svg></button>
+      <button class="iconbtn mini" id="screport" type="button" aria-label="Report incorrect info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></button>
+      <button class="iconbtn" id="scclose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
   </div>
   <button class="sc-flag" id="scflag" type="button" hidden></button>
   <div class="sc-sched" id="scsched" hidden></div>
@@ -561,10 +562,6 @@
     </button>
     <a class="ghost" id="scmaps" target="_blank" rel="noopener">Maps ↗</a>
   </div>
-  <button class="sc-report" id="screport" type="button">
-    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
-    Report incorrect info
-  </button>
 </div>
 
 <div class="spotcard mat" id="reportsheet" hidden>
@@ -669,7 +666,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=19"></script>
+<script type="module" src="app.js?v=22"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
