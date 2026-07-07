@@ -80,7 +80,9 @@ export const fmtLimit = (l) => l == null || l === Infinity ? '' : (l >= 60 ? (l 
 export const bucket = (rate, free) =>
   free ? 'p-free' : rate <= 2 ? 'p1' : rate <= 4 ? 'p2' : rate <= 6 ? 'p3' : 'p4';
 
-export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
+export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagState }) {
+  // flagState(block) -> { flagged, hidden } from crowd reports; default: no flags.
+  const flags = flagState || (() => ({}));
   map.createPane('mdots').style.zIndex = 610;
   map.createPane('pills').style.zIndex = 620;
   const canvas = L.canvas({ pane: 'mdots', padding: 0.3 });
@@ -113,7 +115,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
     const b = map.getBounds().pad(0.1);
     return blocks.filter((bl) =>
       bl.lat > b.getSouth() && bl.lat < b.getNorth() &&
-      bl.lon > b.getWest() && bl.lon < b.getEast() && !towActive(bl, mins));
+      bl.lon > b.getWest() && bl.lon < b.getEast() && !towActive(bl, mins) &&
+      !flags(bl).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
   }
 
   function pillDesired(z, mins, wknd) {
@@ -167,9 +170,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
       const lim = z >= 16 ? limitNow(bl.limits, mins, wknd) : null;
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
       const text = (r.free ? '$0' : fmtRate(r.rate)) + limTxt;
+      const flagged = !!flags(bl).flagged;
       return {
-        sig: 'b' + bl.id + '|' + text, lat: bl.lat, lon: bl.lon, text, free: r.free,
-        cls: bucket(r.rate, r.free), block: bl, rate: r.rate,
+        sig: 'b' + bl.id + '|' + text + (flagged ? '!' : ''), lat: bl.lat, lon: bl.lon, text, free: r.free,
+        cls: bucket(r.rate, r.free), block: bl, rate: r.rate, flagged,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
     }).filter((it) => keep(it.free));
@@ -223,9 +227,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap }) {
     for (const d of desired) {
       let mk = pillCache.get(d.sig);
       if (!mk) {
+        const warn = d.flagged ? '<span class="pf">!</span>' : '';
         mk = L.marker([d.lat, d.lon], {
           pane: 'pills', interactive: !!d.block || !!d.cluster, keyboard: false,
-          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}">${d.text}</div>`, iconSize: [0, 0] }),
+          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${d.text}</div>`, iconSize: [0, 0] }),
         }).addTo(map);
         if (d.block) mk.on('click', () => onTap(d.block));
         // area chip → zoom in so its individual block pills appear

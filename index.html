@@ -174,6 +174,10 @@
     width: 0; height: 0; border-style: solid; border-color: transparent; transform: translateX(-50%); }
   .plabel::before { border-width: 8px 7px 0 7px; border-top-color: #fff; }                          /* white outline */
   .plabel::after  { border-width: 8px 5.5px 0 5.5px; border-top-color: var(--c); margin-top: -1.5px; } /* fill, hides body seam */
+  /* crowd-report warning badge — small "!" disc before the price on a flagged pill */
+  .plabel .pf { display: inline-grid; place-items: center; width: 13px; height: 13px;
+    margin: 0 4px 0 -2px; border-radius: 50%; background: #fff; color: #b45309;
+    font-size: 10px; font-weight: 800; line-height: 1; vertical-align: 1px; }
   .plabel.p-free { --c: #2563eb; }
   .plabel.p1 { --c: #16a34a; }
   .plabel.p2 { --c: #d97706; }
@@ -273,6 +277,80 @@
     text-decoration: none; font-size: 17px; font-weight: 600; letter-spacing: -.3px; }
   .sc-actions .ghost:active { filter: brightness(.96); }
 
+  /* ---- crowd reports on the spot card ---- */
+  /* subtle amber summary line — a heads-up, not an alarm (people are here to park legally).
+     it's a button: tap to slide the full report list in as its own panel. */
+  .sc-flag { width: 100%; margin-top: 16px; display: flex; align-items: center; gap: 7px;
+    padding: 9px 12px; border: none; border-radius: 11px; background: rgba(217,119,6,.12);
+    color: #9a6207; font-family: inherit; font-size: 13px; letter-spacing: -.2px;
+    text-align: left; cursor: pointer; }
+  .sc-flag[hidden] { display: none; }
+  .sc-flag:active { background: rgba(217,119,6,.2); }
+  .sc-flag svg.ic { width: 15px; height: 15px; stroke: currentColor; vertical-align: -2px; flex: none; }
+  .sc-flag .fl-txt { flex: 1; }
+  .sc-flag b { font-weight: 700; }
+  .sc-flag .fl-chev { width: 16px; height: 16px; stroke: currentColor; fill: none; flex: none; opacity: .8; }
+
+  /* ---- report list — slides in from the right as its own modal ---- */
+  .rlpanel { position: absolute; z-index: 660; left: 0; right: 0; bottom: 0;
+    background: var(--sheet-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+    border-radius: 22px 22px 0 0; box-shadow: var(--shadow); max-height: 72vh; overflow-y: auto;
+    padding: 8px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    transform: translateX(100%); visibility: hidden;
+    transition: transform .28s cubic-bezier(.4,0,.2,1), visibility 0s .28s; }
+  .rlpanel.open { transform: translateX(0); visibility: visible;
+    transition: transform .28s cubic-bezier(.4,0,.2,1); }
+  .rl-head { display: flex; align-items: center; gap: 6px; padding: 6px 0 4px; }
+  .rl-head .iconbtn { margin-left: -8px; }
+  .rl-title { font-size: 18px; font-weight: 600; letter-spacing: -.4px; }
+  .rl-sub { font-size: 14px; color: var(--muted); margin: 0 0 6px 2px; letter-spacing: -.2px; }
+  .rp-item { display: flex; gap: 11px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .rp-item:first-child { border-top: none; }
+  .rp-thumb { flex: none; width: 42px; height: 42px; border-radius: 9px; overflow: hidden;
+    background: var(--chip); display: grid; place-items: center; border: 1px solid var(--line); }
+  .rp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .rp-thumb.ph { color: var(--muted); }
+  .rp-thumb.ph svg { width: 18px; height: 18px; }
+  .rp-txt { flex: 1; min-width: 0; }
+  .rp-reason { font-size: 14px; letter-spacing: -.2px; }
+  .rp-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  /* low-key report CTA under the actions — always available */
+  .sc-report { width: 100%; margin-top: 12px; height: 40px; border: none; background: none;
+    color: var(--muted-strong); font-family: inherit; font-size: 14px; font-weight: 500;
+    letter-spacing: -.2px; display: flex; align-items: center; justify-content: center;
+    gap: 7px; cursor: pointer; border-radius: 12px; }
+  .sc-report:active { background: var(--chip); }
+  .sc-report svg { width: 15px; height: 15px; stroke: currentColor; fill: none; }
+
+  /* ---- report sheet (reasons + photo) ---- */
+  .rs-reasons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+  .rs-reason { display: flex; justify-content: space-between; align-items: center; width: 100%;
+    padding: 13px 14px; border: 1px solid var(--line); border-radius: 12px; background: none;
+    color: var(--text); font-family: inherit; font-size: 15px; letter-spacing: -.2px; cursor: pointer; }
+  .rs-reason .rs-radio { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--tertiary); }
+  .rs-reason.sel { border-color: var(--accent); border-width: 1.5px; font-weight: 600; }
+  .rs-reason.sel .rs-radio { border-color: var(--accent);
+    background: radial-gradient(circle, var(--accent) 0 5px, transparent 6px); }
+  .rs-other { width: 100%; margin-top: 10px; min-height: 64px; resize: none; padding: 12px 14px;
+    border: 1px solid var(--line-strong); border-radius: 12px; background: var(--chip); color: var(--text);
+    font-family: inherit; font-size: 15px; letter-spacing: -.2px; box-sizing: border-box; }
+  .rs-other[hidden] { display: none; }
+  .rs-other:focus { outline: none; border-color: var(--accent); }
+  .rs-photo { display: block; margin-top: 14px; padding: 18px; border: 1.5px dashed var(--line-strong);
+    border-radius: 12px; cursor: pointer; text-align: center; }
+  .rs-pbody { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--muted-strong); }
+  .rs-pbody svg { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+  .rs-pbody img.rs-thumb { width: 54px; height: 54px; border-radius: 8px; object-fit: cover; }
+  .rs-phead { font-size: 14px; font-weight: 600; color: var(--text); }
+  .rs-psub { font-size: 12px; color: var(--muted); }
+  .rs-submit { width: 100%; height: 50px; margin-top: 18px; border: none; border-radius: 14px;
+    background: var(--accent); color: var(--on-accent); font-family: inherit; font-size: 17px;
+    font-weight: 600; letter-spacing: -.3px; cursor: pointer; }
+  .rs-submit:disabled { opacity: .55; }
+  @media (prefers-color-scheme: dark) {
+    .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
+  }
+
   #toast { position: absolute; z-index: 700; left: 50%; transform: translateX(-50%);
     bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); background: rgba(30,30,32,.86);
     -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
@@ -286,6 +364,7 @@
     .recents { width: 400px; right: auto; }
     #recenter { bottom: 18px; }
     .spotcard { left: auto; right: 16px; bottom: 16px; width: 380px; border-radius: 22px; }
+    .rlpanel { left: auto; right: 16px; bottom: 16px; width: 380px; border-radius: 22px; max-height: 70vh; }
     .sc-grab { display: none; }
     .tripcard { right: auto; width: 340px; }
   }
@@ -353,6 +432,7 @@
     </div>
     <button class="iconbtn" id="scclose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
+  <button class="sc-flag" id="scflag" type="button" hidden></button>
   <div class="sc-sched" id="scsched" hidden></div>
   <div class="sc-rows" id="scrows"></div>
   <div class="sc-actions">
@@ -361,6 +441,37 @@
     </button>
     <a class="ghost" id="scmaps" target="_blank" rel="noopener">Maps ↗</a>
   </div>
+  <button class="sc-report" id="screport" type="button">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+    Report incorrect info
+  </button>
+</div>
+
+<div class="spotcard mat" id="reportsheet" hidden>
+  <div class="sc-grab"></div>
+  <div class="sc-head">
+    <div>
+      <div class="sc-price" style="font-size:19px">What's wrong here?</div>
+      <div class="sc-sub" id="rsSub"></div>
+    </div>
+    <button class="iconbtn" id="rsClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+  <div class="rs-reasons" id="rsReasons"></div>
+  <textarea class="rs-other" id="rsOther" maxlength="200" placeholder="Tell us what's wrong…" hidden></textarea>
+  <label class="rs-photo" for="rsPhoto">
+    <input type="file" id="rsPhoto" accept="image/*" capture="environment" hidden>
+    <div class="rs-pbody" id="rsPhotoInner"></div>
+  </label>
+  <button class="rs-submit" id="rsSubmit" type="button">Submit report</button>
+</div>
+
+<div class="rlpanel" id="reportlist">
+  <div class="rl-head">
+    <button class="iconbtn" id="rlBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="rl-title">Reports</div>
+  </div>
+  <div class="rl-sub" id="rlSub"></div>
+  <div id="rlList"></div>
 </div>
 
 <div id="toast" role="status"></div>
@@ -425,4 +536,4 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=16"></script>
+<script type="module" src="app.js?v=18"></script>
