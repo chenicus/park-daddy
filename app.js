@@ -209,13 +209,14 @@ async function run(preLoc, isNew) {
   let loc = preLoc;
   if (!loc) {
     setStatus('Locating…');
+    $('searchform').classList.add('loading');
     try { loc = await geocode(q); }
     catch (e) {
       setStatus(e.busy
         ? 'Search is busy right now — wait a moment and try again.'
         : 'Search is unavailable — check your connection and try again.');
       return;
-    }
+    } finally { $('searchform').classList.remove('loading'); }
   }
   if (!loc) { setStatus('Could not find that place. Try an address or nearby landmark.'); return; }
   lastLoc = loc;
@@ -229,8 +230,8 @@ async function run(preLoc, isNew) {
 // Persisted list of places you've searched — surfaced when the search box is
 // focused so you can jump back without re-typing. Newest first, capped at 5.
 const REC_KEY = 'vanpark.recents', REC_MAX = 5;
-const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
-const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function loadRecents() { try { return JSON.parse(localStorage.getItem(REC_KEY)) || []; } catch { return []; } }
@@ -399,7 +400,16 @@ function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
-$('chipPaid').addEventListener('click', () => { filters.paid = !filters.paid; $('chipPaid').classList.toggle('on', filters.paid); applyFilters(); });
+$('chipPaid').addEventListener('click', () => {
+  filters.paid = !filters.paid;
+  $('chipPaid').classList.toggle('on', filters.paid);
+  applyFilters();
+  // First time someone hides paid to look at free-only, warn that free data is thin.
+  if (!filters.paid && !localStorage.getItem('freeWarnSeen')) {
+    toast('Free data is spotty and may be inaccurate — don’t rely on it. Confirm with posted signs.', 7000);
+    localStorage.setItem('freeWarnSeen', '1');
+  }
+});
 
 // ---- Trip: arrival + duration -------------------------------------------------
 function updatePill() {
@@ -408,9 +418,17 @@ function updatePill() {
   $('tpArr').textContent = arr;
   $('tpDur').textContent = durLabel(trip.durH);
 }
+// slide the segmented-control highlight to sit under the active button
+function moveSegInd() {
+  const on = $('tcArr').querySelector('button.on'), ind = $('tcSegInd');
+  if (!on || !ind) return;
+  ind.style.width = on.offsetWidth + 'px';
+  ind.style.transform = `translateX(${on.offsetLeft}px)`;
+}
 function syncSeg() {
   $('tcArr').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === trip.mode));
   $('tcTime').hidden = trip.mode !== 'set';
+  moveSegInd();
 }
 // re-render everything the trip affects, WITHOUT reframing the map
 function syncTrip() {
@@ -418,7 +436,8 @@ function syncTrip() {
   if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
   if (cardBlock) showSpotCard(cardBlock);         // spot card totals reflect arrival + duration
 }
-$('tripPill').addEventListener('click', () => { $('tripcard').hidden = !$('tripcard').hidden; });
+$('tripPill').addEventListener('click', () => { $('tripcard').hidden = !$('tripcard').hidden; requestAnimationFrame(moveSegInd); });
+requestAnimationFrame(moveSegInd);   // initial highlight position
 $('tcClose').addEventListener('click', () => { $('tripcard').hidden = true; });
 $('tcArr').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
@@ -577,7 +596,16 @@ function renderSchedule(b, mins) {
   el.hidden = false;
 }
 
+// quick content crossfade when swapping spots while the card is already open
+// (a fresh open is covered by the sheet's slide-up, so only flash when re-populating)
+function flashSpotContent() {
+  [$('scprice'), $('scsub'), $('scsched'), $('scrows')].forEach((el) => {
+    if (el) el.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 190, easing: 'cubic-bezier(.32,.72,0,1)' });
+  });
+}
 function showSpotCard(b) {
+  const wasOpen = !$('spotcard').hidden;
   cardBlock = b;
   closeReportList();
   const p = driving && driving.lastPos();
@@ -609,6 +637,7 @@ function showSpotCard(b) {
       `${IC.info} Residential street — no meter. Check posted signs.`,
     ].map((h) => `<div>${h}</div>`).join('');
     $('scmaps').href = navUrl(b);
+    if (wasOpen) flashSpotContent();
     $('spotcard').hidden = false;
     if (labelLayer) labelLayer.setSelected(b.id);
     return;
@@ -651,6 +680,7 @@ function showSpotCard(b) {
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
   $('scmaps').href = navUrl(b);
+  if (wasOpen) flashSpotContent();
   $('spotcard').hidden = false;
   if (labelLayer) labelLayer.setSelected(b.id);
 }
