@@ -822,6 +822,7 @@ function initLiveLabels() {
     }
   });
   $('scstart').addEventListener('click', () => { if (cardBlock) startNav(cardBlock); });
+  $('navend').addEventListener('click', () => endNav(false));
   $('recenter').addEventListener('click', async () => {
     if (driving.isActive()) { driving.setFollow(true); return; }
     const pos = await getPosition();
