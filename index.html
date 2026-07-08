@@ -207,6 +207,8 @@
   .tc-seg button[hidden] { display: none; }
   .tc-seg button.on { font-weight: 600; }
   .tc-setrow { display: flex; gap: 8px; margin-top: 14px; }
+  .tc-field { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .tc-field-lbl { font-size: var(--fs-caption); font-weight: 500; color: var(--muted); padding-left: 2px; }
   .tc-time, .tc-date { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; box-sizing: border-box; height: 40px; border: none;
     border-radius: 12px; background: var(--chip); color: var(--text); font-family: inherit; font-size: var(--fs-headline);
     padding: 0 14px; accent-color: var(--accent); color-scheme: light; letter-spacing: -.2px; }
@@ -543,8 +545,14 @@
     <button type="button" data-m="set">Set time</button>
   </div>
   <div class="tc-setrow" id="tcSetrow" hidden>
-    <input type="date" class="tc-date" id="tcDate" />
-    <input type="time" class="tc-time" id="tcTime" />
+    <div class="tc-field">
+      <span class="tc-field-lbl">Date</span>
+      <input type="date" class="tc-date" id="tcDate" />
+    </div>
+    <div class="tc-field">
+      <span class="tc-field-lbl">Time</span>
+      <input type="time" class="tc-time" id="tcTime" />
+    </div>
   </div>
 </div>
 
