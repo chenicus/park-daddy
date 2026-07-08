@@ -43,19 +43,61 @@ function isWeekend() {
 }
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
+// Dark mode uses a label-free base + a separate labels overlay we brighten via CSS,
+// so street names read clearly against the black canvas (plain dark_all labels are too dim).
 const TILES = {
   light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+  darkLabels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
 };
+const LABEL_BRIGHTNESS = 1.85; // dark-mode street-label lift; tune 1.6–2.0 by eye
+let darkLabelTiles; // CARTO street-name overlay for dark mode (distinct from the price-pill labelLayer)
 map = L.map('map', { zoomControl: false }).setView([49.2606, -123.114], 13);
 function setTiles() {
-  if (tileLayer) map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(TILES.light, {   // forced light for now (was: darkMedia.matches ? TILES.dark : TILES.light)
-    maxZoom: 20, attribution: '© OpenStreetMap © CARTO',
-  }).addTo(map);
+  const dark = document.documentElement.dataset.theme === 'dark';
+  const url = dark ? TILES.dark : TILES.light;
+  // Swap the URL in place rather than remove/re-add — re-adding a layer nudges the map view.
+  if (tileLayer) { tileLayer.setUrl(url); }
+  else {
+    tileLayer = L.tileLayer(url, {
+      maxZoom: 20, attribution: '© OpenStreetMap © CARTO',
+    }).addTo(map);
+  }
+  // Brightened street-name tiles ride on top in dark mode only; removed entirely in light mode.
+  if (dark) {
+    if (!darkLabelTiles) {
+      darkLabelTiles = L.tileLayer(TILES.darkLabels, { maxZoom: 20, zIndex: 5 }).addTo(map);
+      darkLabelTiles.getContainer().style.filter = `brightness(${LABEL_BRIGHTNESS})`;
+    }
+  } else if (darkLabelTiles) {
+    map.removeLayer(darkLabelTiles);
+    darkLabelTiles = null;
+  }
 }
-setTiles();
-darkMedia.addEventListener('change', setTiles);
+
+// ---- Theme (light/dark) ----------------------------------------------------
+// Follows the OS by default; a manual choice via #themetoggle is persisted and wins.
+const THEME_KEY = 'pd_theme';
+// Lucide sun / moon — the icon shows the mode you'd switch TO (sun in dark, moon in light).
+const SUN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
+const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const tc = document.getElementById('themeColor');
+  if (tc) tc.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+  const tt = document.getElementById('themetoggle');
+  if (tt) tt.innerHTML = theme === 'dark' ? SUN_SVG : MOON_SVG;  // shows the mode you'd switch TO
+  setTiles();
+}
+applyTheme(localStorage.getItem(THEME_KEY) || (darkMedia.matches ? 'dark' : 'light'));
+darkMedia.addEventListener('change', () => {
+  if (!localStorage.getItem(THEME_KEY)) applyTheme(darkMedia.matches ? 'dark' : 'light');
+});
+document.getElementById('themetoggle')?.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
 
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
 // that ride the same pill/filter/card machinery as meters, but always read as FREE.
@@ -362,10 +404,13 @@ function rankAndRender(loc) {
   if (labelLayer) labelLayer.setSelected(null);
   clearSpotLine();
   if (destMarker) map.removeLayer(destMarker);
+  // dedicated pane above the price pills (mdots 610, pills 620) so the destination
+  // pin is never hidden behind a pill — a per-marker zIndexOffset can't cross panes.
+  if (!map.getPane('dest')) map.createPane('dest').style.zIndex = 630;
   destMarker = L.marker([loc.lat, loc.lon], {
     // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it
+    pane: 'dest',
     icon: L.divIcon({ className: '', html: '<svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>', iconSize: [34, 34], iconAnchor: [17, 32] }),
-    zIndexOffset: 2000,
   }).addTo(map);
 
   frameMap(loc, current);
@@ -482,16 +527,19 @@ let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 // ---- map orientation: heading-up (POV) ⇄ north-up, toggled by the compass -----
 let orientMode = 'heading';   // 'heading' = POV (default) | 'north'
 let contRot = 0;              // continuous rotation (never wraps → shortest turn)
+let navLayout = false;        // is the oversized nav wrapper currently applied?
 function setMapRot(deg) {
   contRot = deg;
   document.documentElement.style.setProperty('--map-rot', deg.toFixed(1) + 'deg');
 }
 // Called on nav start/end, each fix, and on compass toggle. Rotates the map to the
-// current heading in POV mode; snaps back to north otherwise. invalidateSize only
-// when the container actually resizes (entering/leaving heading-up).
+// current heading in POV mode; snaps back to north otherwise. The oversized wrapper
+// spans the whole nav session (both orientations), so toggling the compass just
+// animates the rotation — a smooth POV swing. invalidateSize fires only when the
+// wrapper actually resizes (entering/leaving nav).
 function applyOrientation() {
-  const headingUp = !!(nav && nav.isActive() && orientMode === 'heading');
-  const was = document.body.classList.contains('headingup');
+  const inNav = document.body.classList.contains('nav');
+  const headingUp = inNav && orientMode === 'heading';
   document.body.classList.toggle('headingup', headingUp);
   if (headingUp) {
     const hdg = (driving && driving.lastPos() && driving.lastPos().hdg) || 0;
@@ -500,13 +548,19 @@ function applyOrientation() {
   } else {
     setMapRot(Math.round(contRot / 360) * 360);                 // nearest visual north
   }
-  if (was !== headingUp) {
-    // the container just resized (CSS). Force layout, then tell Leaflet and re-center
-    // on the car so the oversized square stays centered (no exposed corners).
-    void map.getContainer().offsetWidth;
+  if (navLayout !== inNav) {
+    navLayout = inNav;
+    // the wrapper just resized (CSS, entering/leaving nav). Suppress the --map-rot
+    // transition (on <html>) for this switch so the map doesn't spin on nav start/end,
+    // then force layout, tell Leaflet, and re-center the car in the oversized square.
+    const de = document.documentElement;
+    de.style.transition = 'none';
+    void de.offsetWidth;
     map.invalidateSize({ animate: false });
     const lp = driving && driving.lastPos();
     if (lp && driving.isFollowing()) map.setView([lp.lat, lp.lon], map.getZoom(), { animate: false });
+    void de.offsetWidth;
+    de.style.transition = '';   // restore the stylesheet's transition for toggles
   }
 }
 

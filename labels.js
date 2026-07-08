@@ -169,10 +169,11 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
       const r = rateNow(bl.rate1, bl.rate2, mins);
       const lim = z >= 16 ? limitNow(bl.limits, mins, wknd) : null;
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
-      const text = (r.free ? '$0' : fmtRate(r.rate)) + limTxt;
+      const price = r.free ? '$0' : fmtRate(r.rate);
+      const text = price + limTxt;
       const flagged = !!flags(bl).flagged;
       return {
-        sig: 'b' + bl.id + '|' + text + (flagged ? '!' : ''), lat: bl.lat, lon: bl.lon, text, free: r.free,
+        sig: 'b' + bl.id + '|' + text + (flagged ? '!' : ''), lat: bl.lat, lon: bl.lon, text, price, limTxt, free: r.free,
         cls: bucket(r.rate, r.free), block: bl, rate: r.rate, flagged,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
@@ -228,9 +229,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
       let mk = pillCache.get(d.sig);
       if (!mk) {
         const warn = d.flagged ? '<span class="pf">!</span>' : '';
+        const body = d.limTxt ? `${d.price}<span class="plim">${d.limTxt}</span>` : d.text;
         mk = L.marker([d.lat, d.lon], {
           pane: 'pills', interactive: !!d.block || !!d.cluster, keyboard: false,
-          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${d.text}</div>`, iconSize: [0, 0] }),
+          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${body}</div>`, iconSize: [0, 0] }),
         }).addTo(map);
         if (d.block) mk.on('click', () => onTap(d.block));
         // area chip → zoom in so its individual block pills appear
