@@ -1,5 +1,5 @@
 import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
-import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit, bucket } from './labels.js?v=14';
+import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=14';
 import { createDriving, SIM_START } from './driving.js?v=13';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
@@ -641,12 +641,15 @@ function toast(msg, ms = 5000) {
 }
 
 
-// Clock formatter for schedule ranges: 540 -> "9am", 1080 -> "6pm", 1350 -> "10:30pm".
+// Clock formatter for schedule ranges: 540 -> "9:00am", 1080 -> "6:00pm", 1350 -> "10:30pm".
+// Always shows minutes so times line up in the schedule column.
 const fmtClock = (m) => {
   m = ((m % 1440) + 1440) % 1440;
   const h = Math.floor(m / 60), mm = m % 60;
-  return (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : '') + (h >= 12 ? 'pm' : 'am');
+  return (h % 12 || 12) + ':' + String(mm).padStart(2, '0') + (h >= 12 ? 'pm' : 'am');
 };
+// money for the spot card — always 2 decimals so the price column aligns ($2.00, $1.50)
+const money = (r) => '$' + r.toFixed(2);
 
 // Full-day price schedule for a metered block: free before 9am, rate1 9am–6pm,
 // rate2 6pm–10pm, free after 10pm — with adjacent equal-price windows merged so a
@@ -687,7 +690,7 @@ function renderSchedule(b, mins) {
   el.innerHTML = segs.map((s) => {
     const active = mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
-    const cost = s.tow ? 'No parking' : (free ? 'Free' : `${fmtRate(s.rate)}/hr`);
+    const cost = s.tow ? 'No parking' : (free ? 'Free' : `${money(s.rate)}/hr`);
     // "Now" only when arrival IS now; a planned arrival labels its window with the time
     const now = active ? `<span class="now">${trip.mode === 'now' ? 'Now' : fmtClock(mins)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
@@ -744,14 +747,14 @@ function showSpotCard(b) {
   }
 
   const r = rateNow(b.rate1, b.rate2, mins);
-  $('scprice').innerHTML = r.free ? 'Free right now' : `${fmtRate(r.rate)}<span class="sc-unit">/hr</span>`;
+  $('scprice').innerHTML = r.free ? 'Free right now' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
   $('scprice').classList.toggle('free', r.free);
 
   // full-day price breakdown so a "free right now" spot still shows its paid window
   renderSchedule(b, mins);
 
   const rows = [];
-  if (b.flat != null) rows.push(`${IC.dollar} ${fmtRate(b.flat)} flat evening rate`);
+  if (b.flat != null) rows.push(`${IC.dollar} ${money(b.flat)} flat evening rate`);
   const lim = limitNow(b.limits, mins, isWeekend());
   if (lim != null && lim !== Infinity) {
     const eve = isWeekend() ? b.limits.wkndEve : b.limits.eve;
