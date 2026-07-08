@@ -183,9 +183,8 @@
   .chip.on::before { display: none; }
   .chip svg { width: 1.1em; height: 1.1em; }
 
-  /* ---- trip pill (arrival + duration) ---- */
+  /* ---- trip pill (arrival) ---- */
   .chip.trip { gap: 5px; }
-  .chip.trip .sep { color: var(--muted); }
   .chip.trip svg { color: var(--muted); }
   .tripcard { position: absolute; z-index: 520; top: calc(env(safe-area-inset-top, 0px) + 120px);
     left: 16px; right: 16px; max-width: 360px; border-radius: 18px; box-shadow: var(--shadow);
@@ -199,7 +198,7 @@
   .tc-lbl { display: flex; align-items: center; gap: 6px; font-size: var(--fs-caption); font-weight: 500;
     color: var(--muted); margin: 0 0 8px; }
   .tc-lbl svg { width: 1.1em; height: 1.1em; stroke: var(--muted); }
-  .tc-seg { position: relative; display: flex; background: var(--chip); border-radius: 12px; padding: 3px; gap: 3px; margin-bottom: 14px; }
+  .tc-seg { position: relative; display: flex; background: var(--chip); border-radius: 12px; padding: 3px; gap: 3px; }
   .tc-seg-ind { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 9px; z-index: 0;
     background: var(--seg-on); box-shadow: 0 1px 4px rgba(0,0,0,.16); pointer-events: none;
     transition: transform .3s cubic-bezier(.32,.72,0,1), width .3s cubic-bezier(.32,.72,0,1); }
@@ -209,7 +208,7 @@
   .tc-seg button.on { font-weight: 600; }
   .tc-time { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; box-sizing: border-box; height: 40px; border: none;
     border-radius: 12px; background: var(--chip); color: var(--text); font-family: inherit; font-size: var(--fs-headline);
-    padding: 0 14px; margin-bottom: 22px; accent-color: var(--accent); color-scheme: light; letter-spacing: -.2px; }
+    padding: 0 14px; margin-top: 14px; accent-color: var(--accent); color-scheme: light; letter-spacing: -.2px; }
   .tc-time::-webkit-datetime-edit { padding: 0; }
   /* iOS/Safari: kill the intrinsic spin buttons that can push the field past the card edge */
   .tc-time::-webkit-inner-spin-button, .tc-time::-webkit-outer-spin-button {
@@ -226,25 +225,6 @@
   .tc-time::-webkit-datetime-edit-ampm-field:focus {
     background: var(--accent); color: var(--on-accent); border-radius: 5px; outline: none; padding: 1px 3px; }
   .tc-time[hidden] { display: none; }
-  .tc-durhd { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
-  .tc-durhd .tc-lbl { margin: 0; }
-  /* optical fix: the hourglass fills the full 24-grid height with heavy top/bottom
-     bars, so it reads larger than the round clock at the same box size — scale it
-     down a touch so the two labels look evenly weighted. */
-  .tc-durhd .tc-lbl svg { transform: scale(.88); }
-  .tc-dur { font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.4px; color: var(--text); }
-  .tc-range { -webkit-appearance: none; appearance: none; width: 100%; height: 5px; border-radius: 3px;
-    background: var(--chip); margin: 12px 0 14px; }
-  .tc-range::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%;
-    background: #fff; box-shadow: 0 1px 5px rgba(0,0,0,.32); border: .5px solid var(--line); cursor: pointer; }
-  .tc-range::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff;
-    border: .5px solid var(--line); cursor: pointer; }
-  /* labels sit at each stop's TRUE position on the track (thumb is 26px, so a stop at
-     fraction f centers at 13px + f·(100%−26px)); endpoints anchor to the track ends */
-  .tc-ticks { position: relative; height: 14px; margin-top: 2px; font-size: var(--fs-micro); font-weight: 500; color: var(--muted-strong); }
-  .tc-ticks span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
-  .tc-ticks span:first-child { left: 0; transform: none; }
-  .tc-ticks span:last-child { left: auto; right: 0; transform: none; }
 
   .destpin { filter: var(--pin-shadow); transform-origin: bottom center; overflow: visible;
     animation: pinDrop .55s cubic-bezier(.3,.7,.3,1) both; }
@@ -533,9 +513,9 @@
 <div class="chips">
   <button class="chip mat on" id="chipFree" type="button">Free</button>
   <button class="chip mat on" id="chipPaid" type="button">Paid</button>
-  <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival and duration">
+  <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-    <span class="v" id="tpArr">Now</span><span class="sep">·</span><span class="v" id="tpDur">2h</span>
+    <span class="v" id="tpArr">Now</span>
   </button>
 </div>
 
@@ -552,12 +532,6 @@
     <button type="button" data-m="set">Set time</button>
   </div>
   <input type="time" class="tc-time" id="tcTime" hidden />
-  <div class="tc-durhd">
-    <span class="tc-lbl"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22"/><path d="M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4a2 2 0 0 0 .6-1.4V2"/></svg>Stay for</span>
-    <span class="tc-dur" id="tcDurV">2h</span>
-  </div>
-  <input type="range" class="tc-range" id="tcDur" min="0" max="7" step="1" value="3" />
-  <div class="tc-ticks"><span>30m</span><span style="left: calc(13px + (100% - 26px) * 0.1429)">1h</span><span style="left: calc(13px + (100% - 26px) * 0.4286)">2h</span><span style="left: calc(13px + (100% - 26px) * 0.7143)">4h</span><span>All day</span></div>
 </div>
 
 <button class="fab mat" id="recenter" type="button" aria-label="Re-center on my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
@@ -734,7 +708,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=23"></script>
+<script type="module" src="app.js?v=24"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

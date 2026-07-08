@@ -26,8 +26,7 @@ function clockMins() {
   if (mockT != null) return mockT;
   const d = new Date(); return d.getHours() * 60 + d.getMinutes();
 }
-// duration slider stops (hours); 99 = "All day" (spans the enforced 9am–10pm window)
-const DUR_STOPS = [0.5, 1, 1.5, 2, 3, 4, 6, 99];
+// fixed default stay length (hours) used for cost estimates; 99 would mean "All day"
 const durLabel = (h) => h >= 99 ? 'All day' : (h % 1 ? Math.round(h * 60) + 'm' : h + 'h');
 const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, userSet: false };
 function arrivalMins() {
@@ -473,7 +472,6 @@ function updatePill() {
   const arr = trip.mode === 'eta' && trip.etaMins != null ? fmtClock(trip.etaMins)
     : trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
   $('tpArr').textContent = arr;
-  $('tpDur').textContent = durLabel(trip.durH);
 }
 // slide the segmented-control highlight to sit under the active button
 function moveSegInd() {
@@ -514,12 +512,6 @@ $('tcArr').addEventListener('click', (e) => {
 $('tcTime').addEventListener('input', () => {
   const [h, m] = $('tcTime').value.split(':').map(Number);
   if (!isNaN(h)) { trip.setMins = h * 60 + (m || 0); trip.mode = 'set'; trip.userSet = true; syncTrip(); }
-});
-$('tcDur').addEventListener('input', () => {
-  trip.durH = DUR_STOPS[+$('tcDur').value];
-  $('tcDurV').textContent = durLabel(trip.durH);
-  updatePill();
-  if (cardBlock) showSpotCard(cardBlock);         // duration changes totals, not the pills
 });
 updatePill();
 
