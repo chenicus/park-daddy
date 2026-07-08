@@ -354,6 +354,17 @@ function onType() {
 }
 $('dest').addEventListener('input', onType);
 $('dest').addEventListener('focus', () => { $('dest').value.trim().length >= 2 ? onType() : showRecents(); });
+
+// custom clear button (replaces the native search cancel button so it centers cleanly)
+function updateClear() { $('clearDest').hidden = $('dest').value.length === 0; }
+$('dest').addEventListener('input', updateClear);
+$('clearDest').addEventListener('click', () => {
+  $('dest').value = '';
+  $('dest').focus();
+  onType();          // 0 chars → drops back to recents
+  updateClear();
+});
+updateClear();       // sync on load (a prefilled ?dest= should show the X)
 // keep the panel open until you pick, clear, or tap away — not on every input blur
 document.addEventListener('click', (e) => {
   if ($('recents').hidden) return;
@@ -374,6 +385,7 @@ $('rcList').addEventListener('click', (e) => {
   const pick = item.dataset.s != null ? suggestItems[+item.dataset.s] : loadRecents()[+item.dataset.i];
   if (!pick) return;
   $('dest').value = pick.label;
+  updateClear();
   $('dest').blur();
   hideRecents();
   run({ lat: pick.lat, lon: pick.lon, name: pick.label }, true);
@@ -434,6 +446,7 @@ $('here').addEventListener('click', async () => {
   const pos = await getPosition();
   if (!pos) { alert('Could not get your location.'); return; }
   $('dest').value = 'My location';
+  updateClear();
   hideRecents();
   run({ lat: pos.lat, lon: pos.lon, name: 'My location' }, true);
 });

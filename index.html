@@ -120,14 +120,13 @@
     font-size: var(--fs-headline); letter-spacing: -.24px; font-family: inherit; outline: none;
     line-height: normal; padding: 0; margin: 0; }
   .searchbar input::placeholder { color: var(--muted); }
-  /* native type=search clear button — iOS renders it in the system tint (blue); force a
-     consistent grey X in both themes by masking an X glyph and tinting it with --muted. */
-  .searchbar input::-webkit-search-cancel-button {
-    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
-    margin: 0 0 0 4px; vertical-align: middle; cursor: pointer;
-    background-color: var(--muted);
-    -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>') center / contain no-repeat;
-            mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>') center / contain no-repeat; }
+  /* the native type=search clear button aligns to the text baseline (rides high) and
+     resists vertical centering — hide it and use our own .clearbtn flex item instead,
+     which centers cleanly against the crosshair. */
+  .searchbar input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+  .searchbar .clearbtn { flex: none; width: 28px; height: 28px; color: var(--muted); }
+  .searchbar .clearbtn svg { width: 18px; height: 18px; }
+  .searchbar .clearbtn[hidden] { display: none; }
   .iconbtn { width: 40px; height: 40px; border-radius: 50%; border: none; background: none;
     color: var(--accent); display: grid; place-items: center; cursor: pointer; }
   .iconbtn:active { background: var(--chip); }
@@ -520,6 +519,7 @@
   <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
   <span class="spin" aria-hidden="true"></span>
   <input id="dest" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search a destination" />
+  <button class="iconbtn clearbtn" id="clearDest" type="button" aria-label="Clear destination" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   <button class="iconbtn" id="here" type="button" aria-label="Use my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
 </form>
 <div class="recents mat" id="recents" hidden>
@@ -732,7 +732,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=22"></script>
+<script type="module" src="app.js?v=23"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
