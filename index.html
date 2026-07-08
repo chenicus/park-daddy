@@ -115,14 +115,16 @@
   .searchbar.loading .mi { display: none; }
   .searchbar.loading .spin { display: block; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .searchbar #here { flex: none; }
+  .searchbar #here { flex: none; margin-left: -6px; }
   .searchbar input { flex: 1; min-width: 0; border: none; background: none; color: var(--text);
-    font-size: var(--fs-headline); letter-spacing: -.24px; font-family: inherit; outline: none; height: 100%; }
+    font-size: var(--fs-headline); letter-spacing: -.24px; font-family: inherit; outline: none;
+    line-height: normal; padding: 0; margin: 0; }
   .searchbar input::placeholder { color: var(--muted); }
   /* native type=search clear button — iOS renders it in the system tint (blue); force a
      consistent grey X in both themes by masking an X glyph and tinting it with --muted. */
   .searchbar input::-webkit-search-cancel-button {
-    -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-left: 4px; cursor: pointer;
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+    margin: 0 0 0 4px; vertical-align: middle; cursor: pointer;
     background-color: var(--muted);
     -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>') center / contain no-repeat;
             mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>') center / contain no-repeat; }
