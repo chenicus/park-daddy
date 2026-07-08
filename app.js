@@ -28,7 +28,8 @@ function clockMins() {
 }
 // fixed assumed stay length (hours) — no longer user-set; used only to rank spots
 // (rush-hour tow-away overlap) when a destination is searched
-const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, userSet: false };
+const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, setDate: null, userSet: false };
+function todayStr() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function arrivalMins() {
   if (trip.mode === 'set' && trip.setMins != null) return trip.setMins;
   if (trip.mode === 'eta' && trip.etaMins != null) return trip.etaMins;
@@ -38,6 +39,11 @@ function nowMins() { return arrivalMins(); }
 function durationMins() { return Math.min(trip.durH, 13) * 60; }
 function isWeekend() {
   if (params.get('wknd')) return true;
+  if (trip.mode === 'set' && trip.setDate) {
+    const [y, m, d] = trip.setDate.split('-').map(Number);
+    const day = new Date(y, m - 1, d).getDay();
+    return day === 0 || day === 6;
+  }
   const day = new Date().getDay(); return day === 0 || day === 6;
 }
 
@@ -474,8 +480,12 @@ $('chipPaid').addEventListener('click', () => {
 
 // ---- Trip: arrival + duration -------------------------------------------------
 function updatePill() {
-  const arr = trip.mode === 'eta' && trip.etaMins != null ? fmtClock(trip.etaMins)
+  let arr = trip.mode === 'eta' && trip.etaMins != null ? fmtClock(trip.etaMins)
     : trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
+  if (trip.mode === 'set' && trip.setDate && trip.setDate !== todayStr()) {
+    const [y, m, d] = trip.setDate.split('-').map(Number);
+    arr = `${new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${arr}`;
+  }
   $('tpArr').textContent = arr;
 }
 // slide the segmented-control highlight to sit under the active button
@@ -487,7 +497,7 @@ function moveSegInd() {
 }
 function syncSeg() {
   $('tcArr').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.m === trip.mode));
-  $('tcTime').hidden = trip.mode !== 'set';
+  $('tcSetrow').hidden = trip.mode !== 'set';
   moveSegInd();
 }
 // re-render everything the trip affects, WITHOUT reframing the map
@@ -517,8 +527,11 @@ $('tcArr').addEventListener('click', (e) => {
   trip.mode = btn.dataset.m; trip.userSet = true;
   if (trip.mode === 'set') {
     if (trip.setMins == null) trip.setMins = clockMins();
+    if (trip.setDate == null) trip.setDate = todayStr();
     const t = $('tcTime');
     t.value = `${String(Math.floor(trip.setMins / 60)).padStart(2, '0')}:${String(trip.setMins % 60).padStart(2, '0')}`;
+    $('tcDate').value = trip.setDate;
+    $('tcDate').min = todayStr();
     syncTrip();
     t.focus();
     if (t.showPicker) { try { t.showPicker(); } catch {} }
@@ -529,6 +542,9 @@ $('tcArr').addEventListener('click', (e) => {
 $('tcTime').addEventListener('input', () => {
   const [h, m] = $('tcTime').value.split(':').map(Number);
   if (!isNaN(h)) { trip.setMins = h * 60 + (m || 0); trip.mode = 'set'; trip.userSet = true; syncTrip(); }
+});
+$('tcDate').addEventListener('input', () => {
+  if ($('tcDate').value) { trip.setDate = $('tcDate').value; trip.mode = 'set'; trip.userSet = true; syncTrip(); }
 });
 updatePill();
 

@@ -206,25 +206,30 @@
     font-weight: 500; color: var(--text); padding: 8px 6px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
   .tc-seg button[hidden] { display: none; }
   .tc-seg button.on { font-weight: 600; }
-  .tc-time { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; box-sizing: border-box; height: 40px; border: none;
+  .tc-setrow { display: flex; gap: 8px; margin-top: 14px; }
+  .tc-time, .tc-date { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; box-sizing: border-box; height: 40px; border: none;
     border-radius: 12px; background: var(--chip); color: var(--text); font-family: inherit; font-size: var(--fs-headline);
-    padding: 0 14px; margin-top: 14px; accent-color: var(--accent); color-scheme: light; letter-spacing: -.2px; }
-  .tc-time::-webkit-datetime-edit { padding: 0; }
+    padding: 0 14px; accent-color: var(--accent); color-scheme: light; letter-spacing: -.2px; }
+  .tc-date { font-size: var(--fs-body); }
+  .tc-time::-webkit-datetime-edit, .tc-date::-webkit-datetime-edit { padding: 0; }
   /* iOS/Safari: kill the intrinsic spin buttons that can push the field past the card edge */
   .tc-time::-webkit-inner-spin-button, .tc-time::-webkit-outer-spin-button {
     -webkit-appearance: none; appearance: none; margin: 0; display: none; }
-  .tc-time::-webkit-calendar-picker-indicator { opacity: 1; margin: 0; filter: var(--clock-filter); }
-  .tc-time:focus, .tc-time:focus-visible { outline: none; }
-  .tc-time::selection { background: var(--accent); color: var(--on-accent); }
+  .tc-time::-webkit-calendar-picker-indicator, .tc-date::-webkit-calendar-picker-indicator { opacity: 1; margin: 0; filter: var(--clock-filter); }
+  .tc-time:focus, .tc-time:focus-visible, .tc-date:focus, .tc-date:focus-visible { outline: none; }
+  .tc-time::selection, .tc-date::selection { background: var(--accent); color: var(--on-accent); }
   /* Chrome desktop: recolor the native blue field-highlight to our black accent,
      with a small radius + inherited SF font so it matches the design system.
      (On iPhone the native drum picker is used instead — untouched.) */
-  .tc-time::-webkit-datetime-edit { font: inherit; }
+  .tc-time::-webkit-datetime-edit, .tc-date::-webkit-datetime-edit { font: inherit; }
   .tc-time::-webkit-datetime-edit-hour-field:focus,
   .tc-time::-webkit-datetime-edit-minute-field:focus,
-  .tc-time::-webkit-datetime-edit-ampm-field:focus {
+  .tc-time::-webkit-datetime-edit-ampm-field:focus,
+  .tc-date::-webkit-datetime-edit-month-field:focus,
+  .tc-date::-webkit-datetime-edit-day-field:focus,
+  .tc-date::-webkit-datetime-edit-year-field:focus {
     background: var(--accent); color: var(--on-accent); border-radius: 5px; outline: none; padding: 1px 3px; }
-  .tc-time[hidden] { display: none; }
+  .tc-time[hidden], .tc-date[hidden] { display: none; }
 
   .destpin { filter: var(--pin-shadow); transform-origin: bottom center; overflow: visible;
     animation: pinDrop .55s cubic-bezier(.3,.7,.3,1) both; }
@@ -537,7 +542,10 @@
     <button type="button" data-m="eta" id="tcEta" hidden>On arrival</button>
     <button type="button" data-m="set">Set time</button>
   </div>
-  <input type="time" class="tc-time" id="tcTime" hidden />
+  <div class="tc-setrow" id="tcSetrow" hidden>
+    <input type="date" class="tc-date" id="tcDate" />
+    <input type="time" class="tc-time" id="tcTime" />
+  </div>
 </div>
 
 <button class="fab mat" id="recenter" type="button" aria-label="Re-center on my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
