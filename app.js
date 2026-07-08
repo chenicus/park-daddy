@@ -1,4 +1,4 @@
-import { rankMeters, rateNow, limitNow, costFor, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
+import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
 import { buildBlocks, createLabelLayer, towSoon, fmtRate, fmtLimit, bucket } from './labels.js?v=14';
 import { createDriving, SIM_START } from './driving.js?v=13';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
@@ -26,8 +26,8 @@ function clockMins() {
   if (mockT != null) return mockT;
   const d = new Date(); return d.getHours() * 60 + d.getMinutes();
 }
-// fixed default stay length (hours) used for cost estimates; 99 would mean "All day"
-const durLabel = (h) => h >= 99 ? 'All day' : (h % 1 ? Math.round(h * 60) + 'm' : h + 'h');
+// fixed assumed stay length (hours) — no longer user-set; used only to rank spots
+// (rush-hour tow-away overlap) when a destination is searched
 const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, userSet: false };
 function arrivalMins() {
   if (trip.mode === 'set' && trip.setMins != null) return trip.setMins;
@@ -751,12 +751,6 @@ function showSpotCard(b) {
   renderSchedule(b, mins);
 
   const rows = [];
-  // headline: what THIS stay actually costs, given the trip's arrival + duration
-  const c = costFor(mins, durationMins(), b.rate1, b.rate2, b.flat);
-  const durTxt = durLabel(trip.durH);
-  rows.push(c.cost > 0
-    ? `${IC.dollar} <b>≈ ${fmtRate(c.cost)}</b> for ${durTxt}${c.freeAfter ? ' · free after 10pm' : ''}`
-    : `${IC.dollar} <b>Free</b> for your ${durTxt} stay`);
   if (b.flat != null) rows.push(`${IC.dollar} ${fmtRate(b.flat)} flat evening rate`);
   const lim = limitNow(b.limits, mins, isWeekend());
   if (lim != null && lim !== Infinity) {
