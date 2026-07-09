@@ -58,7 +58,7 @@ function makeSimGeo(speed = 12) {
 export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
   const params = new URLSearchParams(location.search);
   const geo = params.get('sim') ? makeSimGeo() : navigator.geolocation;
-  let watchId = null, active = false, follow = true, lock = null, lastPos = null, resumeTimer = null;
+  let watchId = null, active = false, follow = true, lock = null, lastPos = null;
 
   const chev = L.marker([0, 0], {
     icon: L.divIcon({ className: '', html: '<div class="chevwrap"><div class="chev"></div></div>', iconSize: [0, 0] }),
@@ -68,8 +68,8 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
   function setFollow(v) {
     if (follow === v) return;
     follow = v;
-    clearTimeout(resumeTimer);
-    if (!v && active) resumeTimer = setTimeout(() => setFollow(true), 15000);
+    // No auto-resume: once you pan away, the map stays put until you tap
+    // recenter. Follow only turns back on via the recenter button.
     if (v && lastPos) map.setView([lastPos.lat, lastPos.lon], Math.max(map.getZoom(), 16));
     onFollowChange(v);
   }
@@ -121,7 +121,6 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
       geo.clearWatch(watchId);
       map.off('dragstart', onDrag);
       map.removeLayer(chev);
-      clearTimeout(resumeTimer);
       lock?.release?.(); lock = null;
       onActiveChange(false);
     },
