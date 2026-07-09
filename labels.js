@@ -89,6 +89,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
   const pillCache = new Map();      // sig -> marker
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
+  let firstPaint = true;            // stagger the drop-in only on the very first render, not on every pan/zoom/filter
   let filter = { free: true, paid: true };
   const keep = (free) => (free && filter.free) || (!free && filter.paid);
   let dotGroup = null;
@@ -240,7 +241,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
         else if (d.cluster) mk.on('click', () => map.setView([d.lat, d.lon], 16, { animate: true }));
         // pop the new pill in with a small nearest-first stagger (25ms step, capped so a
         // big batch never drags on). Cached pills that merely re-appear on pan don't re-run.
-        const pill = mk.getElement()?.firstElementChild;
+        const pill = firstPaint ? mk.getElement()?.firstElementChild : null;
         if (pill) {
           pill.style.animationDelay = Math.min(dropN, 14) * 25 + 'ms';
           pill.classList.add('in');
@@ -255,6 +256,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
     }
     refreshDots(z, mins);
     applySel();
+    firstPaint = false;             // subsequent refreshes (pan/zoom/filter) show pills instantly, no stagger
     layer.lastRefreshMs = performance.now() - t0;
   }
 
