@@ -1,6 +1,6 @@
 import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
 import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=19';
-import { createDriving, SIM_START } from './driving.js?v=16';
+import { createDriving, SIM_START } from './driving.js?v=22';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
@@ -285,6 +285,7 @@ async function run(preLoc, isNew) {
     } finally { $('searchform').classList.remove('loading'); }
   }
   if (!loc) { setStatus('Could not find that place. Try an address or nearby landmark.'); return; }
+  driving?.setFollow(false);   // searching = looking elsewhere; let the map rest on the destination
   lastLoc = loc;
   addRecent(loc, q);
   trip.userSet = false;   // a fresh destination re-arms the "arrive on arrival" default
@@ -452,7 +453,7 @@ function rankAndRender(loc) {
   destMarker = L.marker([loc.lat, loc.lon], {
     // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it
     pane: 'dest',
-    icon: L.divIcon({ className: '', html: '<svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>', iconSize: [34, 34], iconAnchor: [17, 32] }),
+    icon: L.divIcon({ className: '', html: '<div class="destpinwrap"><svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>', iconSize: [34, 34], iconAnchor: [17, 32] }),
   }).addTo(map);
 
   frameMap(loc, current);
@@ -473,12 +474,12 @@ function frameMap(loc, list) {
 
 // ---- misc controls ----------------------------------------------------------
 $('here').addEventListener('click', async () => {
+  // "Go to my location": re-arm follow so drive mode snaps back onto you.
+  if (driving?.isActive() && driving.lastPos()) { driving.setFollow(true); return; }
   const pos = await getPosition();
-  if (!pos) { alert('Could not get your location.'); return; }
-  $('dest').value = 'My location';
-  updateClear();
-  hideRecents();
-  run({ lat: pos.lat, lon: pos.lon, name: 'My location' }, true);
+  if (!pos) { toast('Could not get your location.'); return; }
+  driving?.setFollow(true);              // arm follow for incoming fixes
+  map.setView([pos.lat, pos.lon], 16);   // immediate center on a one-shot fix
 });
 $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest').blur(); hideRecents(); run(null, true); });
 
@@ -658,6 +659,7 @@ async function startNav(target) {
   applyOrientation();               // POV by default → rotate the map heading-up
   driving.setSimTrack(r.coords);
   if (!driving.isActive()) driving.start(); else driving.setFollow(true);
+  driving.setNavMode(true);           // routing → high-accuracy GPS + wake lock
   onNavFix(from);
 }
 
@@ -688,6 +690,7 @@ function endNav(arrived) {
   navTarget = null;
   nav.clear();
   document.body.classList.remove('nav');
+  driving.setNavMode(false);                   // back to passive follow — drop the wake lock
   applyOrientation();                          // nav off → un-rotate back to north-up
   if (arrived) toast('You’ve arrived — pick a spot from the price pills.', 7000);
 }
@@ -934,6 +937,8 @@ $('rsSubmit').addEventListener('click', async () => {
 });
 
 function updateRecenter() {
+  // The recenter fab only surfaces during turn-by-turn nav (the search bar's
+  // "go to my location" handles it in plain drive mode). Compass never morphs.
   const show = driving.isActive() ? !driving.isFollowing() : false;
   $('recenter').classList.toggle('show', show);
 }
@@ -1030,5 +1035,7 @@ function initLiveLabels() {
   });
   updateRecenter();
   window.__pk = { map, layer: labelLayer, driving, blocks, showSpotCard, loadFlags, flagFor };  // debug handle
+  // Drive mode is the default surface: open focused on the user (passive, low-power).
   if (params.get('sim')) driving.start();
+  else driving.start({ passive: true });
 }

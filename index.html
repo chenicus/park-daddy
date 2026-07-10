@@ -90,10 +90,19 @@
      its corners, center it, then rotate. 120vmax always exceeds the viewport diagonal. Spanning
      the whole session (not just heading-up) means a compass toggle only changes the angle, so the
      map swings smoothly instead of resizing. */
+  /* The trailing translate(--pan-x,--pan-y) is the per-frame sub-pixel nudge (set by driving.js):
+     innermost so it lives in the map's own pixel space and rotates with the content, and it carries
+     no transition of its own so it tracks each frame exactly (only --map-rot eases). */
   body.follow #maprot { inset: auto; top: 50%; left: 50%; width: 120vmax; height: 120vmax;
-    transform: translate(-50%, -50%) rotate(var(--map-rot)); transform-origin: center; }
+    transform: translate(-50%, -50%) rotate(var(--map-rot)) translate(var(--pan-x, 0px), var(--pan-y, 0px));
+    transform-origin: center; }
   /* keep price pills upright while the map is rotated (counter-rotate in lockstep via the same var) */
   body.follow .plabel { transform: translate(-50%, calc(-100% - 8px)) rotate(calc(-1 * var(--map-rot))); }
+  /* the searched-destination pin stays upright too — never tips with the map POV. The
+     counter-rotation lives on a wrapper because .destpin itself runs the pinDrop animation
+     (an animated transform would override a plain transform on the same element). */
+  .destpinwrap { display: block; width: 34px; height: 34px; transform-origin: center bottom; }
+  body.follow .destpinwrap { transform: rotate(calc(-1 * var(--map-rot))); }
   /* leaflet's own attribution rides off-screen when the map is oversized — show a fixed one */
   #rotattr { position: fixed; z-index: 640; right: 7px; bottom: 3px; font-size: var(--fs-micro);
     color: var(--muted); display: none; pointer-events: none; letter-spacing: 0; }
@@ -136,7 +145,7 @@
   :root.theming .sc-flag, :root.theming .rc-del { transition: none; }
 
   .searchbar { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
-    left: 16px; right: 72px; height: 48px; margin: 0; border-radius: 12px;
+    left: 16px; right: 16px; height: 48px; margin: 0; border-radius: 12px;
     box-shadow: var(--shadow); display: flex; align-items: center; padding: 0 6px 0 13px; gap: 8px;
     transition: box-shadow .2s ease, transform .2s ease; }
   .searchbar:focus-within { box-shadow: 0 8px 30px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.1); }
@@ -373,10 +382,21 @@
     /* the arrow's centroid sits ~2px below its box center; nudge up so it's centered on
        the GPS point/route line, and rotate about that centroid (not the box center) */
     position: relative; top: -2px; transform-origin: 50% 60%;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); transition: transform .4s linear; }
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+  /* Keep the marker upright no matter the heading or POV — counter-rotate the map's
+     rotation in lockstep, exactly like the price pills. Transform rides --map-rot's own
+     transition (on <html>), so no per-element transition here. */
+  body.follow .chev { transform: rotate(calc(-1 * var(--map-rot))); }
 
   /* ---- driving-mode chrome ---- */
-  body.driving .searchbar, body.driving .chips, body.driving .tripcard { display: none; }
+  /* Drive mode is the default surface now — the search bar stays put so you can
+     look up an address at any time; only the browse-only chrome hides. */
+  body.driving .chips, body.driving .tripcard { display: none; }
+  /* No manual drive toggle: the app boots into follow, so the old car/X button is gone. */
+  .drivebtn-top { display: none; }
+  /* Plain drive mode routes recenter through the morphing compass; keep the standalone
+     fab only for turn-by-turn nav. */
+  body.driving:not(.nav) #recenter { display: none; }
   /* drive button stays put — icon cross-rotates from car → X and goes red while driving */
   .drivebtn-top svg { grid-area: 1 / 1; transition: opacity .22s ease, transform .3s cubic-bezier(.32,.72,0,1); }
   .drivebtn-top .ic-x { opacity: 0; transform: rotate(-90deg); }
@@ -400,6 +420,9 @@
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
     display: none; place-items: center; color: var(--text); cursor: pointer; }
   body.nav #compass, body.driving #compass { display: grid; }
+  /* Nav bar takes the bottom, so the whole right-side stack lifts together — but keeps
+     the drive-mode order (theme lowest, compass above it, recenter on top). */
+  body.nav #compass { bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
   #compass:active { filter: brightness(.94); }
   /* no own transition — the needle rides the shared --map-rot transition (on <html>) so it
      swings in perfect lockstep with the map wrapper; its own would double up and lag behind. */
@@ -424,8 +447,9 @@
   @media (prefers-reduced-motion: reduce) {
     #themetoggle svg { transition: none; }
   }
-  /* during turn-by-turn, sit directly above the compass toggle */
-  body.nav #themetoggle { bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
+  /* during turn-by-turn, theme stays the lowest icon (matching drive mode); compass and
+     recenter stack above it. */
+  body.nav #themetoggle { bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); }
 
   /* ---- turn-by-turn chrome ---- */
   #navbanner { position: absolute; z-index: 640; top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -828,7 +852,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=32"></script>
+<script type="module" src="app.js?v=38"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
