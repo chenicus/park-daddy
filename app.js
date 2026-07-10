@@ -1,6 +1,6 @@
 import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
-import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=18';
-import { createDriving, SIM_START } from './driving.js?v=13';
+import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=19';
+import { createDriving, SIM_START } from './driving.js?v=14';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
@@ -110,12 +110,18 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
   const r = e.currentTarget.getBoundingClientRect();
   const x = r.left + r.width / 2, y = r.top + r.height / 2;
   const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-  document.startViewTransition(swap).ready.then(() => {
+  // Backdrop-filter is dropped inside view-transition snapshots, so the frosted
+  // .mat chrome would flash its translucent bg over the sharp pills mid-wipe.
+  // Make those surfaces near-opaque for the duration (present in both snapshots).
+  document.documentElement.classList.add('theming');
+  const vt = document.startViewTransition(swap);
+  vt.ready.then(() => {
     document.documentElement.animate(
       { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
       { duration: 500, easing: 'cubic-bezier(.36,.66,.3,1)', pseudoElement: '::view-transition-new(root)' }
     );
   });
+  vt.finished.finally(() => document.documentElement.classList.remove('theming'));
 });
 
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks

@@ -89,7 +89,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
   const pillCache = new Map();      // sig -> marker
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
-  const seen = new Set();           // sigs already dropped in once — re-entering the view (pan away + back) won't re-animate
+  let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
   let filter = { free: true, paid: true };
   const keep = (free) => (free && filter.free) || (!free && filter.paid);
   let dotGroup = null;
@@ -241,9 +241,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
         else if (d.cluster) mk.on('click', () => map.setView([d.lat, d.lon], 16, { animate: true }));
         // pop the new pill in with a small nearest-first stagger (25ms step, capped so a
         // big batch never drags on). Cached pills that merely re-appear on pan don't re-run.
-        // animate the drop-in the first time this pill is ever shown; if it's been seen
-        // before (panned out of view and back), render it instantly — no re-animation.
-        const pill = seen.has(d.sig) ? null : mk.getElement()?.firstElementChild;
+        // fade the drop-in only on the cold load; later refreshes (zoom/pan/filter) render instantly.
+        const pill = firstPaint ? mk.getElement()?.firstElementChild : null;
         if (pill) {
           pill.style.animationDelay = Math.min(dropN, 14) * 25 + 'ms';
           pill.classList.add('in');
@@ -252,13 +251,13 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, onTap, flagS
           pill.addEventListener('animationend', () => pill.classList.remove('in'), { once: true });
           dropN++;
         }
-        seen.add(d.sig);
         pillCache.set(d.sig, mk);
       }
       if (d.block) pillByBlock.set(d.block.id, mk);
     }
     refreshDots(z, mins);
     applySel();
+    firstPaint = false;             // cold load done — every later refresh renders pills instantly
     layer.lastRefreshMs = performance.now() - t0;
   }
 
