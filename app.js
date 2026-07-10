@@ -1,6 +1,6 @@
 import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
 import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=19';
-import { createDriving, SIM_START } from './driving.js?v=14';
+import { createDriving, SIM_START } from './driving.js?v=15';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 

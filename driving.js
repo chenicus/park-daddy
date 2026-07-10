@@ -65,6 +65,30 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
     zIndexOffset: 3000, interactive: false, keyboard: false,
   });
 
+  // Smooth follow: instead of snapping the marker to each ~1s GPS fix (and
+  // ease-out-panning the map each time, which pulses), we ease a displayed
+  // position toward the latest fix every animation frame. Exponential
+  // smoothing (time constant TC) glides continuously and tolerates irregular
+  // fix timing — no need to know the sample interval.
+  const TC = 0.35;
+  let target = null, disp = null, rafId = null, lastFrame = 0;
+
+  function render(now) {
+    rafId = null;
+    if (!target) return;
+    if (!disp) disp = { lat: target.lat, lon: target.lon };   // first fix: snap, don't glide from placeholder
+    const dt = lastFrame ? Math.min((now - lastFrame) / 1000, 0.1) : 0;
+    lastFrame = now;
+    const k = 1 - Math.exp(-dt / TC);
+    disp.lat += (target.lat - disp.lat) * k;
+    disp.lon += (target.lon - disp.lon) * k;
+    chev.setLatLng([disp.lat, disp.lon]);
+    if (follow) map.setView([disp.lat, disp.lon], Math.max(map.getZoom(), 16), { animate: false });
+    if (Math.abs(target.lat - disp.lat) + Math.abs(target.lon - disp.lon) > 1e-7) {
+      rafId = requestAnimationFrame(render);
+    } else { disp.lat = target.lat; disp.lon = target.lon; lastFrame = 0; }
+  }
+
   function setFollow(v) {
     if (follow === v) return;
     follow = v;
@@ -83,10 +107,10 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
     let hdg = (speed != null && speed > 2 && heading != null && isFinite(heading)) ? heading : null;
     if (hdg == null && lastPos) hdg = bearingDeg(lastPos.lat, lastPos.lon, lat, lon);
     lastPos = { lat, lon, hdg: hdg != null ? hdg : (lastPos ? lastPos.hdg : 0) };
-    chev.setLatLng([lat, lon]);
+    target = { lat, lon };
     const el = chev.getElement()?.querySelector('.chev');
     if (el) el.style.transform = `rotate(${lastPos.hdg}deg)`;
-    if (follow) map.setView([lat, lon], Math.max(map.getZoom(), 16), { animate: true, duration: 0.9 });
+    if (!rafId) { lastFrame = 0; rafId = requestAnimationFrame(render); }
     onFix(lastPos);
   }
 
@@ -119,6 +143,8 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
       if (!active) return;
       active = false;
       geo.clearWatch(watchId);
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null; target = disp = null; lastFrame = 0;
       map.off('dragstart', onDrag);
       map.removeLayer(chev);
       lock?.release?.(); lock = null;
