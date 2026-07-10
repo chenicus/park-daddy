@@ -1,6 +1,6 @@
 import { rankMeters, rateNow, limitNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=13';
 import { buildBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=19';
-import { createDriving, SIM_START } from './driving.js?v=15';
+import { createDriving, SIM_START } from './driving.js?v=16';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
@@ -585,22 +585,25 @@ let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 // ---- map orientation: heading-up (POV) ⇄ north-up, toggled by the compass -----
 let orientMode = 'heading';   // 'heading' = POV (default) | 'north'
 let contRot = 0;              // continuous rotation (never wraps → shortest turn)
-let navLayout = false;        // is the oversized nav wrapper currently applied?
+let navLayout = false;        // is the oversized follow wrapper (`follow` class) currently applied?
 function setMapRot(deg) {
   contRot = deg;
+  // --map-rot is a registered @property with a transition on <html>, so this assignment
+  // animates — the map wrapper, price pills, and compass needle all read the same value
+  // and swing in lockstep.
   document.documentElement.style.setProperty('--map-rot', deg.toFixed(1) + 'deg');
 }
 // Called on drive/nav start/end, each fix, and on compass toggle. Rotates the map to
 // the current heading in POV mode; snaps back to north otherwise. Active whenever we're
 // following the car — Drive mode or turn-by-turn — so it survives nav auto-ending on
-// arrival (still driving → stays heading-up). The oversized wrapper spans the whole
-// follow session (both orientations), so toggling the compass just animates the rotation
-// — a smooth POV swing. invalidateSize fires only when the wrapper actually resizes
-// (entering/leaving the follow session).
+// arrival (still driving → stays heading-up). The oversized `follow` wrapper spans the
+// whole session (both orientations), so a compass toggle only changes the rotation angle
+// — never the geometry — and the --map-rot transition animates it as a smooth swing.
+// invalidateSize fires only when the wrapper actually resizes (entering/leaving the session).
 function applyOrientation() {
   const active = document.body.classList.contains('nav') || document.body.classList.contains('driving');
   const headingUp = active && orientMode === 'heading';
-  document.body.classList.toggle('headingup', headingUp);
+  document.body.classList.toggle('follow', active);
   if (headingUp) {
     const hdg = (driving && driving.lastPos() && driving.lastPos().hdg) || 0;
     const delta = ((-hdg - contRot) % 360 + 540) % 360 - 180;   // shortest turn to -heading
@@ -610,15 +613,15 @@ function applyOrientation() {
   }
   if (navLayout !== active) {
     navLayout = active;
-    // the wrapper just resized (CSS, entering/leaving the follow session). Suppress the
-    // --map-rot transition (on <html>) for this switch so the map doesn't spin on
-    // start/end, then force layout, tell Leaflet, and re-center the car in the oversized square.
+    // Entering/leaving the session resizes the wrapper (viewport ⇄ 120vmax). Suppress the
+    // --map-rot transition (on <html>) for just this switch so the map doesn't spin on
+    // start/end, force layout, sync Leaflet to the new size, and re-center the car. A plain
+    // compass toggle skips this block, so it keeps the smooth swing.
     const de = document.documentElement;
     de.style.transition = 'none';
     void de.offsetWidth;
     map.invalidateSize({ animate: false });
-    const lp = driving && driving.lastPos();
-    if (lp && driving.isFollowing()) map.setView([lp.lat, lp.lon], map.getZoom(), { animate: false });
+    if (driving && driving.isFollowing()) driving.recenter();   // snap onto the drawn marker
     void de.offsetWidth;
     de.style.transition = '';   // restore the stylesheet's transition for toggles
   }

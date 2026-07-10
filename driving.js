@@ -125,6 +125,11 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
     isActive: () => active,
     isFollowing: () => follow,
     lastPos: () => lastPos,
+    // Snap the map back onto the marker's *displayed* (smoothed) position — the point the
+    // follow loop actually centers on. Use this after a layout change (e.g. compass toggle)
+    // so the car lands dead-center; centering on the raw lastPos instead would leave it
+    // offset by the glide gap between the latest fix and where the marker is drawn.
+    recenter: () => { if (follow && disp) map.setView([disp.lat, disp.lon], Math.max(map.getZoom(), 16), { animate: false }); },
     setFollow,
     setSimTrack: (t) => geo.setTrack?.(t),
     start() {
