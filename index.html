@@ -284,9 +284,10 @@
   .plabel.sel { border: 2px solid var(--plabel-ink); box-shadow: 0 2px 10px rgba(0,0,0,.4);
     scale: 1.15; z-index: 500; animation: pillPop var(--dur-fast) var(--ease-out); }
   @keyframes pillPop { from { scale: 1; } to { scale: 1.15; } }
-  /* staggered entrance — app.js sets animation-delay per pill (nearest first). A quiet
-     opacity-only fade (no scale/pop); `backwards` fill keeps each pill hidden until its turn. */
-  @keyframes pillIn { from { opacity: 0; } to { opacity: 1; } }
+  /* staggered entrance (cold load only — labels.js gates it to first paint). Scale + a
+     small overshoot pop; opacity fades too. `backwards` fill keeps each pill hidden until
+     its staggered turn, then reverts to normal styles so a later .sel scale still wins. */
+  @keyframes pillIn { 0% { opacity: 0; scale: .5; } 60% { opacity: 1; scale: 1.06; } 100% { scale: 1; } }
   .plabel.in { animation: pillIn var(--dur-base) var(--ease-out) backwards; }
   .plabel.p-free.sel { --c: #1e40af; }
   .plabel.p1.sel { --c: #0e6b30; }
