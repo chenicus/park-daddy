@@ -1,15 +1,15 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=14';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=22';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=23';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=3';
-import { createDriving, SIM_START } from './driving.js?v=23';
-import { fetchRoute, createNav, fmtDist } from './nav.js?v=13';
+import { createDriving, SIM_START } from './driving.js?v=24';
+import { fetchRoute, createNav, fmtDist } from './nav.js?v=14';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
 const filters = { free: true, paid: true };
-let map, tileLayer, markers = [], destMarker, lastLoc = null, cachedPos = null;
+let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
@@ -60,36 +60,82 @@ function dowNow() {
 }
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
-// Dark mode uses a label-free base + a separate labels overlay we brighten via CSS,
-// so street names read clearly against the black canvas (plain dark_all labels are too dim).
-const TILES = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
-  darkLabels: 'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
+const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// CARTO's free, no-API-key VECTOR styles — Positron (light) / Dark Matter (dark). Vector so the
+// map can truly rotate/pitch and MapLibre keeps street labels upright; near-identical muted look
+// to the old raster basemaps. Attribution rides inside each style's sources → shown by the
+// built-in AttributionControl, so we don't hand-roll it.
+const STYLES = {
+  light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
 };
-const LABEL_BRIGHTNESS = 1.85; // dark-mode street-label lift; tune 1.6–2.0 by eye
-let darkLabelTiles; // CARTO street-name overlay for dark mode (distinct from the price-pill labelLayer)
-map = L.map('map', { zoomControl: false }).setView([49.2606, -123.114], 13);
+const initTheme = (localStorage.getItem('pd_theme') || (darkMedia.matches ? 'dark' : 'light'));
+let curStyle = STYLES[initTheme === 'dark' ? 'dark' : 'light'];
+map = new maplibregl.Map({
+  container: 'map',
+  style: curStyle,
+  center: [-123.114, 49.2606],   // [lng, lat] — note the order flip from Leaflet
+  zoom: 13,
+  attributionControl: { compact: true },
+  // dragRotate + touchZoomRotate are on by default → two-finger rotate and pan-at-bearing.
+  pitchWithRotate: true,
+});
+// resolves once the map is first usable; map-touching bootstrap awaits this.
+let mapReady = false;
+const mapLoaded = new Promise((res) => map.on('load', () => { mapReady = true; installLayers(); res(); }));
+
+const EMPTY_FC = { type: 'FeatureCollection', features: [] };
+// All custom sources/layers live here. setStyle (theme swap) wipes them, so this is re-run on
+// every 'style.load'. HTML markers (pills/pin/car) are NOT part of the style and survive.
+function installLayers() {
+  if (!map.getSource('blockface-lines')) map.addSource('blockface-lines', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('blockface-lines')) map.addLayer({
+    id: 'blockface-lines', type: 'line', source: 'blockface-lines', layout: { 'line-cap': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': ['step', ['zoom'], 3, 14, 4, 16, 5],
+      'line-opacity': ['step', ['zoom'], 0.35, 14, 0.42, 16, 0.5] },
+  });
+  if (!map.getSource('meter-dots')) map.addSource('meter-dots', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('meter-dots')) map.addLayer({
+    id: 'meter-dots', type: 'circle', source: 'meter-dots',
+    paint: { 'circle-color': ['get', 'color'], 'circle-radius': ['step', ['zoom'], 3, 15, 2.5, 16, 3.5],
+      'circle-opacity': ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9] },
+  });
+  if (!map.getSource('spot-line')) map.addSource('spot-line', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('spot-line')) map.addLayer({
+    id: 'spot-line', type: 'line', source: 'spot-line', layout: { 'line-cap': 'round' },
+    paint: { 'line-color': '#1a1a1a', 'line-width': 3, 'line-opacity': 0.7, 'line-dasharray': [1, 3] },
+  });
+  if (!map.getSource('route')) map.addSource('route', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('route-casing')) map.addLayer({
+    id: 'route-casing', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#fff', 'line-width': 10, 'line-opacity': 0.85 },
+  });
+  if (!map.getLayer('route')) map.addLayer({
+    id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#1e1e20', 'line-width': 6 },
+  });
+}
+// A theme swap (setStyle) wipes all custom sources/layers, and MapLibre v4 does NOT fire
+// 'style.load' on setStyle — and the interim 'styledata' events fire before the style is
+// actually ready (isStyleLoaded false). So re-install whenever the style IS ready and our
+// sentinel layer is gone; 'idle' guarantees a ready style after a swap. The getLayer guard
+// means all the routine events (our own setData, camera settles) skip straight through — no
+// refresh loop and no redundant work.
+function ensureLayers() {
+  if (!map.isStyleLoaded() || map.getLayer('meter-dots')) return;
+  installLayers();
+  if (labelLayer) labelLayer.refresh();
+}
+map.on('styledata', ensureLayers);
+map.on('idle', ensureLayers);
+
+// Theme swap: reload the whole vector style (positron ⇄ dark-matter). style.load re-installs our
+// layers; the View-Transition circular wipe (applyTheme) covers the reload visually.
 function setTiles() {
-  const dark = document.documentElement.dataset.theme === 'dark';
-  const url = dark ? TILES.dark : TILES.light;
-  // Swap the URL in place rather than remove/re-add — re-adding a layer nudges the map view.
-  if (tileLayer) { tileLayer.setUrl(url); }
-  else {
-    tileLayer = L.tileLayer(url, {
-      maxZoom: 20, attribution: '© OpenStreetMap © CARTO',
-    }).addTo(map);
-  }
-  // Brightened street-name tiles ride on top in dark mode only; removed entirely in light mode.
-  if (dark) {
-    if (!darkLabelTiles) {
-      darkLabelTiles = L.tileLayer(TILES.darkLabels, { maxZoom: 20, zIndex: 5 }).addTo(map);
-      darkLabelTiles.getContainer().style.filter = `brightness(${LABEL_BRIGHTNESS})`;
-    }
-  } else if (darkLabelTiles) {
-    map.removeLayer(darkLabelTiles);
-    darkLabelTiles = null;
-  }
+  const url = STYLES[document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'];
+  if (url === curStyle) return;
+  curStyle = url;
+  map.setStyle(url);
 }
 
 // ---- Theme (light/dark) ----------------------------------------------------
@@ -186,7 +232,10 @@ async function loadCity(key) {
   }
   activeCity = key;
   const c = CITIES[key];
-  map.setView(center ? [center.lat, center.lon] : c.center, center ? 16 : c.zoom, { animate: false });
+  await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
+  // c.center is stored as Leaflet [lat, lon]; MapLibre wants [lng, lat].
+  const ctr = center ? [center.lon, center.lat] : [c.center[1], c.center[0]];
+  map.jumpTo({ center: ctr, zoom: center ? 16 : c.zoom });
   await loadCity(key);
   if (params.get('lat') && params.get('lon')) {
     run({ lat: +params.get('lat'), lon: +params.get('lon'), name: params.get('dest') || 'Dropped pin' }, true);
@@ -245,7 +294,7 @@ const IC = {
   dollar: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>',
   info: '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
 };
-function clearMap() { markers.forEach((m) => map.removeLayer(m)); markers = []; }
+function clearMap() { markers.forEach((m) => m.remove()); markers = []; }
 
 // ---- crowd reports ("this spot is wrong") -----------------------------------
 // flags: rptKey -> { count, items[] }. Drives the pill warning badge / auto-hide
@@ -502,15 +551,15 @@ function rankAndRender(loc) {
 
   if (labelLayer) labelLayer.setSelected(null);
   clearSpotLine();
-  if (destMarker) map.removeLayer(destMarker);
-  // dedicated pane above the price pills (mdots 610, pills 620) so the destination
-  // pin is never hidden behind a pill — a per-marker zIndexOffset can't cross panes.
-  if (!map.getPane('dest')) map.createPane('dest').style.zIndex = 630;
-  destMarker = L.marker([loc.lat, loc.lon], {
-    // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it
-    pane: 'dest',
-    icon: L.divIcon({ className: '', html: '<div class="destpinwrap"><svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>', iconSize: [34, 34], iconAnchor: [17, 32] }),
-  }).addTo(map);
+  if (destMarker) destMarker.remove();
+  // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it. As an HTML
+  // marker it renders above the GL dot/line layers and stays screen-upright on rotate; a high
+  // z-index keeps it above the price pills. anchor:'bottom' pins the tip to the coordinate.
+  const dEl = document.createElement('div');
+  dEl.innerHTML = '<div class="destpinwrap"><svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>';
+  dEl.style.zIndex = '3';
+  destMarker = new maplibregl.Marker({ element: dEl, anchor: 'bottom' })
+    .setLngLat([loc.lon, loc.lat]).addTo(map);
 
   frameMap(loc, current);
 }
@@ -520,12 +569,13 @@ function frameMap(loc, list) {
   const near = list.slice(0, 3);
   let dLat = 0.0016, dLon = 0.0022;
   for (const r of near) { dLat = Math.max(dLat, Math.abs(r.lat - loc.lat)); dLon = Math.max(dLon, Math.abs(r.lon - loc.lon)); }
-  const bounds = [[loc.lat - dLat, loc.lon - dLon], [loc.lat + dLat, loc.lon + dLon]];
-  const opts = { paddingTopLeft: [40, 120], paddingBottomRight: [40, 40], maxZoom: 17 };
+  // MapLibre bounds are [[west,south],[east,north]] = [[lon-,lat-],[lon+,lat+]].
+  const bounds = [[loc.lon - dLon, loc.lat - dLat], [loc.lon + dLon, loc.lat + dLat]];
+  const opts = { padding: { top: 120, bottom: 40, left: 40, right: 40 }, maxZoom: 17 };
   // Ease into the destination instead of snapping; pills then drop in on moveend for a
   // clean arrival. Reduced-motion users get the old instant framing.
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) map.fitBounds(bounds, { ...opts, animate: false });
-  else map.flyToBounds(bounds, { ...opts, duration: 0.9 });
+  if (reduceMotion()) map.fitBounds(bounds, { ...opts, animate: false });
+  else map.fitBounds(bounds, { ...opts, duration: 900 });
 }
 
 // ---- misc controls ----------------------------------------------------------
@@ -535,7 +585,7 @@ $('here').addEventListener('click', async () => {
   const pos = await getPosition();
   if (!pos) { toast('Could not get your location.'); return; }
   driving?.setFollow(true);              // arm follow for incoming fixes
-  map.setView([pos.lat, pos.lon], 16);   // immediate center on a one-shot fix
+  map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
 });
 $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest').blur(); hideRecents(); run(null, true); });
 
@@ -626,63 +676,49 @@ $('tcDate').addEventListener('input', () => {
 updatePill();
 
 // ---- live price labels + driving mode ----------------------------------------
-let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null, preDrive = null, spotLine = null;
+let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null, preDrive = null;
 
-// straight connector from the tapped spot to the searched destination
+// straight connector from the tapped spot to the searched destination (GL line source)
+function setSpotLineData(fc) { const s = map.getSource('spot-line'); if (s) s.setData(fc); }
 function drawSpotLine(b) {
-  clearSpotLine();
-  if (!lastLoc) return;
-  spotLine = L.polyline([[b.lat, b.lon], [lastLoc.lat, lastLoc.lon]], {
-    color: '#1a1a1a', weight: 3, opacity: 0.7, dashArray: '1 9', lineCap: 'round', interactive: false,
-  }).addTo(map);
+  if (!lastLoc) { clearSpotLine(); return; }
+  setSpotLineData({ type: 'FeatureCollection', features: [{
+    type: 'Feature', geometry: { type: 'LineString', coordinates: [[b.lon, b.lat], [lastLoc.lon, lastLoc.lat]] },
+  }] });
 }
-function clearSpotLine() { if (spotLine) { map.removeLayer(spotLine); spotLine = null; } }
+function clearSpotLine() { setSpotLineData(EMPTY_FC); }
 let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 
-// ---- map orientation: heading-up (POV) ⇄ north-up, toggled by the compass -----
+// ---- map orientation: native MapLibre bearing (heading-up POV ⇄ north-up) -----
+// MapLibre rotates the real map, so "orientation" is just a target bearing. In a driving/nav
+// session, heading-up means bearing = the car's heading; north-up means bearing 0. driving.js
+// owns the per-fix camera (center + bearing eased together); this only nudges the bearing when
+// the mode changes (compass tap, drive on/off).
 let orientMode = 'heading';   // 'heading' = POV (default) | 'north'
-let contRot = 0;              // continuous rotation (never wraps → shortest turn)
-let navLayout = false;        // is the oversized follow wrapper (`follow` class) currently applied?
-function setMapRot(deg) {
-  contRot = deg;
-  // --map-rot is a registered @property with a transition on <html>, so this assignment
-  // animates — the map wrapper, price pills, and compass needle all read the same value
-  // and swing in lockstep.
-  document.documentElement.style.setProperty('--map-rot', deg.toFixed(1) + 'deg');
+// Desired bearing for the current mode. north-up (or not in a session) → 0; heading-up → heading.
+function desiredBearing() {
+  const active = driving && driving.isActive();
+  const p = driving && driving.lastPos();
+  return (active && orientMode === 'heading' && p) ? p.hdg : 0;
 }
-// Called on drive/nav start/end, each fix, and on compass toggle. Rotates the map to
-// the current heading in POV mode; snaps back to north otherwise. Active whenever we're
-// following the car — Drive mode or turn-by-turn — so it survives nav auto-ending on
-// arrival (still driving → stays heading-up). The oversized `follow` wrapper spans the
-// whole session (both orientations), so a compass toggle only changes the rotation angle
-// — never the geometry — and the --map-rot transition animates it as a smooth swing.
-// invalidateSize fires only when the wrapper actually resizes (entering/leaving the session).
+// Re-point the map to the mode's bearing (and recenter if we're following). Smooth unless
+// reduced-motion. Called on compass tap and drive/nav start/stop — NOT per fix (driving.js
+// eases center+bearing together on every fix).
 function applyOrientation() {
-  const active = document.body.classList.contains('nav') || document.body.classList.contains('driving');
-  const headingUp = active && orientMode === 'heading';
-  document.body.classList.toggle('follow', active);
-  if (headingUp) {
-    const hdg = (driving && driving.lastPos() && driving.lastPos().hdg) || 0;
-    const delta = ((-hdg - contRot) % 360 + 540) % 360 - 180;   // shortest turn to -heading
-    setMapRot(contRot + delta);
-  } else {
-    setMapRot(Math.round(contRot / 360) * 360);                 // nearest visual north
-  }
-  if (navLayout !== active) {
-    navLayout = active;
-    // Entering/leaving the session resizes the wrapper (viewport ⇄ 120vmax). Suppress the
-    // --map-rot transition (on <html>) for just this switch so the map doesn't spin on
-    // start/end, force layout, sync Leaflet to the new size, and re-center the car. A plain
-    // compass toggle skips this block, so it keeps the smooth swing.
-    const de = document.documentElement;
-    de.style.transition = 'none';
-    void de.offsetWidth;
-    map.invalidateSize({ animate: false });
-    if (driving && driving.isFollowing()) driving.recenter();   // snap onto the drawn marker
-    void de.offsetWidth;
-    de.style.transition = '';   // restore the stylesheet's transition for toggles
-  }
+  if (driving && driving.isActive()) driving.reorient();
+  else map.easeTo({ bearing: 0, duration: reduceMotion() ? 0 : 400 });   // browse / drive-off → north
 }
+// Google-Maps compass: the needle always points to true north (counter-rotate the icon by the
+// map bearing), and the button surfaces whenever the map is turned off north in plain browse
+// mode (in drive/nav it's always shown as the heading-up toggle).
+const compassSvg = document.querySelector('#compass svg');
+function syncCompass() {
+  const b = map.getBearing();
+  if (compassSvg) compassSvg.style.transform = `rotate(${-b}deg)`;
+  document.body.classList.toggle('rotated', Math.abs(b) > 0.5);
+}
+map.on('rotate', syncCompass);
+map.on('load', syncCompass);
 
 // match a ranked meter back to its label-layer block (same rate/limit tuple, nearest)
 const blockKey = (m) => [m.rate_9am_6pm, m.rate_6pm_10pm, m.flat_rate, m.time_limit_9am_6pm,
@@ -712,7 +748,7 @@ async function startNav(target) {
   clearMap();                       // search pins off; dest marker + price pills stay
   nav.begin(r);
   document.body.classList.add('nav');
-  applyOrientation();               // POV by default → rotate the map heading-up
+  orientMode = 'heading';           // turn-by-turn is heading-up (POV) by default
   driving.setSimTrack(r.coords);
   if (!driving.isActive()) driving.start(); else driving.setFollow(true);
   driving.setNavMode(true);           // routing → high-accuracy GPS + wake lock
@@ -723,7 +759,7 @@ async function onNavFix(pos) {
   const p = nav.update(pos);
   if (!p || !navTarget) return;
   if (p.arrived || distMeters(pos.lat, pos.lon, navTarget.lat, navTarget.lon) < 25) { endNav(true); return; }
-  applyOrientation();               // keep the map pointed heading-up as we move
+  // camera follow (center + heading-up bearing) is eased per fix inside driving.js
   $('nbarrow').textContent = p.step.arrow;
   $('nbdist').textContent = p.stepDist < 20 ? 'Now' : fmtDist(p.stepDist);
   $('nbtext').textContent = p.step.text;
@@ -926,7 +962,7 @@ function tapBlock(b) {
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
 document.addEventListener('click', (e) => {
   if ($('spotcard').hidden) return;
-  if (e.target.closest('#spotcard') || e.target.closest('.leaflet-marker-icon')) return;
+  if (e.target.closest('#spotcard') || e.target.closest('.maplibregl-marker')) return;
   closeSpotCard();
 }, true);
 
@@ -1037,10 +1073,11 @@ function initLiveLabels() {
 
   driving = createDriving({
     map,
+    bearing: desiredBearing,
     onFix(pos) {
       labelLayer.setFocus(pos);
       if (nav.isActive()) onNavFix(pos);
-      else applyOrientation();          // Drive mode: keep the map pointed heading-up
+      // per-fix camera (center + heading-up bearing) is eased inside driving.js
 
       // auto-dismiss the card only once you've driven PAST its block —
       // never while approaching a spot you tapped up ahead
@@ -1068,7 +1105,7 @@ function initLiveLabels() {
       driving.stop();
       // return to the exact screen we left — restore map view + any open spot card
       if (preDrive) {
-        map.setView(preDrive.center, preDrive.zoom, { animate: false });
+        map.jumpTo({ center: preDrive.center, zoom: preDrive.zoom, bearing: 0 });
         if (preDrive.block) showSpotCard(preDrive.block);
         preDrive = null;
       }
@@ -1077,6 +1114,7 @@ function initLiveLabels() {
       preDrive = { center: map.getCenter(), zoom: map.getZoom(), block: cardBlock };
       $('spotcard').hidden = true; cardBlock = null; clearSpotLine();
       if (labelLayer) labelLayer.setSelected(null);
+      orientMode = 'heading';   // each drive session starts heading-up (POV)
       driving.start();
     }
   });
@@ -1106,13 +1144,15 @@ function initLiveLabels() {
   $('navwarn').addEventListener('click', (e) => { if (e.target === $('navwarn')) closeNavWarn(); });
   $('navend').addEventListener('click', () => endNav(false));
   $('compass').addEventListener('click', () => {
-    orientMode = orientMode === 'heading' ? 'north' : 'heading';
+    // In a driving/nav session the compass toggles heading-up ⇄ north-up; in plain browse it
+    // snaps the freely-rotated map back to north (like Google Maps).
+    if (driving && driving.isActive()) orientMode = orientMode === 'heading' ? 'north' : 'heading';
     applyOrientation();
   });
   $('recenter').addEventListener('click', async () => {
     if (driving.isActive()) { driving.setFollow(true); return; }
     const pos = await getPosition();
-    if (pos) map.setView([pos.lat, pos.lon], 16);
+    if (pos) map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
     else toast('Could not get your location.');
   });
   updateRecenter();

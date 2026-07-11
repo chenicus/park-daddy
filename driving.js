@@ -1,5 +1,7 @@
 // Driving mode: live follow-me tracking, car chevron, wake lock, GPS simulator.
 // Routing lives in nav.js — this module only produces fixes and follows them.
+// MapLibre renders/eases the map on the GPU, so following is a single easeTo per fix
+// (center + heading-up bearing) — no hand-rolled sub-pixel glide or dead-reckoning.
 import { distMeters } from './rank.js?v=11';
 
 function bearingDeg(lat1, lon1, lat2, lon2) {
@@ -55,144 +57,59 @@ function makeSimGeo(speed = 12) {
   };
 }
 
-export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
+// `bearing` is a callback from app.js returning the desired map bearing for the current mode
+// (heading-up POV → the car heading; north-up → 0).
+export function createDriving({ map, onFix, onActiveChange, onFollowChange, bearing }) {
   const params = new URLSearchParams(location.search);
   const geo = params.get('sim') ? makeSimGeo() : navigator.geolocation;
   let watchId = null, active = false, follow = true, lock = null, lastPos = null, hiAcc = false;
-
-  const chev = L.marker([0, 0], {
-    icon: L.divIcon({ className: '', html: '<div class="chevwrap"><div class="chev"></div></div>', iconSize: [0, 0] }),
-    zIndexOffset: 3000, interactive: false, keyboard: false,
-  });
-
-  // Sub-pixel follow. Leaflet re-rounds its tile origin and marker icons to whole pixels every
-  // frame, so at low zoom (few px/sec) the map advances in visible 1px steps. We cancel that by
-  // shifting the whole map wrapper by the fractional-pixel remainder via a GPU CSS transform, so
-  // the scene glides between pixels. --pan-x/--pan-y feed body.follow #maprot's transform (see
-  // index.html); they carry no CSS transition, so they update instantly each frame.
-  const rotEl = document.getElementById('maprot');
-  const setPan = (x, y) => {
-    if (!rotEl) return;
-    rotEl.style.setProperty('--pan-x', x.toFixed(2) + 'px');
-    rotEl.style.setProperty('--pan-y', y.toFixed(2) + 'px');
-  };
-
-  // Smooth follow. Snapping the marker to each ~1s GPS fix pulses; easing toward the *static*
-  // last fix decelerates to a stop before the next lands — jump, pause, jump. So we integrate a
-  // displayed position from a smoothed velocity vector every frame (constant, continuous glide)
-  // and correct toward the fixes without ever stepping the display:
-  //   • velocity carries the motion — clean and continuous (raw fixes carry GPS position noise);
-  //   • each fix only nudges a correction accumulator a fraction (ALPHA) toward the raw fix, so
-  //     the noise low-passes out instead of snapping the whole map onto every fix;
-  //   • render() bleeds that accumulator into the display gradually (over TC_CORR) rather than
-  //     in one frame — an instant correction is the residual "slight shift", worst right after a
-  //     dropped fix, so we spread it into an imperceptible drift.
-  // MAX_COAST stops the dead-reckoning if fixes dry up; velocity is zeroed when stopped.
-  const ALPHA = 0.2;        // fraction of each fix's position error folded into the correction
-  const TC_CORR = 0.3;      // seconds to bleed a correction into the display — kills the per-fix step
-  const MAX_COAST = 2;      // seconds of dead-reckoning before we stop trusting the last velocity
-  let disp = null, rafId = null, lastFrame = 0, lastFixT = null;
-  let vLat = 0, vLon = 0;   // velocity estimate (deg/s), smoothed across fixes
-  let cLat = 0, cLon = 0;   // outstanding position correction, bled into disp over TC_CORR
   let zooming = false;      // a pinch/wheel zoom is in flight — pause re-centering, don't fight it
+  let chevAdded = false;
+  const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wantBearing = () => (bearing ? bearing() : 0);
 
-  function render(now) {
-    rafId = null;
-    if (disp == null) return;
-    const dt = lastFrame ? Math.min((now - lastFrame) / 1000, 0.1) : 0;
-    lastFrame = now;
-    const coasting = lastFixT != null && (now - lastFixT) / 1000 < MAX_COAST;
-    if (coasting) { disp.lat += vLat * dt; disp.lon += vLon * dt; }   // constant-velocity glide
-    const bleed = dt > 0 ? 1 - Math.exp(-dt / TC_CORR) : 0;           // smoothly fold in the correction
-    disp.lat += cLat * bleed; cLat -= cLat * bleed;
-    disp.lon += cLon * bleed; cLon -= cLon * bleed;
-    chev.setLatLng([disp.lat, disp.lon]);
-    if (follow && !zooming) {
-      // Center Leaflet on the car (it rounds its tile origin to whole pixels — crisp but stepped),
-      // then read where the car actually lands ON SCREEN and shift the whole wrapper by the
-      // leftover fraction so the scene glides between pixels. The comparison must be in
-      // CONTAINER space (latLngToContainerPoint vs getSize()/2) — layer space is offset by the
-      // map pane's own position, which re-anchors as you move and would turn the "sub-pixel"
-      // nudge into whole-pixel jumps.
-      // Respect the user's zoom here: flooring it (Math.max 16) per frame fights a zoom-out —
-      // every frame cancels the gesture's animation and yanks back toward 16, which reads as
-      // violent jitter below zoom 16. The "at least 16" floor lives only in the one-shot
-      // engage points (setFollow / recenter). Likewise `zooming` pauses re-centering while a
-      // pinch/wheel zoom is in flight so we never fight Leaflet's own zoom animation.
-      map.setView([disp.lat, disp.lon], map.getZoom(), { animate: false });
-      const c = map.getSize().divideBy(2);
-      const cp = map.latLngToContainerPoint([disp.lat, disp.lon]);
-      setPan(c.x - cp.x, c.y - cp.y);
-      // Un-round the marker to its exact fractional point (Leaflet quantises marker icons too);
-      // markers are positioned in LAYER space, hence latLngToLayerPoint here. With the wrapper
-      // nudged by the same fraction, the car sits pinned dead-centre, shimmer-free.
-      const cel = chev.getElement();
-      if (cel) L.DomUtil.setPosition(cel, map.latLngToLayerPoint([disp.lat, disp.lon]));
-    } else {
-      setPan(0, 0);
-    }
-    // Keep animating while moving or while a correction is still settling; otherwise stop until
-    // the next fix so we don't repaint at 60fps while idle.
-    const settling = Math.abs(cLat) + Math.abs(cLon) > 1e-9;
-    if (active && ((coasting && (vLat || vLon)) || settling)) rafId = requestAnimationFrame(render);
-    else lastFrame = 0;
+  // Car chevron: a MapLibre HTML marker. rotationAlignment:'map' + setRotation(heading) points it
+  // along the true heading, so it reads screen-up in heading-up mode and along-heading when north-up.
+  const chevEl = document.createElement('div');
+  chevEl.innerHTML = '<div class="chevwrap"><div class="chev"></div></div>';
+  const chev = new maplibregl.Marker({ element: chevEl, rotationAlignment: 'map', pitchAlignment: 'map' });
+
+  // Ease the map onto the car (and to the mode's bearing). MapLibre interpolates center + bearing
+  // continuously on the GPU, so a linear ease over ~the fix interval gives a smooth glide.
+  function followTo(dur = 900) {
+    if (!follow || zooming || !lastPos) return;
+    map.easeTo({ center: [lastPos.lon, lastPos.lat], bearing: wantBearing(),
+      duration: reduce() ? 0 : dur, easing: (t) => t });
   }
 
   function setFollow(v) {
     if (follow === v) return;
     follow = v;
-    // No auto-resume: once you pan away, the map stays put until you tap
-    // recenter. Follow only turns back on via the recenter button.
-    if (v && lastPos) map.setView([lastPos.lat, lastPos.lon], Math.max(map.getZoom(), 16));
+    // No auto-resume: once you pan away, the map stays put until you tap recenter / "my location".
+    if (v && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat], zoom: Math.max(map.getZoom(), 16),
+      bearing: wantBearing(), duration: reduce() ? 0 : 500 });
     onFollowChange(v);
   }
 
   function onDrag() { if (active) setFollow(false); }
-
-  // Zooming (pinch/wheel) keeps follow ON — it's a "how close" gesture, not a "look elsewhere"
-  // one — but the render loop must not re-center mid-gesture: setView cancels Leaflet's zoom
-  // animation each frame, which reads as violent jitter. Pause during the gesture, then snap
-  // the car back to dead-center when it ends.
+  // Zooming (pinch/wheel) keeps follow ON but the ease must pause so we don't cancel MapLibre's
+  // own zoom animation; snap the car back to center when it ends.
   function onZoomStart() { zooming = true; }
-  function onZoomEnd() {
-    zooming = false;
-    if (active && follow && disp) map.setView([disp.lat, disp.lon], map.getZoom(), { animate: false });
-  }
+  function onZoomEnd() { zooming = false; if (active && follow) followTo(300); }
 
   function accept(p) {
     const { latitude: lat, longitude: lon, accuracy, heading, speed } = p.coords;
     if (accuracy != null && accuracy > 50) return;       // jitter gate
     if (lastPos && distMeters(lastPos.lat, lastPos.lon, lat, lon) < 3) return;
-    const nowT = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     let hdg = (speed != null && speed > 2 && heading != null && isFinite(heading)) ? heading : null;
     if (hdg == null && lastPos) hdg = bearingDeg(lastPos.lat, lastPos.lon, lat, lon);
     hdg = hdg != null ? hdg : (lastPos ? lastPos.hdg : 0);
-    // Velocity that drives the between-fix glide. Prefer the reported speed; fall back to the
-    // fix-to-fix delta. Zero it when essentially stopped so the dot holds instead of drifting.
-    let spd = (speed != null && isFinite(speed) && speed >= 0) ? speed : null;
-    if (spd == null && lastPos && lastFixT != null) {
-      spd = distMeters(lastPos.lat, lastPos.lon, lat, lon) / Math.max((nowT - lastFixT) / 1000, 1e-3);
-    }
-    if (spd != null && spd > 0.7) {
-      const r = Math.PI / 180;
-      const iVLat = (spd * Math.cos(hdg * r)) / 111320;
-      const iVLon = (spd * Math.sin(hdg * r)) / (111320 * Math.cos(lat * r));
-      if (!lastFixT) { vLat = iVLat; vLon = iVLon; }                          // first: adopt outright
-      else { vLat += (iVLat - vLat) * 0.5; vLon += (iVLon - vLon) * 0.5; }    // smooth turns/noise
-    } else { vLat = vLon = 0; }
     lastPos = { lat, lon, hdg };
-    // Fold a fraction of the fix's position error into the correction accumulator; render()
-    // bleeds it into the display over TC_CORR. Low-passes GPS noise AND avoids a per-fix step —
-    // the glide itself rides the clean velocity above. (disp + c) is our current best estimate.
-    if (disp == null) { disp = { lat, lon }; cLat = cLon = 0; }               // first fix: snap
-    else {
-      cLat += (lat - (disp.lat + cLat)) * ALPHA;
-      cLon += (lon - (disp.lon + cLon)) * ALPHA;
-    }
-    lastFixT = nowT;
-    // The marker stays visually upright regardless of heading or map POV — its only
-    // rotation is a CSS counter-rotation of --map-rot (see .chev in index.html).
-    if (!rafId) { lastFrame = 0; rafId = requestAnimationFrame(render); }
+    // Draw the car. Marker stays screen-upright (rotationAlignment handles heading); its rotation
+    // is the geographic heading so it points the right way in both orientations.
+    chev.setLngLat([lon, lat]).setRotation(hdg);
+    if (!chevAdded) { chev.addTo(map); chevAdded = true; }
+    followTo();
     onFix(lastPos);
   }
 
@@ -208,11 +125,17 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
     isActive: () => active,
     isFollowing: () => follow,
     lastPos: () => lastPos,
-    // Snap the map back onto the marker's *displayed* (smoothed) position — the point the
-    // follow loop actually centers on. Use this after a layout change (e.g. compass toggle)
-    // so the car lands dead-center; centering on the raw lastPos instead would leave it
-    // offset by the glide gap between the latest fix and where the marker is drawn.
-    recenter: () => { if (follow && disp) map.setView([disp.lat, disp.lon], Math.max(map.getZoom(), 16), { animate: false }); },
+    // Re-point to the mode's bearing (and recenter if following) — called on compass toggle /
+    // drive start. Distinct from recenter(): it never changes zoom.
+    reorient() {
+      if (!active) return;
+      if (follow && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat], bearing: wantBearing(),
+        duration: reduce() ? 0 : 500 });
+      else map.easeTo({ bearing: wantBearing(), duration: reduce() ? 0 : 500 });
+    },
+    // Snap the map back onto the car (used by the recenter fab / "my location").
+    recenter: () => { if (follow && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat],
+      zoom: Math.max(map.getZoom(), 16), bearing: wantBearing(), duration: reduce() ? 0 : 400 }); },
     setFollow,
     setSimTrack: (t) => geo.setTrack?.(t),
     // Two-tier location, mirroring Google Maps:
@@ -221,7 +144,6 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
     start({ passive = false } = {}) {
       if (active || !geo) return;
       active = true; follow = true; lastPos = null; hiAcc = !passive;
-      chev.setLatLng([49.2606, -123.114]).addTo(map);
       // Instant "blue dot": snap to a cached fix while the live watch warms up.
       geo.getCurrentPosition?.(accept, () => {}, { enableHighAccuracy: false, maximumAge: 600000, timeout: 8000 });
       watchId = geo.watchPosition(accept, () => {}, {
@@ -249,14 +171,11 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange }) {
       if (!active) return;
       active = false;
       geo.clearWatch(watchId);
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = null; disp = null; lastFixT = null; vLat = vLon = 0; cLat = cLon = 0; lastFrame = 0;
       zooming = false;
-      setPan(0, 0);   // drop the sub-pixel nudge so the wrapper sits neutral when idle
       map.off('dragstart', onDrag);
       map.off('zoomstart', onZoomStart);
       map.off('zoomend', onZoomEnd);
-      map.removeLayer(chev);
+      if (chevAdded) { chev.remove(); chevAdded = false; }
       lock?.release?.(); lock = null;
       onActiveChange(false);
     },

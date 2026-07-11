@@ -129,24 +129,29 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const dowNow = dow || (() => new Date().getDay());
   // flagState(block) -> { flagged, hidden } from crowd reports; default: no flags.
   const flags = flagState || (() => ({}));
-  map.createPane('mdots').style.zIndex = 610;
-  map.createPane('pills').style.zIndex = 620;
-  const canvas = L.canvas({ pane: 'mdots', padding: 0.3 });
-  const pillCache = new Map();      // sig -> marker
+  const pillCache = new Map();      // sig -> maplibregl.Marker
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
   let filter = { free: true, paid: true };
   const keep = (free) => (free && filter.free) || (!free && filter.paid);
-  let dotGroup = null;
   let focus = null;                 // car position while driving
+
+  // Meter dots + Seattle blockface lines are GPU GeoJSON layers (installed by app.js). We only
+  // push FeatureCollections into them; setData is cheap even for thousands of features.
+  const EMPTY_LABEL_FC = { type: 'FeatureCollection', features: [] };
+  const setDotData = (fc) => { const s = map.getSource('meter-dots'); if (s) s.setData(fc); };
+  const setLineData = (fc) => { const s = map.getSource('blockface-lines'); if (s) s.setData(fc); };
+  const DOT_COLOR = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' };
+  const zoomInt = () => Math.round(map.getZoom());   // MapLibre zoom is fractional; the ladders want an int
+  const project = (lat, lon) => map.project([lon, lat]);   // → {x,y} screen px (already rotation-aware)
 
   // Highlight the selected block's pill in its active (darker-tier) state.
   function applySel() {
     if (selMarker) {
       const el = selMarker.getElement();
       if (el && el.firstElementChild) el.firstElementChild.classList.remove('sel');
-      selMarker.setZIndexOffset(0);
+      el.style.zIndex = '';
       selMarker = null;
     }
     if (selectedId == null) return;
@@ -154,15 +159,18 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     if (!mk) return;
     const el = mk.getElement();
     if (el && el.firstElementChild) el.firstElementChild.classList.add('sel');
-    mk.setZIndexOffset(10000);   // lift above every other pill
+    if (el) el.style.zIndex = '500';   // lift above every other pill
     selMarker = mk;
   }
 
   function visibleActive(mins) {
-    const b = map.getBounds().pad(0.1);
+    // pad the viewport ~10% so pills/dots don't pop right at the edge
+    const b = map.getBounds();
+    const s = b.getSouth(), n = b.getNorth(), w = b.getWest(), e = b.getEast();
+    const dLat = (n - s) * 0.1, dLon = (e - w) * 0.1;
     return blocks.filter((bl) =>
-      bl.lat > b.getSouth() && bl.lat < b.getNorth() &&
-      bl.lon > b.getWest() && bl.lon < b.getEast() && !towActive(bl, mins) &&
+      bl.lat > s - dLat && bl.lat < n + dLat &&
+      bl.lon > w - dLon && bl.lon < e + dLon && !towActive(bl, mins) &&
       !flags(bl).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
   }
 
@@ -201,7 +209,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const kept = [], keptPx = [];
       for (const it of items) {
         if (kept.length >= 12) break;
-        const px = map.latLngToContainerPoint([it.lat, it.lon]);
+        const px = project(it.lat, it.lon);
         let clash = false;
         for (const k of keptPx) {
           if (Math.abs(k.x - px.x) < 78 && Math.abs(k.y - px.y) < 40) { clash = true; break; }
@@ -230,7 +238,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     const kept = [], keptPx = [];
     for (const it of items) {
       if (kept.length >= LABEL_CAP) break;
-      const px = map.latLngToContainerPoint([it.lat, it.lon]);
+      const px = project(it.lat, it.lon);
       let clash = false;
       for (const k of keptPx) {
         if (Math.abs(k.x - px.x) < 56 && Math.abs(k.y - px.y) < 26) { clash = true; break; }
@@ -241,44 +249,39 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     return kept;
   }
 
+  // Dots (meters) + lines (Seattle blockfaces) as GeoJSON. Radius/opacity/width ride zoom-
+  // interpolated paint expressions in app.js's layer defs, so here we only decide WHICH features
+  // show (in view, active, passing the free/paid filter) and their color.
   function refreshDots(z, mins, dow) {
-    if (dotGroup) { map.removeLayer(dotGroup); dotGroup = null; }
-    if (z < 11) return;
-    const op = z >= 16 ? 0.9 : z >= 15 ? 0.4 : 0.6;
-    const rad = z >= 16 ? 3.5 : z >= 15 ? 2.5 : 3;
-    const lw = z >= 16 ? 5 : z >= 14 ? 4 : 3;                 // blockface line weight by zoom
-    const lineOp = z >= 16 ? 0.5 : z >= 14 ? 0.42 : 0.35;    // soft heatmap — the pills carry the price
-    const marks = [];
+    if (z < 11) { setDotData(EMPTY_LABEL_FC); setLineData(EMPTY_LABEL_FC); return; }
+    const dots = [], lines = [];
     for (const bl of visibleActive(mins)) {
       const r = rateFor(bl, mins, dow);
       if (!keep(r.free)) continue;
-      const col = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' }[bucket(r.rate, r.free)];
-      if (bl.line) {   // Seattle blockface — draw the side of the street, colored by rate
-        marks.push(L.polyline(bl.line, {
-          renderer: canvas, color: col, weight: lw, opacity: lineOp,
-          lineCap: 'round', interactive: false,
-        }));
+      const col = DOT_COLOR[bucket(r.rate, r.free)];
+      if (bl.line) {   // Seattle blockface — draw the side of the street, colored by rate ([lat,lon]→[lon,lat])
+        lines.push({ type: 'Feature', properties: { color: col },
+          geometry: { type: 'LineString', coordinates: bl.line.map(([la, lo]) => [lo, la]) } });
       } else {
         const pts = bl.pts.length ? bl.pts : [[bl.lat, bl.lon]];   // free blocks have no meter points
         for (const [la, lo] of pts) {
-          marks.push(L.circleMarker([la, lo], {
-            renderer: canvas, radius: rad, stroke: false, fillColor: col, fillOpacity: op, interactive: false,
-          }));
+          dots.push({ type: 'Feature', properties: { color: col }, geometry: { type: 'Point', coordinates: [lo, la] } });
         }
       }
     }
-    dotGroup = L.layerGroup(marks).addTo(map);
+    setDotData({ type: 'FeatureCollection', features: dots });
+    setLineData({ type: 'FeatureCollection', features: lines });
   }
 
   function refresh() {
     const t0 = performance.now();
-    const z = map.getZoom();
+    const z = zoomInt();
     const mins = nowMins(), wknd = isWeekend(), dw = dowNow();
     const desired = z >= 13 ? pillDesired(z, mins, wknd, dw) : [];
 
     const want = new Set(desired.map((d) => d.sig));
     for (const [sig, mk] of pillCache) {
-      if (!want.has(sig)) { map.removeLayer(mk); pillCache.delete(sig); }
+      if (!want.has(sig)) { mk.remove(); pillCache.delete(sig); }
     }
     pillByBlock.clear();
     let dropN = 0;   // staggered-entrance index among pills newly created this refresh (nearest first — `desired` is distance-sorted)
@@ -287,17 +290,19 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       if (!mk) {
         const warn = d.flagged ? '<span class="pf">!</span>' : '';
         const body = d.limTxt ? `${d.price}<span class="plim">${d.limTxt}</span>` : d.text;
-        mk = L.marker([d.lat, d.lon], {
-          pane: 'pills', interactive: !!d.block || !!d.cluster, keyboard: false,
-          icon: L.divIcon({ className: `${d.cluster ? 'cluster' : ''}`, html: `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${body}</div>`, iconSize: [0, 0] }),
-        }).addTo(map);
-        if (d.block) mk.on('click', () => onTap(d.block));
+        // 0-size wrapper element; the .plabel inside positions itself above the point (its CSS
+        // translate). MapLibre keeps the wrapper screen-upright on rotate automatically.
+        const el = document.createElement('div');
+        if (d.cluster) el.className = 'cluster';
+        el.innerHTML = `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${body}</div>`;
+        mk = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([d.lon, d.lat]).addTo(map);
+        if (d.block) el.addEventListener('click', () => onTap(d.block));
         // area chip → zoom in so its individual block pills appear
-        else if (d.cluster) mk.on('click', () => map.setView([d.lat, d.lon], 16, { animate: true }));
+        else if (d.cluster) el.addEventListener('click', () => map.easeTo({ center: [d.lon, d.lat], zoom: 16, duration: 500 }));
         // pop the new pill in with a small nearest-first stagger (25ms step, capped so a
         // big batch never drags on). Cached pills that merely re-appear on pan don't re-run.
         // fade the drop-in only on the cold load; later refreshes (zoom/pan/filter) render instantly.
-        const pill = firstPaint ? mk.getElement()?.firstElementChild : null;
+        const pill = firstPaint ? el.firstElementChild : null;
         if (pill) {
           pill.style.animationDelay = Math.min(dropN, 14) * 25 + 'ms';
           pill.classList.add('in');
@@ -316,7 +321,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     layer.lastRefreshMs = performance.now() - t0;
   }
 
-  map.on('moveend zoomend', refresh);
+  map.on('moveend', refresh);
+  map.on('zoomend', refresh);
   const timer = setInterval(refresh, 60000);
   const layer = {
     refresh,
@@ -324,7 +330,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     setSelected(id) { selectedId = id; applySel(); },
     setFilter(f) { filter = f; refresh(); },
     setFocus(pos) { focus = pos; },
-    destroy() { clearInterval(timer); map.off('moveend zoomend', refresh); },
+    destroy() { clearInterval(timer); map.off('moveend', refresh); map.off('zoomend', refresh); },
   };
   return layer;
 }

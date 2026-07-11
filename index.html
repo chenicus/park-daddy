@@ -21,8 +21,7 @@
 <meta name="twitter:description" content="Find street parking rates across Vancouver.">
 <meta name="twitter:image" content="https://chenicus.github.io/park-daddy/og.png">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="anonymous">
 <style>
   :root {
     --sheet: rgba(255,255,255,.72); --sheet-solid: #ffffff; --sheet-strong: rgba(252,252,253,.95); --map-cover: #f2f2f7;
@@ -68,50 +67,21 @@
      the URL bar shows/hides — leaving a blank strip and letting the whole document
      rubber-band-drag instead of the map panning. position:fixed locks it to the screen. */
   body { position: fixed; inset: 0; }
-  /* --map-rot: the follow session rotates the map by this; pills & compass needle counter/co-rotate.
-     Registered as an <angle> so it can TRANSITION — the transition below (on <html>, where the JS
-     sets it) then animates every reader in lockstep: map wrapper, price pills, compass needle. */
-  @property --map-rot { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
-  :root { --map-rot: 0deg; }
-  /* the smooth POV swing; suppressed by JS on session start/end. cubic-bezier(.32,.72,0,1) is
-     the app's iOS-style glide (also used by the cards) — fast start, long gentle settle. */
-  html { transition: --map-rot .55s cubic-bezier(.32,.72,0,1); }
-  /* #maprot wraps the Leaflet container — we rotate the WRAPPER, since Leaflet resets
-     transforms on its own container. #map fills the wrapper at every size. */
-  #maprot { position: absolute; inset: 0; z-index: 1; }
+  /* MapLibre GL renders the vector basemap on a GPU canvas that fills the screen. It rotates,
+     pitches and pans natively — no CSS-transform wrapper, no per-frame sub-pixel nudge. Price
+     pills, the dest pin and the car chevron are maplibregl.Marker HTML elements that MapLibre
+     keeps screen-upright automatically (rotationAlignment defaults to viewport), so none of the
+     old counter-rotation CSS is needed. */
   #map { position: absolute; inset: 0; }
-  /* Close the hairline seams between raster tiles. The centered follow wrapper translates by a
-     fractional pixel (−50% of 120vmax), nudging tile edges off the device-pixel grid so the
-     browser antialiases them into faint grid lines. Drawing each tile ½px larger overlaps its
-     neighbour by a uniform ½px (tiles stay on 256px centers, so no cumulative drift), hiding the
-     seam in every orientation. Costs an imperceptible 0.2% upscale of the muted basemap. */
-  .leaflet-tile { width: 256.5px !important; height: 256.5px !important; }
-  /* follow session (drive/nav, both orientations): oversize the wrapper so rotation never exposes
-     its corners, center it, then rotate. 120vmax always exceeds the viewport diagonal. Spanning
-     the whole session (not just heading-up) means a compass toggle only changes the angle, so the
-     map swings smoothly instead of resizing. */
-  /* The trailing translate(--pan-x,--pan-y) is the per-frame sub-pixel nudge (set by driving.js):
-     innermost so it lives in the map's own pixel space and rotates with the content, and it carries
-     no transition of its own so it tracks each frame exactly (only --map-rot eases). */
-  body.follow #maprot { inset: auto; top: 50%; left: 50%; width: 120vmax; height: 120vmax;
-    transform: translate(-50%, -50%) rotate(var(--map-rot)) translate(var(--pan-x, 0px), var(--pan-y, 0px));
-    transform-origin: center; }
-  /* keep price pills upright while the map is rotated (counter-rotate in lockstep via the same var) */
-  body.follow .plabel { transform: translate(-50%, calc(-100% - 8px)) rotate(calc(-1 * var(--map-rot))); }
-  /* the searched-destination pin stays upright too — never tips with the map POV. The
-     counter-rotation lives on a wrapper because .destpin itself runs the pinDrop animation
-     (an animated transform would override a plain transform on the same element). */
+  #map canvas { outline: none; }
+  /* the searched-destination pin wrapper (the marker element); .destpin runs the pinDrop anim */
   .destpinwrap { display: block; width: 34px; height: 34px; transform-origin: center bottom; }
-  body.follow .destpinwrap { transform: rotate(calc(-1 * var(--map-rot))); }
-  /* leaflet's own attribution rides off-screen when the map is oversized — show a fixed one */
-  #rotattr { position: fixed; z-index: 640; right: 7px; bottom: 3px; font-size: var(--fs-micro);
-    color: var(--muted); display: none; pointer-events: none; letter-spacing: 0; }
-  body.follow #rotattr { display: block; }
-  .leaflet-control-attribution { font-size: var(--fs-micro); background: transparent !important;
-    color: var(--tertiary); box-shadow: none; padding: 0 6px; }
-  .leaflet-control-attribution a { color: var(--tertiary); text-decoration: none; }
-  .leaflet-control-attribution svg,
-  .leaflet-attribution-flag { display: none !important; }
+  /* MapLibre's built-in attribution control — mute it to match the app chrome */
+  .maplibregl-ctrl-attrib { font-size: var(--fs-micro); background: transparent !important;
+    color: var(--tertiary); box-shadow: none; }
+  .maplibregl-ctrl-attrib a { color: var(--tertiary); text-decoration: none; }
+  .maplibregl-ctrl-attrib-button, .maplibregl-ctrl-bottom-right .maplibregl-ctrl-logo { display: none !important; }
+  .maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right { z-index: 500; }
 
   /* ===== ICON SYSTEM ==========================================================
      Every icon is Lucide (24×24 viewBox, 2px stroke, round caps).
@@ -294,7 +264,7 @@
   .plabel { position: absolute; transform: translate(-50%, calc(-100% - 8px)); transform-origin: bottom center;
     white-space: nowrap; padding: 3px 9px; border-radius: 13px; font-size: var(--fs-caption); font-weight: 500;
     color: var(--plabel-ink); background: var(--c); border: 1.5px solid var(--plabel-ink); box-shadow: 0 1px 3px rgba(0,0,0,.3); cursor: pointer;
-    transition: box-shadow .2s ease, background .2s ease; }  /* transform driven by --map-rot's own transition */
+    transition: box-shadow .2s ease, background .2s ease; }  /* MapLibre keeps the marker upright; CSS translate just lifts the pill above its point */
   .plabel::before, .plabel::after { content: ''; position: absolute; top: 100%; left: 50%;
     width: 0; height: 0; border-style: solid; border-color: transparent; transform: translateX(-50%); }
   .plabel::before { border-width: 8px 7px 0 7px; border-top-color: var(--plabel-ink); }               /* outline (white in light, dark in dark) */
@@ -383,10 +353,9 @@
        the GPS point/route line, and rotate about that centroid (not the box center) */
     position: relative; top: -2px; transform-origin: 50% 60%;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
-  /* Keep the marker upright no matter the heading or POV — counter-rotate the map's
-     rotation in lockstep, exactly like the price pills. Transform rides --map-rot's own
-     transition (on <html>), so no per-element transition here. */
-  body.follow .chev { transform: rotate(calc(-1 * var(--map-rot))); }
+  /* The chevron is a maplibregl.Marker with rotationAlignment:'map' and setRotation(heading),
+     so it points along the true heading and rotates with the map natively — pointing screen-up
+     in heading-up drive mode, and along the heading when north-up. No CSS rotation needed. */
 
   /* ---- driving-mode chrome ---- */
   /* Drive mode is the default surface now — the search bar stays put so you can
@@ -414,19 +383,20 @@
   body.driving #recenter { right: auto; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
   /* during turn-by-turn, recenter + compass + theme toggle float as a right-side stack above the full-width ETA bar */
   body.nav #recenter { left: auto; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 210px); }
-  /* compass toggle — heading-up (POV) ⇄ north-up; shown in Drive mode and turn-by-turn.
-     The whole needle rotates by --map-rot so its red tip always points to true north. */
+  /* compass — heading-up (POV) ⇄ north-up in drive/nav, north-reset in browse. JS rotates the
+     needle by -bearing on every map 'rotate' so its point always holds true north. */
   #compass { position: absolute; z-index: 600; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
     display: none; place-items: center; color: var(--text); cursor: pointer; }
-  body.nav #compass, body.driving #compass { display: grid; }
+  /* shown in drive/nav (heading-up toggle) and, like Google Maps, whenever the map is rotated
+     off north in plain browse mode (body.rotated, set by JS on the map 'rotate' event). */
+  body.nav #compass, body.driving #compass, body.rotated #compass { display: grid; }
   /* Nav bar takes the bottom, so the whole right-side stack lifts together — but keeps
      the drive-mode order (theme lowest, compass above it, recenter on top). */
   body.nav #compass { bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
   #compass:active { filter: brightness(.94); }
-  /* no own transition — the needle rides the shared --map-rot transition (on <html>) so it
-     swings in perfect lockstep with the map wrapper; its own would double up and lag behind. */
-  #compass svg { width: 26px; height: 26px; transform: rotate(var(--map-rot)); }
+  /* JS rotates the needle by -bearing on every map 'rotate' so its point always holds true north. */
+  #compass svg { width: 26px; height: 26px; }
   /* theme toggle (light/dark) — always right-aligned with recenter/compass, so it moves straight
      up the same column in drive/nav mode instead of jumping across the screen. */
   #themetoggle { position: absolute; z-index: 600; right: 16px;
@@ -620,7 +590,7 @@
   }
 </style>
 
-<div id="maprot"><div id="map"></div></div>
+<div id="map"></div>
 
 <!-- boot skeleton: ghost pills that shimmer until the first real pills render -->
 <div id="skel" aria-hidden="true">
@@ -681,7 +651,6 @@
 <button class="fab mat" id="recenter" type="button" aria-label="Re-center on my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
 <button class="mat" id="compass" type="button" aria-label="Toggle heading-up or north-up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></button>
 <button class="mat" id="themetoggle" type="button" aria-label="Toggle light or dark mode"></button>
-<div id="rotattr">© OpenStreetMap © CARTO</div>
 
 <div id="navbanner">
   <div class="nb-arrow" id="nbarrow"></div>
@@ -799,9 +768,8 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=45"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+<script type="module" src="app.js?v=48"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -54,19 +54,22 @@ export async function fetchRoute(from, to) {
 }
 
 export function createNav({ map }) {
-  let route = null, casing = null, line = null, offCount = 0;
+  let route = null, offCount = 0;
+  // The 'route' GL source (with casing + line layers) is installed once by app.js and re-added on
+  // theme swap; we only push geometry into it. coords are [lat,lon] → GeoJSON needs [lon,lat].
+  const setRoute = (fc) => { const s = map.getSource('route'); if (s) s.setData(fc); };
 
   function begin(r) {
-    clear();
     route = r;
-    casing = L.polyline(r.coords, { color: '#fff', weight: 10, opacity: 0.85, interactive: false }).addTo(map);
-    line = L.polyline(r.coords, { color: '#1e1e20', weight: 6, interactive: false }).addTo(map);
+    offCount = 0;
+    setRoute({ type: 'FeatureCollection', features: [{
+      type: 'Feature', geometry: { type: 'LineString', coordinates: r.coords.map(([la, lo]) => [lo, la]) },
+    }] });
   }
   function clear() {
-    if (casing) map.removeLayer(casing);
-    if (line) map.removeLayer(line);
-    route = casing = line = null;
+    route = null;
     offCount = 0;
+    setRoute({ type: 'FeatureCollection', features: [] });
   }
 
   // project the fix onto the route: meters off it + meters along it
