@@ -59,7 +59,11 @@
     --stroke: rgba(255,255,255,.12); --plabel-ink: #16181d; --chip-on-stroke: rgba(0,0,0,.16);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; overflow: hidden; overscroll-behavior: none; color: var(--text); background: var(--map-cover);
+  /* overflow:clip (not hidden) forbids programmatic scrolling too — the off-screen sheets
+     (translateY 110% / translateX 100%) extend the body's scroll range, and a browser-driven
+     scroll (e.g. iOS focusing the search input) would otherwise scroll the whole app up and
+     leave it stuck there. clip creates no scroll container, so scrollTop can never move. */
+  html, body { margin: 0; overflow: clip; overscroll-behavior: none; color: var(--text); background: var(--map-cover);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
   html { height: 100%; }
@@ -358,9 +362,10 @@
      in heading-up drive mode, and along the heading when north-up. No CSS rotation needed. */
 
   /* ---- driving-mode chrome ---- */
-  /* Drive mode is the default surface now — the search bar stays put so you can
-     look up an address at any time; only the browse-only chrome hides. */
-  body.driving .chips, body.driving .tripcard { display: none; }
+  /* Drive mode is the default surface now — the search bar, filters and arrival chips
+     all stay put so you can look up an address or change what's shown at any time. Only
+     turn-by-turn nav hides the chips: its banner owns the top strip. */
+  body.nav .chips, body.nav .tripcard { display: none; }
   /* No manual drive toggle: the app boots into follow, so the old car/X button is gone. */
   .drivebtn-top { display: none; }
   /* Plain drive mode routes recenter through the morphing compass; keep the standalone
@@ -769,7 +774,7 @@
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=48"></script>
+<script type="module" src="app.js?v=49"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -219,29 +219,45 @@ async function loadCity(key) {
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
 }
 
-// Pick the opening city from geolocation (fallback: default), center there, load it.
+// Open on a city immediately, then best-effort recenter on the user. We deliberately do NOT
+// block the first paint on geolocation: the browser's permission prompt has no timeout until
+// the user answers, so awaiting a fix can hang the boot skeleton forever if the prompt is
+// ignored (common at a red light). Paint the default city first; if a fix lands within a few
+// seconds and it's in a covered city, pan there.
 (async () => {
-  let key = DEFAULT_CITY, center = null;
-  if (params.get('lat') && params.get('lon')) {
-    center = { lat: +params.get('lat'), lon: +params.get('lon') };
-    key = cityAt(center.lat, center.lon) || DEFAULT_CITY;
-  } else {
-    const pos = await getPosition().catch(() => null);
-    const k = pos && cityAt(pos.lat, pos.lon);
-    if (k) { key = k; center = pos; }
-  }
-  activeCity = key;
-  const c = CITIES[key];
   await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
-  // c.center is stored as Leaflet [lat, lon]; MapLibre wants [lng, lat].
-  const ctr = center ? [center.lon, center.lat] : [c.center[1], c.center[0]];
-  map.jumpTo({ center: ctr, zoom: center ? 16 : c.zoom });
-  await loadCity(key);
+
+  // Deep link with explicit coords: honor it exactly — no geolocation needed.
   if (params.get('lat') && params.get('lon')) {
-    run({ lat: +params.get('lat'), lon: +params.get('lon'), name: params.get('dest') || 'Dropped pin' }, true);
-  } else if (params.get('dest')) {
-    run(null, true);
+    const center = { lat: +params.get('lat'), lon: +params.get('lon') };
+    const key = cityAt(center.lat, center.lon) || DEFAULT_CITY;
+    activeCity = key;
+    map.jumpTo({ center: [center.lon, center.lat], zoom: 16 });   // MapLibre wants [lng, lat]
+    await loadCity(key);
+    run({ lat: center.lat, lon: center.lon, name: params.get('dest') || 'Dropped pin' }, true);
+    return;
   }
+
+  // Paint the default city now so pills show right away. Passive drive mode (see
+  // initLiveLabels) recenters the camera on the user once GPS warms up; here we only detect +
+  // load the RIGHT city's data. c.center is Leaflet [lat, lon]; MapLibre wants [lng, lat].
+  const c = CITIES[DEFAULT_CITY];
+  activeCity = DEFAULT_CITY;
+  map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
+  await loadCity(DEFAULT_CITY);
+
+  if (params.get('dest')) { run(null, true); return; }   // text-search deep link
+
+  // Best-effort recenter, capped at 5s so a slow or ignored permission prompt never stalls boot.
+  const pos = await Promise.race([
+    getPosition().catch(() => null),
+    new Promise((r) => setTimeout(() => r(null), 5000)),
+  ]);
+  if (!pos) return;
+  const key = cityAt(pos.lat, pos.lon);
+  if (!key) return;                                      // outside coverage — stay on the default city
+  if (key !== activeCity) { activeCity = key; await loadCity(key); }
+  map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
 })();
 
 function setStatus(msg) { toast(msg, 4000); }
