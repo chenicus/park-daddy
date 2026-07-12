@@ -1,5 +1,5 @@
-import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=14';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=25';
+import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=26';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=5';
 import { createDriving, SIM_START } from './driving.js?v=26';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
@@ -856,30 +856,50 @@ const money = (r) => '$' + r.toFixed(2);
 // rate2 6pm–10pm, free after 10pm — with adjacent windows merged when their rate AND
 // time-limit match, so a flat all-day meter reads as one row but a meter whose limit
 // changes at 6pm (e.g. 2h → 4h) splits so each window can show its own "Max Nh".
-function daySegments(b, wknd) {
+function daySegments(b, wknd, dow) {
   const rushes = b.rushes || [];
+  const prohWins = prohibitionWindowsForDay(b, dow);   // today's [start, end, zone] no-park windows
   const rateAt = (m) => (m < ENF_START || m >= ENF_END) ? 0 : (m < MID ? (b.rate1 || 0) : (b.rate2 || 0));
-  const towAt = (m) => rushes.some((r) => m >= r[0] && m < r[1]);
-  // cut the day at every window edge AND every tow-away boundary, then classify
-  // each slice by its midpoint so rush hours carve "no parking" gaps out of the rates
+  // no-park at m: a rush tow-away (true) or a prohibition zone (its name), else false
+  const noParkAt = (m) => {
+    if (rushes.some((r) => m >= r[0] && m < r[1])) return true;
+    const w = prohWins.find(([s, e]) => m >= s && m < e);
+    return w ? w[2] : false;
+  };
+  // cut the day at every window edge AND every no-park boundary, then classify
+  // each slice by its midpoint so rush + prohibition windows carve "no parking" out of the rates
   const bounds = new Set([0, ENF_START, MID, ENF_END, 1440]);
   for (const r of rushes) {
     if (r[0] > 0 && r[0] < 1440) bounds.add(r[0]);
     if (r[1] > 0 && r[1] < 1440) bounds.add(r[1]);
   }
+  for (const [s, e] of prohWins) {
+    if (s > 0 && s < 1440) bounds.add(s);
+    if (e > 0 && e < 1440) bounds.add(e);
+  }
   const pts = [...bounds].sort((x, y) => x - y);
   const segs = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const from = pts[i], to = pts[i + 1], mid = (from + to) / 2;
-    const tow = towAt(mid);
+    const np = noParkAt(mid);
+    const tow = !!np;
+    const zone = typeof np === 'string' ? np : null;   // prohibition reason (else it's a rush tow-away)
     const rate = tow ? 0 : rateAt(mid);
     const limit = (!tow && rate > 0) ? limitNow(b.limits, mid, wknd) : null;   // only paid windows carry a limit
     const last = segs[segs.length - 1];
-    if (last && last.tow === tow && last.rate === rate && last.limit === limit) last.to = to;
-    else segs.push({ from, to, rate, tow, limit });
+    if (last && last.tow === tow && last.rate === rate && last.limit === limit && last.zone === zone) last.to = to;
+    else segs.push({ from, to, rate, tow, limit, zone });
   }
   return segs;
 }
+// friendly label for a prohibition zone code shown in the schedule
+const ZONE_LABEL = {
+  'NO STOPPING': 'No stopping', 'LOADING ZONE': 'Loading zone', 'CVLZ': 'Commercial loading',
+  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit only', 'TAXI ZONE': 'Taxi only',
+  'MILITARY ZONE': 'Military only', 'POLICE ZONE': 'Police only', 'TOUR BUS ZONE': 'Tour bus only',
+  'AUTHORIZED VEHICLES ONLY': 'Authorized only',
+};
+const zoneLabel = (z) => ZONE_LABEL[z] || (z ? z[0] + z.slice(1).toLowerCase() : 'No parking');
 
 // Seattle blockface schedule for today: paid inside each rate band, free in the gaps
 // (before the first band, between bands, after the last — and all day Sunday). Free-but-
@@ -908,11 +928,11 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend());
+  const segs = b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
     const active = mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
-    const cost = s.tow ? 'No parking' : (free ? 'Free' : `${money(s.rate)}/hr`);
+    const cost = s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`);
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? ` <span class="lim">· Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
@@ -977,19 +997,27 @@ function showSpotCard(b) {
 
   const rows = [];
   if (b.flat != null) rows.push(`${IC.dollar} ${money(b.flat)} flat evening rate`);
-  // the full-day schedule table already shows every tow-away window; this row is
-  // only an urgency nudge when one is about to start (the table can be scrolled past)
-  const tow = towSoon(b, mins, 90);
-  if (tow) {
-    // compact range: drop :00 and the leading meridiem when both ends share it → "3–7pm"
-    const short = (m) => {
-      const h = Math.floor(m / 60) % 24, mm = m % 60;
-      return { t: (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : ''), ap: h >= 12 ? 'pm' : 'am' };
-    };
-    const s = short(tow[0]), e = short(tow[1]);
-    const range = (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap;
-    const soon = tow[0] - mins <= 90 ? ` starts in ${tow[0] - mins} min` : '';
-    rows.push(`<span class="warn">${IC.alert} No parking ${range} · tow-away${soon}</span>`);
+  const dow = dowNow();
+  // compact clock: drop :00 and share the meridiem across a range → "3–7pm"
+  const short = (m) => {
+    const h = Math.floor(m / 60) % 24, mm = m % 60;
+    return { t: (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : ''), ap: h >= 12 ? 'pm' : 'am' };
+  };
+  const fmtWin = (a, z) => { const s = short(a), e = short(z); return (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap; };
+  // A prohibition active right now — rare via a pill tap (those are hidden while active) but
+  // reachable by search; call it out plainly.
+  const pNow = prohibitionNow(b, mins, dow);
+  if (pNow) rows.push(`<span class="warn">${IC.alert} No parking now · ${zoneLabel(pNow)}</span>`);
+  // Upcoming no-park within the ~2h stay: a rush tow-away OR a prohibition zone. The full-day
+  // schedule already lists every window; this is the urgency nudge you can't scroll past.
+  const STAY = 120;
+  let soonest = null;   // [start, end, zoneOrNull]
+  for (const r of (b.rushes || [])) if (r[0] > mins && r[0] - mins <= STAY && (!soonest || r[0] < soonest[0])) soonest = [r[0], r[1], null];
+  for (const w of prohibitionWindowsForDay(b, dow)) if (w[0] > mins && w[0] - mins <= STAY && (!soonest || w[0] < soonest[0])) soonest = w;
+  if (soonest && !pNow) {
+    const reason = soonest[2] ? zoneLabel(soonest[2]) : 'tow-away';
+    const soon = soonest[0] - mins <= 90 ? ` starts in ${soonest[0] - mins} min` : '';
+    rows.push(`<span class="warn">${IC.alert} No parking ${fmtWin(soonest[0], soonest[1])} · ${reason}${soon}</span>`);
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
   $('scmaps').href = navUrl(b);

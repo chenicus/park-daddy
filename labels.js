@@ -10,7 +10,8 @@
 import {
   parseMoney, parseTimeLimit, parseRange, distMeters,
   rateNow, limitNow, bandRateNow, inRange,
-} from './rank.js?v=14';
+  parseProhibitions, prohibitionNow,
+} from './rank.js?v=15';
 
 // Seattle prices by blockface (a line + a midpoint), not per-meter points. Each record
 // is already one "block"; we reuse the whole pill/declutter/zoom machinery but draw a
@@ -98,6 +99,7 @@ export function buildBlocks(meters) {
         if (b.key === key && distMeters(b.lat, b.lon, g.lat, g.lon) <= JOIN_M) { target = b; break outer; }
       }
     }
+    const proh = parseProhibitions(m);   // NO STOPPING / loading / permit-only windows for this meter
     if (!target) {
       target = {
         id: blocks.length, key, lat: g.lat, lon: g.lon, count: 0, spaces: 0, pts: [],
@@ -108,12 +110,20 @@ export function buildBlocks(meters) {
           wkndDay: parseTimeLimit(m.time_limit_weekend_9am_6pm), wkndEve: parseTimeLimit(m.time_limit_weekend_6pm_10pm),
         },
         rushes: [parseRange(m.am_rush_hours), parseRange(m.pm_rush_hours)].filter(Boolean),
+        prohibitions: proh,
         card: /yes/i.test(m.credit_card || ''),
       };
       blocks.push(target);
       const ck = ci + ',' + cj;
       if (!grid.has(ck)) grid.set(ck, []);
       grid.get(ck).push(target.id);
+    } else {
+      // meters on one joined face can differ in restriction — union their windows so a
+      // loading/no-stopping zone is never lost when merged with an unrestricted meter.
+      for (const q of proh) {
+        if (!target.prohibitions.some((x) => x.zone === q.zone && x.start === q.start && x.end === q.end && x.days === q.days))
+          target.prohibitions.push(q);
+      }
     }
     target.lat = (target.lat * target.count + g.lat) / (target.count + 1);
     target.lon = (target.lon * target.count + g.lon) / (target.count + 1);
@@ -179,7 +189,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     selMarker = mk;
   }
 
-  function visibleActive(mins) {
+  function visibleActive(mins, dow) {
     // pad the viewport ~10% so pills/dots don't pop right at the edge
     const b = map.getBounds();
     const s = b.getSouth(), n = b.getNorth(), w = b.getWest(), e = b.getEast();
@@ -187,11 +197,12 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     return blocks.filter((bl) =>
       bl.lat > s - dLat && bl.lat < n + dLat &&
       bl.lon > w - dLon && bl.lon < e + dLon && !towActive(bl, mins) &&
+      !prohibitionNow(bl, mins, dow) &&   // NO STOPPING / loading / permit-only active now → not parkable
       !flags(bl).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
   }
 
   function pillDesired(z, mins, wknd, dow) {
-    const vis = visibleActive(mins);
+    const vis = visibleActive(mins, dow);
     const ctr = focus || map.getCenter();
     const ctrLat = ctr.lat, ctrLon = ctr.lng != null ? ctr.lng : ctr.lon;
 
@@ -271,7 +282,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   function refreshDots(z, mins, dow) {
     if (z < 11) { setDotData(EMPTY_LABEL_FC); setLineData(EMPTY_LABEL_FC); return; }
     const dots = [], lines = [];
-    for (const bl of visibleActive(mins)) {
+    for (const bl of visibleActive(mins, dow)) {
       const r = rateFor(bl, mins, dow);
       if (!keep(r.free)) continue;
       const col = DOT_COLOR[bucket(r.rate, r.free)];

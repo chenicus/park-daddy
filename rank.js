@@ -39,6 +39,91 @@ export function parseRange(s) {
   return [to(m[1], m[2], m[3]), to(m[4], m[5], m[6])];
 }
 
+// ---- prohibition zones (NO STOPPING / loading / permit-only / taxi / etc.) ----
+// Vancouver meters carry up to two "prohibition" windows during which a general vehicle may
+// NOT park at all (ticket/tow) even though the meter is otherwise a normal paid spot. Unlike
+// rate windows these are day-of-week gated and often wrap past midnight (e.g. 6pm-2am). The app
+// previously ignored them entirely, so ~268 no-stopping/loading spots rendered as parkable.
+const DAY_IDX = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+const ALL_DAYS = 0b1111111;
+export function parseDays(s) {
+  if (!s) return ALL_DAYS;                 // no day info → assume every day (safer to over-warn)
+  const t = s.toLowerCase();
+  if (/7 days/.test(t)) return ALL_DAYS;
+  const range = t.match(/(sun|mon|tue|wed|thu|fri|sat)[a-z]*\s*-\s*(sun|mon|tue|wed|thu|fri|sat)/);
+  if (range) {
+    let mask = 0;
+    for (let d = DAY_IDX[range[1]]; ; d = (d + 1) % 7) { mask |= 1 << d; if (d === DAY_IDX[range[2]]) break; }
+    return mask;
+  }
+  let mask = 0;
+  for (const k in DAY_IDX) if (t.includes(k)) mask |= 1 << DAY_IDX[k];
+  return mask || ALL_DAYS;
+}
+const dayHas = (mask, dow) => (mask >> dow) & 1;
+function clockTok(tok) {
+  tok = tok.trim().toLowerCase();
+  if (tok === 'noon') return 720;
+  if (tok === 'midnight') return 1440;     // only ever appears as an end bound in the feed
+  const m = tok.match(/^([0-9]{1,2})(?::([0-9]{2}))?\s*(am|pm)?$/);
+  if (!m) return null;
+  let h = +m[1]; const min = m[2] ? +m[2] : 0, ap = m[3];
+  if (ap === 'pm' && h !== 12) h += 12;
+  if (ap === 'am' && h === 12) h = 0;
+  return h * 60 + min;
+}
+// "7:00am to Noon" -> [420,720]; "6:00pm to 2:00am" -> [1080,120] (wraps); "Anytime" -> [0,1440]
+function parseProhTime(s) {
+  if (!s) return null;
+  if (/anytime/i.test(s)) return [0, 1440];
+  const parts = s.split(/\s+to\s+/i);
+  if (parts.length !== 2) return null;
+  const a = clockTok(parts[0]), b = clockTok(parts[1]);
+  return (a == null || b == null) ? null : [a, b];
+}
+// Parse a meter record's two prohibition slots into [{ days, start, end, zone }].
+export function parseProhibitions(m) {
+  const out = [];
+  for (const n of [1, 2]) {
+    const zone = m['prohibition_' + n + '_zone'];
+    if (!zone) continue;
+    const range = parseProhTime(m['prohibition_' + n + '_time']);
+    if (!range) continue;
+    out.push({ days: parseDays(m['prohibition_' + n + '_days']), start: range[0], end: range[1], zone });
+  }
+  return out;
+}
+// Active prohibition zone at `mins` on weekday `dow` (0=Sun..6=Sat), or null. For a window that
+// wraps past midnight the after-midnight tail belongs to the day the window STARTED (prev day).
+export function prohibitionNow(block, mins, dow) {
+  const ps = block.prohibitions;
+  if (!ps || !ps.length) return null;
+  const prev = (dow + 6) % 7;
+  for (const p of ps) {
+    if (p.start < p.end) {                                   // same-day window (incl. Anytime 0..1440)
+      if (dayHas(p.days, dow) && mins >= p.start && mins < p.end) return p.zone;
+    } else if (p.start > p.end) {                            // wraps past midnight
+      if (dayHas(p.days, dow) && mins >= p.start) return p.zone;   // evening, tonight
+      if (dayHas(p.days, prev) && mins < p.end) return p.zone;     // morning tail from last night
+    }
+  }
+  return null;
+}
+// Today's prohibition windows as [start, end, zone], clamped to [0,1440] (wrap split into two).
+export function prohibitionWindowsForDay(block, dow) {
+  const ps = block.prohibitions;
+  if (!ps || !ps.length) return [];
+  const prev = (dow + 6) % 7, out = [];
+  for (const p of ps) {
+    if (p.start < p.end) { if (dayHas(p.days, dow)) out.push([p.start, p.end, p.zone]); }
+    else if (p.start > p.end) {
+      if (dayHas(p.days, dow)) out.push([p.start, 1440, p.zone]);
+      if (dayHas(p.days, prev)) out.push([0, p.end, p.zone]);
+    }
+  }
+  return out;
+}
+
 function overlap(aStart, aEnd, bStart, bEnd) {
   return Math.max(0, Math.min(aEnd, bEnd) - Math.max(aStart, bStart));
 }

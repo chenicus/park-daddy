@@ -3,7 +3,7 @@
 // and turns GPS fixes into progress: current step, ETA, off-route, arrival.
 // (Was OSRM; the public OSRM demo servers proved too flaky — Valhalla also
 // ships ready-made English instructions.)
-import { distMeters } from './rank.js?v=11';
+import { distMeters } from './rank.js?v=15';
 
 const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
 

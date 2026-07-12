@@ -2,7 +2,7 @@
 // Routing lives in nav.js — this module only produces fixes and follows them.
 // MapLibre renders/eases the map on the GPU, so following is a single easeTo per fix
 // (center + heading-up bearing) — no hand-rolled sub-pixel glide or dead-reckoning.
-import { distMeters } from './rank.js?v=11';
+import { distMeters } from './rank.js?v=15';
 
 function bearingDeg(lat1, lon1, lat2, lon2) {
   const rad = Math.PI / 180;
