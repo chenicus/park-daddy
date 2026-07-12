@@ -2,7 +2,7 @@ import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID,
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=24';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=4';
 import { createDriving, SIM_START } from './driving.js?v=26';
-import { fetchRoute, createNav, fmtDist } from './nav.js?v=15';
+import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
 const $ = (id) => document.getElementById(id);
@@ -124,7 +124,9 @@ function installLayers() {
 function ensureLayers() {
   if (!map.isStyleLoaded() || map.getLayer('meter-dots')) return;
   installLayers();
-  if (labelLayer) labelLayer.refresh();
+  if (labelLayer) labelLayer.refresh();       // re-push meter dots + blockface lines
+  if (nav) nav.redraw();                       // re-push the active route line (its source was emptied)
+  if (cardBlock) drawSpotLine(cardBlock);      // re-push the open spot's dashed connector line
 }
 map.on('styledata', ensureLayers);
 map.on('idle', ensureLayers);

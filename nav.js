@@ -59,18 +59,22 @@ export function createNav({ map }) {
   // theme swap; we only push geometry into it. coords are [lat,lon] → GeoJSON needs [lon,lat].
   const setRoute = (fc) => { const s = map.getSource('route'); if (s) s.setData(fc); };
 
+  const routeFC = () => ({ type: 'FeatureCollection', features: route ? [{
+    type: 'Feature', geometry: { type: 'LineString', coordinates: route.coords.map(([la, lo]) => [lo, la]) },
+  }] : [] });
   function begin(r) {
     route = r;
     offCount = 0;
-    setRoute({ type: 'FeatureCollection', features: [{
-      type: 'Feature', geometry: { type: 'LineString', coordinates: r.coords.map(([la, lo]) => [lo, la]) },
-    }] });
+    setRoute(routeFC());
   }
   function clear() {
     route = null;
     offCount = 0;
-    setRoute({ type: 'FeatureCollection', features: [] });
+    setRoute(routeFC());
   }
+  // Re-push the current route geometry. A theme swap reloads the whole style, which recreates the
+  // 'route' source EMPTY — without this the drawn line vanishes mid-navigation until the next reroute.
+  function redraw() { setRoute(routeFC()); }
 
   // project the fix onto the route: meters off it, meters along it, and the snapped point
   // (the foot of the perpendicular — the spot on the road nearest the raw GPS fix).
@@ -122,7 +126,7 @@ export function createNav({ map }) {
     };
   }
 
-  return { begin, clear, update, snap, isActive: () => !!route };
+  return { begin, clear, update, snap, redraw, isActive: () => !!route };
 }
 
 export const fmtDist = (m) => m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.max(10, Math.round(m / 10) * 10) + ' m';
