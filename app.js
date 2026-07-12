@@ -784,7 +784,7 @@ function blockForMeter(m) {
 
 // ---- turn-by-turn -------------------------------------------------------------
 async function startNav(target) {
-  $('spotcard').hidden = true; cardBlock = null;
+  closeSpotCard();   // full teardown (spot line + pill highlight), not just hide
   const dest = { lat: target.lat, lon: target.lon };
   const from = driving.lastPos() || (params.get('sim') ? SIM_START : await getPosition());
   if (!from) { toast('Could not get your location — opening Google Maps.'); window.open(navUrl(dest)); return; }
@@ -835,10 +835,12 @@ function endNav(arrived) {
   if (arrived) toast('You’ve arrived — tap any price on the map to see spot details.', 7000);
 }
 
+let toastTimer = null;
 function toast(msg, ms = 5000) {
   const t = $('toast');
   t.textContent = msg; t.style.display = 'block';
-  setTimeout(() => { t.style.display = 'none'; }, ms);
+  clearTimeout(toastTimer);   // a prior toast's pending hide-timer must not hide this newer one
+  toastTimer = setTimeout(() => { t.style.display = 'none'; }, ms);
 }
 
 
@@ -1163,7 +1165,7 @@ function initLiveLabels() {
       if (cardBlock) {
         const d = distMeters(pos.lat, pos.lon, cardBlock.lat, cardBlock.lon);
         if (d > 150 && cardOpenDist != null && d > cardOpenDist + 40) {
-          $('spotcard').hidden = true; cardBlock = null;
+          closeSpotCard();   // clears the dashed spot line + pill highlight too, not just the card
         }
         if (cardOpenDist != null) cardOpenDist = Math.min(cardOpenDist, d);
       }

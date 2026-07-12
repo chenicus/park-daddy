@@ -1,5 +1,5 @@
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Park Daddy</title>
 <meta name="description" content="Find street parking rates in Vancouver, Seattle & San Francisco.">
 <meta id="themeColor" name="theme-color" content="#ffffff">
@@ -25,7 +25,7 @@
 <style>
   :root {
     --sheet: rgba(255,255,255,.72); --sheet-solid: #ffffff; --sheet-strong: rgba(252,252,253,.95); --map-cover: #f2f2f7;
-    --text: #000000; --muted: rgba(60,60,67,.6); --muted-strong: rgba(60,60,67,.85); --tertiary: rgba(60,60,67,.3);
+    --text: #000000; --muted: rgba(60,60,67,.75); --muted-strong: rgba(60,60,67,.85); --tertiary: rgba(60,60,67,.3);
     --line: rgba(60,60,67,.16); --line-strong: rgba(60,60,67,.29);
     --chip: rgba(120,120,128,.12); --chip-sel: rgba(255,255,255,.87); --accent: #000000; --on-accent: #fff; --clock-filter: brightness(0);
     --navy: rgba(30,30,32,.86); --green: #34c759; --free: #2563eb; --sel: #000000; --pin: #1c1c1e; --pin-fg: #fff; --pin-stroke: #fff; --pin-shadow: drop-shadow(0 2px 3px rgba(0,0,0,.4));
@@ -566,9 +566,7 @@
     background: var(--accent); color: var(--on-accent); font-family: inherit; font-size: var(--fs-headline);
     font-weight: 600; letter-spacing: -.3px; cursor: pointer; }
   .rs-submit:disabled { opacity: .55; }
-  @media (prefers-color-scheme: dark) and (max-width: 0px) {
-    .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
-  }
+  :root[data-theme="dark"] .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
 
   #toast { position: absolute; z-index: 700; left: 16px; right: 16px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); background: rgba(30,30,32,.86);
@@ -774,7 +772,7 @@
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=56"></script>
+<script type="module" src="app.js?v=57"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies.
      Disabled until a real token is set: shipping the placeholder fired a failing beacon
