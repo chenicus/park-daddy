@@ -788,6 +788,8 @@
   .wc-sub b { color: var(--text); font-weight: 600; }
   .wc-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
   .wc-row { display: flex; align-items: center; gap: 14px; padding: 14px 15px; border-radius: 16px;
+    -webkit-appearance: none; appearance: none;  /* iOS: native button chrome paints a light bg
+       over our dark sheet colour, hiding the white labels in dark mode — neutralize it. */
     border: 1.5px solid var(--line); background: var(--sheet-solid); color: var(--text);
     font-family: inherit; cursor: pointer; text-align: left;
     transition: transform .1s ease, border-color .15s ease, background .15s ease; }
