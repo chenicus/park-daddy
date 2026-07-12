@@ -61,6 +61,13 @@ function dowNow() {
 
 const darkMedia = window.matchMedia('(prefers-color-scheme: dark)');
 const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Safe localStorage: some browsers (blocked cookies, hardened privacy modes, embedded webviews)
+// THROW on access. This runs at module-eval time, so an unguarded read here would abort the whole
+// script before any UI boots. Every access goes through here.
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
 // CARTO's free, no-API-key VECTOR styles — Positron (light) / Dark Matter (dark). Vector so the
 // map can truly rotate/pitch and MapLibre keeps street labels upright; near-identical muted look
 // to the old raster basemaps. Attribution rides inside each style's sources → shown by the
@@ -69,7 +76,7 @@ const STYLES = {
   light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
   dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
 };
-const initTheme = (localStorage.getItem('pd_theme') || (darkMedia.matches ? 'dark' : 'light'));
+const initTheme = (store.get('pd_theme') || (darkMedia.matches ? 'dark' : 'light'));
 let curStyle = STYLES[initTheme === 'dark' ? 'dark' : 'light'];
 map = new maplibregl.Map({
   container: 'map',
@@ -154,13 +161,13 @@ function applyTheme(theme) {
   if (tt) tt.innerHTML = theme === 'dark' ? SUN_SVG : MOON_SVG;  // shows the mode you'd switch TO
   setTiles();
 }
-applyTheme(localStorage.getItem(THEME_KEY) || (darkMedia.matches ? 'dark' : 'light'));
+applyTheme(store.get(THEME_KEY) || (darkMedia.matches ? 'dark' : 'light'));
 darkMedia.addEventListener('change', () => {
-  if (!localStorage.getItem(THEME_KEY)) applyTheme(darkMedia.matches ? 'dark' : 'light');
+  if (!store.get(THEME_KEY)) applyTheme(darkMedia.matches ? 'dark' : 'light');
 });
 document.getElementById('themetoggle')?.addEventListener('click', (e) => {
   const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-  const swap = () => { localStorage.setItem(THEME_KEY, next); applyTheme(next); };
+  const swap = () => { store.set(THEME_KEY, next); applyTheme(next); };
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   // Circular wipe from the button's center; falls back to an instant swap where
@@ -230,14 +237,16 @@ async function loadCity(key) {
 (async () => {
   await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
 
-  // Deep link with explicit coords: honor it exactly — no geolocation needed.
-  if (params.get('lat') && params.get('lon')) {
-    const center = { lat: +params.get('lat'), lon: +params.get('lon') };
-    const key = cityAt(center.lat, center.lon) || DEFAULT_CITY;
+  // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
+  // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
+  // un-caught boot IIFE, would leave the skeleton up forever — so fall through to the default city.
+  const plat = +params.get('lat'), plon = +params.get('lon');
+  if (Number.isFinite(plat) && Number.isFinite(plon)) {
+    const key = cityAt(plat, plon) || DEFAULT_CITY;
     activeCity = key;
-    map.jumpTo({ center: [center.lon, center.lat], zoom: 16 });   // MapLibre wants [lng, lat]
+    map.jumpTo({ center: [plon, plat], zoom: 16 });   // MapLibre wants [lng, lat]
     await loadCity(key);
-    run({ lat: center.lat, lon: center.lon, name: params.get('dest') || 'Dropped pin' }, true);
+    run({ lat: plat, lon: plon, name: params.get('dest') || 'Dropped pin' }, true);
     return;
   }
 
@@ -366,9 +375,10 @@ function timeAgo(iso) {
 }
 
 function reportRow(r) {
-  const hasPhoto = !!r.photo_url;
-  const thumb = hasPhoto && r.photo_url !== '#local'
-    ? `<a class="rp-thumb" href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="sign photo"></a>`
+  const photo = safePhotoUrl(r.photo_url);
+  const hasPhoto = !!photo || r.photo_url === '#local';   // '#local' = local-dev stub, no URL
+  const thumb = photo
+    ? `<a class="rp-thumb" href="${esc(photo)}" target="_blank" rel="noopener"><img src="${esc(photo)}" alt="sign photo"></a>`
     : `<span class="rp-thumb ph">${PHOTO_SVG}</span>`;
   const sub = (hasPhoto ? 'Photo attached · ' : '') + timeAgo(r.created_at);
   return `<div class="rp-item">${thumb}<div class="rp-txt">` +
@@ -420,10 +430,29 @@ async function run(preLoc, isNew) {
 const REC_KEY = 'vanpark.recents', REC_MAX = 5;
 const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
 const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
-const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Crowd reports are written by anyone (open Supabase insert). photo_url is later rendered as an
+// <a href> + <img src>, so a stored `javascript:…` URL would run on click, and any 3rd-party URL
+// would beacon every viewer's IP. Only accept https photos on Supabase storage; reject the rest.
+function safePhotoUrl(u) {
+  if (typeof u !== 'string') return null;
+  try {
+    const url = new URL(u);
+    if (url.protocol === 'https:' && /(^|\.)supabase\.co$/.test(url.hostname)) return url.href;
+  } catch {}
+  return null;
+}
 
-function loadRecents() { try { return JSON.parse(localStorage.getItem(REC_KEY)) || []; } catch { return []; } }
-function saveRecents(a) { try { localStorage.setItem(REC_KEY, JSON.stringify(a)); } catch {} }
+// Drop malformed entries (partial writes, hand-edits, old schema) so addRecent/renderRecents
+// never throw on a missing .label or non-numeric coords.
+function loadRecents() {
+  try {
+    const a = JSON.parse(store.get(REC_KEY));
+    return Array.isArray(a) ? a.filter((r) => r && typeof r.label === 'string'
+      && Number.isFinite(r.lat) && Number.isFinite(r.lon)) : [];
+  } catch { return []; }
+}
+function saveRecents(a) { store.set(REC_KEY, JSON.stringify(a)); }
 
 // prefer what the user typed as the label; fall back to the geocoder's first segment
 function addRecent(loc, q) {
@@ -618,9 +647,9 @@ $('chipPaid').addEventListener('click', () => {
   $('chipPaid').classList.toggle('on', filters.paid);
   applyFilters();
   // First time someone hides paid to look at free-only, warn that free data is thin.
-  if (!filters.paid && !localStorage.getItem('freeWarnSeen')) {
-    toast('Free data is spotty and may be inaccurate — don’t rely on it. Confirm with posted signs.', 7000);
-    localStorage.setItem('freeWarnSeen', '1');
+  if (!filters.paid && !store.get('freeWarnSeen')) {
+    toast('Free-parking data is limited and may be out of date — always double-check the posted signs.', 7000);
+    store.set('freeWarnSeen', '1');
   }
 });
 
