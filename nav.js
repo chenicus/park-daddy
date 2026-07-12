@@ -72,11 +72,12 @@ export function createNav({ map }) {
     setRoute({ type: 'FeatureCollection', features: [] });
   }
 
-  // project the fix onto the route: meters off it + meters along it
+  // project the fix onto the route: meters off it, meters along it, and the snapped point
+  // (the foot of the perpendicular — the spot on the road nearest the raw GPS fix).
   function locate(lat, lon) {
     const { coords, cum } = route;
     const M = 111320, cosLat = Math.cos(lat * Math.PI / 180);
-    let best = { off: Infinity, along: 0 };
+    let best = { off: Infinity, along: 0, lat, lon };
     for (let i = 1; i < coords.length; i++) {
       const ax = (coords[i - 1][1] - lon) * cosLat * M, ay = (coords[i - 1][0] - lat) * M;
       const bx = (coords[i][1] - lon) * cosLat * M, by = (coords[i][0] - lat) * M;
@@ -84,9 +85,23 @@ export function createNav({ map }) {
       let t = len2 ? -(ax * dx + ay * dy) / len2 : 0;
       t = Math.max(0, Math.min(1, t));
       const off = Math.hypot(ax + dx * t, ay + dy * t);
-      if (off < best.off) best = { off, along: cum[i - 1] + Math.sqrt(len2) * t };
+      if (off < best.off) best = {
+        off, along: cum[i - 1] + Math.sqrt(len2) * t,
+        lat: coords[i - 1][0] + (coords[i][0] - coords[i - 1][0]) * t,
+        lon: coords[i - 1][1] + (coords[i][1] - coords[i - 1][1]) * t,
+      };
     }
     return best;
+  }
+
+  // The on-route point to DRAW the car at — the nearest spot on the route, but only when the
+  // raw fix is close enough (<=25 m) to clearly be on it. Beyond that we're genuinely off the
+  // route (a wrong turn, a parallel street), so return null and let the raw GPS show instead of
+  // lying about which road you're on. This is the "snap to road" that keeps the puck off buildings.
+  function snap(pos) {
+    if (!route) return null;
+    const loc = locate(pos.lat, pos.lon);
+    return loc.off <= 25 ? { lat: loc.lat, lon: loc.lon } : null;
   }
 
   function update(pos) {
@@ -107,7 +122,7 @@ export function createNav({ map }) {
     };
   }
 
-  return { begin, clear, update, isActive: () => !!route };
+  return { begin, clear, update, snap, isActive: () => !!route };
 }
 
 export const fmtDist = (m) => m >= 1000 ? (m / 1000).toFixed(1) + ' km' : Math.max(10, Math.round(m / 10) * 10) + ' m';

@@ -59,10 +59,15 @@ function makeSimGeo(speed = 12) {
 
 // `bearing` is a callback from app.js returning the desired map bearing for the current mode
 // (heading-up POV → the car heading; north-up → 0).
-export function createDriving({ map, onFix, onActiveChange, onFollowChange, bearing }) {
+export function createDriving({ map, onFix, onActiveChange, onFollowChange, bearing, resolveDisplay }) {
   const params = new URLSearchParams(location.search);
   const geo = params.get('sim') ? makeSimGeo() : navigator.geolocation;
   let watchId = null, active = false, follow = true, lock = null, lastPos = null, hiAcc = false;
+  // Where the car is DRAWN (and the camera follows). Usually the raw fix, but during nav it's the
+  // fix snapped onto the route (resolveDisplay), so the puck rides the street, not the buildings.
+  // lastPos stays raw — heading, off-route and arrival logic all reason about the true fix.
+  let lastDisp = null;
+  const displayOf = (p) => (resolveDisplay && p ? (resolveDisplay(p) || p) : p);
   let zooming = false;      // a pinch/wheel zoom is in flight — pause re-centering, don't fight it
   let chevAdded = false;
   const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -77,8 +82,8 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
   // Ease the map onto the car (and to the mode's bearing). MapLibre interpolates center + bearing
   // continuously on the GPU, so a linear ease over ~the fix interval gives a smooth glide.
   function followTo(dur = 900) {
-    if (!follow || zooming || !lastPos) return;
-    map.easeTo({ center: [lastPos.lon, lastPos.lat], bearing: wantBearing(),
+    if (!follow || zooming || !lastDisp) return;
+    map.easeTo({ center: [lastDisp.lon, lastDisp.lat], bearing: wantBearing(),
       duration: reduce() ? 0 : dur, easing: (t) => t });
   }
 
@@ -86,7 +91,7 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     if (follow === v) return;
     follow = v;
     // No auto-resume: once you pan away, the map stays put until you tap recenter / "my location".
-    if (v && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat], zoom: Math.max(map.getZoom(), 16),
+    if (v && lastDisp) map.easeTo({ center: [lastDisp.lon, lastDisp.lat], zoom: Math.max(map.getZoom(), 16),
       bearing: wantBearing(), duration: reduce() ? 0 : 500 });
     onFollowChange(v);
   }
@@ -122,9 +127,10 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
       hdg = lastPos ? lastPos.hdg : 0;                 // not enough signal — keep the last good heading
     }
     lastPos = { lat, lon, hdg };
-    // Draw the car. Marker stays screen-upright (rotationAlignment handles heading); its rotation
-    // is the geographic heading so it points the right way in both orientations.
-    chev.setLngLat([lon, lat]).setRotation(hdg);
+    lastDisp = displayOf(lastPos);   // raw fix, or its on-route snap during nav
+    // Draw the car at the display point. Marker stays screen-upright (rotationAlignment handles
+    // heading); its rotation is the geographic heading so it points the right way in both orientations.
+    chev.setLngLat([lastDisp.lon, lastDisp.lat]).setRotation(hdg);
     if (!chevAdded) { chev.addTo(map); chevAdded = true; }
     followTo();
     onFix(lastPos);
@@ -146,12 +152,12 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     // drive start. Distinct from recenter(): it never changes zoom.
     reorient() {
       if (!active) return;
-      if (follow && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat], bearing: wantBearing(),
+      if (follow && lastDisp) map.easeTo({ center: [lastDisp.lon, lastDisp.lat], bearing: wantBearing(),
         duration: reduce() ? 0 : 500 });
       else map.easeTo({ bearing: wantBearing(), duration: reduce() ? 0 : 500 });
     },
     // Snap the map back onto the car (used by the recenter fab / "my location").
-    recenter: () => { if (follow && lastPos) map.easeTo({ center: [lastPos.lon, lastPos.lat],
+    recenter: () => { if (follow && lastDisp) map.easeTo({ center: [lastDisp.lon, lastDisp.lat],
       zoom: Math.max(map.getZoom(), 16), bearing: wantBearing(), duration: reduce() ? 0 : 400 }); },
     setFollow,
     setSimTrack: (t) => geo.setTrack?.(t),
@@ -160,7 +166,7 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     //   nav (setNavMode(true))    — high-accuracy GPS + a screen wake lock while routing.
     start({ passive = false } = {}) {
       if (active || !geo) return;
-      active = true; follow = true; lastPos = null; hiAcc = !passive;
+      active = true; follow = true; lastPos = null; lastDisp = null; hiAcc = !passive;
       // Instant "blue dot": snap to a cached fix while the live watch warms up.
       geo.getCurrentPosition?.(accept, () => {}, { enableHighAccuracy: false, maximumAge: 600000, timeout: 8000 });
       watchId = geo.watchPosition(accept, () => {}, {

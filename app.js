@@ -1,8 +1,8 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END } from './rank.js?v=14';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=23';
-import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=3';
-import { createDriving, SIM_START } from './driving.js?v=25';
-import { fetchRoute, createNav, fmtDist } from './nav.js?v=14';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, createLabelLayer, towSoon, fmtLimit, bucket } from './labels.js?v=24';
+import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=4';
+import { createDriving, SIM_START } from './driving.js?v=26';
+import { fetchRoute, createNav, fmtDist } from './nav.js?v=15';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
 const $ = (id) => document.getElementById(id);
@@ -213,6 +213,7 @@ async function loadCity(key) {
       else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(data); pushBlocks(freeBlocks); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
+      else if (d.kind === 'sf') { pushBlocks(buildSFBlocks(data)); }
     });
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
@@ -561,7 +562,7 @@ function rankAndRender(loc) {
   const duration = durationMins(), maxWalkMin = 10;
   // Meter-ranking (walk-cost, spot suggestions) is Vancouver-only for now — it reads the
   // point-meter feed. In line-style cities we just frame on the destination.
-  const rankable = CITIES[activeCity] && CITIES[activeCity].style === 'points' && meters.length;
+  const rankable = CITIES[activeCity] && CITIES[activeCity].rank && meters.length;
   const ranked = rankable ? rankMeters(meters, { lat: loc.lat, lon: loc.lon, arrival, duration, maxWalkMin, sort: 'cheap' }) : [];
   current = ranked.slice(0, 40);   // kept only to frame the map around nearby spots
 
@@ -1090,6 +1091,9 @@ function initLiveLabels() {
   driving = createDriving({
     map,
     bearing: desiredBearing,
+    // During turn-by-turn nav, draw the car snapped onto the route so GPS scatter can't park the
+    // puck on a building. In plain drive mode there's no route to snap to, so the raw fix shows.
+    resolveDisplay: (pos) => (nav && nav.isActive() ? nav.snap(pos) : null),
     onFix(pos) {
       labelLayer.setFocus(pos);
       if (nav.isActive()) onNavFix(pos);
