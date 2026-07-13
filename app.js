@@ -1,7 +1,7 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=29';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=6';
-import { createDriving, SIM_START } from './driving.js?v=27';
+import { createDriving, SIM_START } from './driving.js?v=28';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
 
@@ -260,8 +260,12 @@ async function loadCity(key) {
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
   // un-caught boot IIFE, would leave the skeleton up forever — so fall through to the default city.
-  const plat = +params.get('lat'), plon = +params.get('lon');
-  if (Number.isFinite(plat) && Number.isFinite(plon)) {
+  // NOTE: require the raw params to be PRESENT before coercing — `+null` and `+''` are both 0
+  // (a finite number), so an ordinary no-params open would otherwise take this branch and fly to
+  // [0,0] (null island), stranding a "Dropped pin" on a blank ocean. That was the blank-map bug.
+  const rawLat = params.get('lat'), rawLon = params.get('lon');
+  const plat = +rawLat, plon = +rawLon;
+  if (rawLat && rawLon && Number.isFinite(plat) && Number.isFinite(plon)) {
     const key = cityAt(plat, plon) || DEFAULT_CITY;
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });   // MapLibre wants [lng, lat]
@@ -1173,6 +1177,9 @@ function initLiveLabels() {
   driving = createDriving({
     map,
     bearing: desiredBearing,
+    // Passive follow only chases fixes inside a covered city — same guard the boot recenter uses —
+    // so an out-of-coverage or bogus fix can't strand the camera on a blank, dataless area.
+    coverage: (pos) => cityAt(pos.lat, pos.lon) != null,
     // During turn-by-turn nav, draw the car snapped onto the route so GPS scatter can't park the
     // puck on a building. In plain drive mode there's no route to snap to, so the raw fix shows.
     resolveDisplay: (pos) => (nav && nav.isActive() ? nav.snap(pos) : null),

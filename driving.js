@@ -59,7 +59,7 @@ function makeSimGeo(speed = 12) {
 
 // `bearing` is a callback from app.js returning the desired map bearing for the current mode
 // (heading-up POV → the car heading; north-up → 0).
-export function createDriving({ map, onFix, onActiveChange, onFollowChange, bearing, resolveDisplay }) {
+export function createDriving({ map, onFix, onActiveChange, onFollowChange, bearing, resolveDisplay, coverage }) {
   const params = new URLSearchParams(location.search);
   const geo = params.get('sim') ? makeSimGeo() : navigator.geolocation;
   let watchId = null, active = false, follow = true, lock = null, lastPos = null, hiAcc = false;
@@ -132,7 +132,11 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     // heading); its rotation is the geographic heading so it points the right way in both orientations.
     chev.setLngLat([lastDisp.lon, lastDisp.lat]).setRotation(hdg);
     if (!chevAdded) { chev.addTo(map); chevAdded = true; }
-    followTo();
+    // Only chase the camera to fixes inside a covered city. Otherwise a passive open outside our
+    // coverage — or a bogus [0,0]/null-island fix (some desktops/webviews report one) — would yank
+    // the map onto an empty, dataless area and leave a blank "nothing loaded" screen. This mirrors
+    // the boot-time recenter guard (cityAt) in app.js. Nav always follows: you're routing in-city.
+    if (hiAcc || !coverage || coverage(lastPos)) followTo();
     onFix(lastPos);
   }
 
