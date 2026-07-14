@@ -1,6 +1,6 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=29';
-import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=6';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=31';
+import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=7';
 import { createDriving, SIM_START } from './driving.js?v=28';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
 import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
@@ -243,10 +243,62 @@ async function loadCity(key) {
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
       else if (d.kind === 'sf') { pushBlocks(buildSFBlocks(data)); }
       else if (d.kind === 'sanjose') { pushBlocks(buildSanJoseBlocks(data)); }
+      else if (d.kind === 'kirkland') { const kb = buildKirklandBlocks(data); pushBlocks(kb); startKirkLive(kb, c.live); }
     });
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
+}
+
+// ---- Kirkland live occupancy --------------------------------------------------
+// Kirkland is the one city with an in-ground stall-sensor feed. We poll its ArcGIS query
+// endpoint for each stall's vacant/occupied status, join by stall name onto the pre-built
+// faces, and repaint — so dots turn green/grey live and pills/cards show "N free". Polling is
+// gated to a foreground tab actually looking at Kirkland, so panning away or backgrounding the
+// tab costs nothing; the feed itself is ~500 tiny rows.
+let kirkBlocks = [], kirkByName = null, kirkLiveUrl = null, kirkTimer = null, kirkFetching = false;
+function startKirkLive(blocksArr, liveUrl) {
+  kirkBlocks = blocksArr;
+  kirkLiveUrl = liveUrl || null;
+  kirkByName = new Map();
+  for (const b of kirkBlocks) for (const s of b.stalls) if (s.n) kirkByName.set(s.n, { b, s });
+  if (!kirkLiveUrl || kirkTimer) { pollKirkLive(); return; }
+  pollKirkLive();
+  kirkTimer = setInterval(() => {
+    if (document.hidden) return;                              // don't poll a backgrounded tab
+    const ctr = map.getCenter();
+    if (cityAt(ctr.lat, ctr.lng) === 'kirkland') pollKirkLive();
+  }, 45000);
+  // returning to the tab while on Kirkland → refresh immediately rather than waiting out the interval
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    const ctr = map.getCenter();
+    if (cityAt(ctr.lat, ctr.lng) === 'kirkland') pollKirkLive();
+  });
+}
+async function pollKirkLive() {
+  if (!kirkLiveUrl || !kirkByName || kirkFetching) return;
+  kirkFetching = true;
+  const url = kirkLiveUrl + '?where=' + encodeURIComponent('In_Service=1') +
+    '&outFields=stall_name,status&returnGeometry=false&f=json';
+  let feats;
+  try { feats = (await fetch(url).then((r) => r.json())).features || []; }
+  catch { kirkFetching = false; return; }                    // network hiccup — keep the last-known counts
+  finally { kirkFetching = false; }
+  for (const b of kirkBlocks) { b._free = 0; b._tot = 0; for (const s of b.stalls) s.s = null; }
+  for (const f of feats) {
+    const a = f.attributes || {};
+    const hit = kirkByName.get(a.stall_name);
+    if (!hit) continue;
+    const st = a.status === 'vacant' ? 'vacant' : a.status === 'occupied' ? 'occupied' : null;
+    hit.s.s = st;
+    hit.b._tot++;
+    if (st === 'vacant') hit.b._free++;
+  }
+  const ts = Date.now();
+  for (const b of kirkBlocks) b.avail = b._tot ? { free: b._free, total: b._tot, ts } : null;
+  if (labelLayer) labelLayer.refresh();
+  if (cardBlock && cardBlock.kirk) showSpotCard(cardBlock);  // keep an open card's counts fresh
 }
 
 // Open on a city immediately, then best-effort recenter on the user. We deliberately do NOT
@@ -878,6 +930,13 @@ const fmtClock = (m) => {
 };
 // money for the spot card — always 2 decimals so the price column aligns ($2.00, $1.50)
 const money = (r) => '$' + r.toFixed(2);
+// "updated" freshness for Kirkland's live counts: <10s reads "just now", else Ns/Nm ago.
+function liveAgo(ts) {
+  const s = Math.round((Date.now() - ts) / 1000);
+  if (s < 10) return 'just now';
+  if (s < 60) return s + 's ago';
+  return Math.round(s / 60) + 'm ago';
+}
 
 // Full-day price schedule for a metered block: free before 9am, rate1 9am–6pm,
 // rate2 6pm–10pm, free after 10pm — with adjacent windows merged when their rate AND
@@ -1045,6 +1104,14 @@ function showSpotCard(b) {
     const reason = soonest[2] ? zoneLabel(soonest[2]) : 'tow-away';
     const soon = soonest[0] - mins <= 90 ? ` starts in ${soonest[0] - mins} min` : '';
     rows.push(`<span class="warn">${IC.alert} No parking ${fmtWin(soonest[0], soonest[1])} · ${reason}${soon}</span>`);
+  }
+  // Kirkland: live stall-sensor availability, pinned to the top of the rows
+  if (b.kirk) {
+    const a = b.avail;
+    rows.unshift(a
+      ? `<span class="live"><span class="live-dot ${a.free > 0 ? 'ok' : 'full'}"></span>` +
+        `<b>${a.free}</b> of ${a.total} open <span class="live-ago">· live · ${liveAgo(a.ts)}</span></span>`
+      : `${IC.info} Live availability unavailable right now`);
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
   $('scmaps').href = navUrl(b);

@@ -59,6 +59,25 @@ export function buildSanJoseBlocks(records, idBase = 5e6) {
   }));
 }
 
+// Kirkland: point stalls + bands like San Jose, but each stall is fitted with an occupancy
+// sensor. The static build gives geometry / time-limit / paid-flag; the app polls the live
+// feed and writes real-time status onto each stall (`s.s` = 'vacant'|'occupied'|null) plus a
+// per-face rollup (`bl.avail` = {free,total,ts}). `kirk:true` opts the block into occupancy-
+// coloured dots and the "N free" pill/card annotations; everything else reuses the bands path.
+export function buildKirklandBlocks(records, idBase = 6e6) {
+  return records.map((o, i) => ({
+    id: idBase + i,
+    lat: o.lat, lon: o.lon,
+    stalls: o.stalls,                                  // [{n,lat,lon}] — joined to live status by name
+    pts: o.stalls.map((s) => [s.lat, s.lon]),          // dots (rendered like Vancouver/SF)
+    bands: { wkd: o.wkd, sat: o.sat, sun: o.sun },     // paid faces carry a $1 band; free faces empty
+    limitMin: o.limit || null,
+    paid: !!o.paid, kirk: true, avail: null,           // avail filled in by the live poller
+    spaces: o.spaces, hblock: o.h,
+    rushes: [], card: false,
+  }));
+}
+
 const EMPTY_BANDS = { wkd: [], sat: [], sun: [] };   // always-free blockface (no paid hours)
 
 // Seattle's free layer: unrestricted (free, unlimited) + time-limited (free, capped).
@@ -266,10 +285,15 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const r = rateFor(bl, mins, dow);
       const lim = z >= 16 ? limitFor(bl, mins, dow, wknd) : null;
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
-      const price = r.free ? 'Free' : fmtRate(r.rate);
+      // Kirkland pills append a live "· N free" count, so a plain "Free" price would read
+      // "Free · 3 free" — show "$0" there instead to disambiguate price from availability.
+      const price = r.free ? (bl.kirk ? '$0' : 'Free') : fmtRate(r.rate);
       // dimmed suffix = per-hour unit + max-stay, e.g. "/hr · 2h". The "/hr" names the price's
       // unit so "$8 · 2h" can't be misread as "$8 for two hours"; free spots take no unit.
-      const suffix = (r.free ? '' : '/hr') + limTxt;
+      // Kirkland stalls carry live sensor counts → append " · N free" (drives the sig, so the
+      // pill re-renders as the count changes); no unit collision since it follows the max-stay.
+      const liveTxt = bl.kirk && bl.avail ? ` · ${bl.avail.free} free` : '';
+      const suffix = (r.free ? '' : '/hr') + limTxt + liveTxt;
       const text = price + suffix;
       const flagged = !!flags(bl).flagged;
       return {
@@ -304,7 +328,12 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const r = rateFor(bl, mins, dow);
       if (!keep(r.free)) continue;
       const col = DOT_COLOR[bucket(r.rate, r.free)];
-      if (bl.line) {   // Seattle blockface — draw the side of the street, colored by rate ([lat,lon]→[lon,lat])
+      if (bl.kirk && bl.stalls) {   // Kirkland — one dot per stall, coloured by LIVE occupancy
+        for (const st of bl.stalls) {
+          const c = st.s === 'vacant' ? '#16a34a' : st.s === 'occupied' ? '#9ca3af' : col;   // unknown → price color
+          dots.push({ type: 'Feature', properties: { color: c }, geometry: { type: 'Point', coordinates: [st.lon, st.lat] } });
+        }
+      } else if (bl.line) {   // Seattle blockface — draw the side of the street, colored by rate ([lat,lon]→[lon,lat])
         lines.push({ type: 'Feature', properties: { color: col },
           geometry: { type: 'LineString', coordinates: bl.line.map(([la, lo]) => [lo, la]) } });
       } else {

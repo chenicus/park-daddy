@@ -54,6 +54,22 @@ export const CITIES = {
     style: 'points',
     geo: { cc: 'us', suffix: 'San Jose, CA' },
   },
+  kirkland: {
+    name: 'Kirkland',
+    center: [47.6764, -122.2065], zoom: 16,
+    bounds: [[47.65, -122.22], [47.70, -122.18]],
+    data: [
+      { url: 'data/kirkland-meters.json?v=1', kind: 'kirkland' },
+    ],
+    // Point stalls + bands like San Jose ($1/hr on paid faces, free-but-time-limited elsewhere),
+    // but every stall has an occupancy sensor — `live` is the ArcGIS query endpoint app.js polls
+    // for real-time vacant/occupied, the one city where the map shows LIVE availability. Compact
+    // downtown waterfront footprint, so a tight default zoom (16). No `rank`: bands, not the
+    // Vancouver rate fields rankMeters() reads.
+    live: 'https://services2.arcgis.com/loGMwowmR0OPlOQb/arcgis/rest/services/Kirkland_Parking_Sensors__wStatus/FeatureServer/0/query',
+    style: 'points',
+    geo: { cc: 'us', suffix: 'Kirkland, WA' },
+  },
 };
 
 // Which city (key) contains this point, or null if outside every coverage box.
