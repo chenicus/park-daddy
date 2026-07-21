@@ -226,8 +226,15 @@ async function goToCity(key) {
   cityChosen = true;
   activeCity = key;
   await mapLoaded;
+  activeCity = key;   // re-assert: the boot IIFE resolves off mapLoaded first and sets DEFAULT_CITY
   map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
+  // Passive follow (started in initLiveLabels) eases the camera onto every GPS fix inside ANY
+  // covered city — which yanks the map straight back off the city you just picked. Picking a city
+  // is an explicit "show me over there", so park follow like a search does; the recenter fab
+  // (visible whenever follow is off) takes you back to yourself.
+  driving?.setFollow(false);
   await loadCity(key);
+  driving?.setFollow(false);   // again: `driving` is created inside loadCity on the first city
 }
 
 async function loadCity(key) {
@@ -310,6 +317,11 @@ async function pollKirkLive() {
 // seconds and it's in a covered city, pan there.
 (async () => {
   await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
+
+  // The welcome picker is up before the map finishes loading, so a tap can land while we're still
+  // parked on this await. goToCity() then owns the camera and the city load — bail out rather than
+  // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
+  if (cityChosen) return;
 
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
