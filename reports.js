@@ -11,10 +11,11 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=1';
 
 export const FLAG_MIN = 1;
-export const HIDE_MIN = 3;
+export const HIDE_MIN = 5;   // raised from 3: 3 open-insert reports was too cheap a way to hide a real block
 const RECENT_DAYS = 365;          // signs change — only reports this recent count toward flag/hide
 const BUCKET = 'report-photos';
 const LKEY = 'pd_reports';        // localStorage stub key
+const FKEY = 'pd_feedback';       // localStorage stub key for general feedback
 
 const configured = !!(SUPABASE_URL && SUPABASE_ANON_KEY &&
   !/YOUR_/.test(SUPABASE_URL) && !/YOUR_/.test(SUPABASE_ANON_KEY));
@@ -56,6 +57,36 @@ export async function fetchFlags() {
     f.count++; f.items.push(r);
   }
   return m;
+}
+
+// ---- general app feedback (menu → Leave feedback) ----------------------------
+// Separate table from `reports`: reports are attached to a block and drive the map's
+// flag/hide logic; this is free-form "the app is broken / add my city" mail. Same
+// public-insert + guard-trigger shape (see supabase-setup.sql). Falls back to the
+// localStorage stub when Supabase isn't configured, so the flow still works offline.
+export async function submitFeedback({ message, contact }) {
+  const row = {
+    message: String(message || '').slice(0, 1000),
+    contact: (contact || '').trim().slice(0, 120) || null,
+    page: location.pathname + location.search,
+  };
+  if (!configured) {
+    const a = (() => { try { return JSON.parse(localStorage.getItem(FKEY)) || []; } catch { return []; } })();
+    a.unshift({ ...row, created_at: new Date().toISOString() });
+    try { localStorage.setItem(FKEY, JSON.stringify(a)); } catch {}
+    return;
+  }
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/feedback`, {
+    method: 'POST',
+    headers: { ...H(), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify(row),
+  });
+  if (!r.ok) {
+    const body = await r.text().catch(() => '');
+    const err = new Error('feedback insert ' + r.status + (body ? ': ' + body : ''));
+    err.status = r.status;
+    throw err;
+  }
 }
 
 // ---- write: optional photo upload, then insert the report row ----------------

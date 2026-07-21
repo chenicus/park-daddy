@@ -3,7 +3,8 @@ import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks,
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=8';
 import { createDriving, SIM_START } from './driving.js?v=28';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
-import { fetchFlags, submitReport, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=1';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
+import { CHANGELOG } from './changelog.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -391,7 +392,24 @@ async function geocode(q) {
   }
   return loc;
 }
-const navUrl = (r) => `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
+// "Open in Maps" defers to whatever's native for the platform instead of a picker we'd
+// have to build and maintain: Android's geo: URI lets the OS route to the user's actual
+// default maps app (or prompt them to pick one, same as any other Android link); iOS has
+// no concept of a default maps app, so a maps.apple.com link opens Apple Maps directly via
+// universal link; everywhere else (desktop) falls back to Google Maps on the web.
+const mapPlatform = () => {
+  const ua = navigator.userAgent || '';
+  if (/Android/i.test(ua)) return 'android';
+  if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+  return 'web';
+};
+const MAPAPP_NAME = { android: 'Maps', ios: 'Apple Maps', web: 'Google Maps' };
+const navUrl = (r) => {
+  const p = mapPlatform();
+  if (p === 'android') return `geo:${r.lat},${r.lon}?q=${r.lat},${r.lon}`;
+  if (p === 'ios') return `https://maps.apple.com/?daddr=${r.lat},${r.lon}&dirflg=d`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
+};
 const NAV_SVG = '<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
 // Lucide (shadcn) inline icons — inherit color via currentColor.
 const IC = {
@@ -865,11 +883,11 @@ async function startNav(target) {
   closeSpotCard();   // full teardown (spot line + pill highlight), not just hide
   const dest = { lat: target.lat, lon: target.lon };
   const from = driving.lastPos() || (params.get('sim') ? SIM_START : await getPosition());
-  if (!from) { toast('Could not get your location — opening Google Maps.'); window.open(navUrl(dest)); return; }
+  if (!from) { toast(`Could not get your location — opening ${MAPAPP_NAME[mapPlatform()]}.`); window.open(navUrl(dest)); return; }
   toast('Finding route…', 1500);
   let r;
   try { r = await fetchRoute(from, dest); }
-  catch { toast('Routing failed — opening Google Maps.'); window.open(navUrl(dest)); return; }
+  catch { toast(`Routing failed — opening ${MAPAPP_NAME[mapPlatform()]}.`); window.open(navUrl(dest)); return; }
   navTarget = dest;
   clearMap();                       // search pins off; dest marker + price pills stay
   nav.begin(r);
@@ -1040,6 +1058,7 @@ function showSpotCard(b) {
   const wasOpen = !$('spotcard').hidden;
   cardBlock = b;
   closeReportList();
+  closeMenu();
   const p = driving && driving.lastPos();
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
@@ -1137,6 +1156,17 @@ document.addEventListener('click', (e) => {
   closeSpotCard();
 }, true);
 
+// same outside-tap dismissal for the menu drawer + its sub-panels: tapping the map,
+// a pill (which also closeMenu()s itself via showSpotCard), or anything else outside
+// the drawer family closes it. Tapping the menu button itself is left to its own
+// click handler so it can still toggle back open.
+document.addEventListener('click', (e) => {
+  const open = $('menupanel').classList.contains('open') || $('changelog').classList.contains('open');
+  if (!open) return;
+  if (e.target.closest('#menupanel') || e.target.closest('#changelog') || e.target.closest('#menubtn')) return;
+  closeMenu();
+}, true);
+
 // tap the summary line → slide the full report list in; back returns to the card
 $('scflag').addEventListener('click', () => { if (!$('scflag').hidden) $('reportlist').classList.add('open'); });
 $('rlBack').addEventListener('click', closeReportList);
@@ -1215,6 +1245,86 @@ $('rsSubmit').addEventListener('click', async () => {
     console.warn('[reports] submit failed', e);
     toast('Could not submit — please try again.');
     $('rsSubmit').disabled = false; $('rsSubmit').textContent = 'Submit report';
+  }
+});
+
+// ---- menu drawer: feedback + changelog ---------------------------------------
+// Both destinations slide in over the drawer (same right-slide .rlpanel as the report
+// list), so "back" just closes the top layer and reveals the menu underneath.
+function openMenu() { closeSpotCard(); $('menupanel').classList.add('open'); }
+function closeMenu() {
+  $('menupanel').classList.remove('open');
+  $('changelog').classList.remove('open');
+}
+$('menubtn').addEventListener('click', () => {
+  if ($('menupanel').classList.contains('open')) closeMenu(); else openMenu();
+});
+$('mnClose').addEventListener('click', closeMenu);
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (!$('fbsheet').hidden) { $('fbsheet').hidden = true; return; }
+  if ($('changelog').classList.contains('open')) { $('changelog').classList.remove('open'); return; }
+  if ($('menupanel').classList.contains('open')) closeMenu();
+});
+
+$('mnChangelog').addEventListener('click', () => {
+  $('clList').innerHTML = CHANGELOG.map((rel) =>
+    `<div class="cl-rel"><div class="cl-date">${rel.date}</div><ul class="cl-list">` +
+    rel.items.map((t) => `<li><span>${t}</span></li>`).join('') +
+    `</ul></div>`
+  ).join('');
+  $('changelog').classList.add('open');
+});
+$('clBack').addEventListener('click', () => $('changelog').classList.remove('open'));
+
+// real email check — HTML5 type=email's built-in constraint accepts things like
+// "a@b" (no dot required), so validate it ourselves: local@domain.tld, no spaces.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// inline red-text errors (not toasts) under a field — same pattern for both the
+// message textarea and the email input, keyed by field/error element ids.
+function setFieldError(fieldId, errId, msg) {
+  const field = $(fieldId), err = $(errId);
+  if (!msg) { err.hidden = true; err.textContent = ''; field.classList.remove('err'); return; }
+  err.hidden = false; err.textContent = msg; field.classList.add('err');
+}
+const setFbTextError = (msg) => setFieldError('fbText', 'fbTextErr', msg);
+const setFbError = (msg) => setFieldError('fbContact', 'fbErr', msg);
+// Send stays disabled until both fields have something in them — full validation
+// (message length, email shape) still runs on submit and surfaces as the errors above.
+function updateFbSubmit() {
+  $('fbSubmit').disabled = !$('fbText').value.trim() || !$('fbContact').value.trim();
+}
+$('fbText').addEventListener('input', () => { setFbTextError(null); updateFbSubmit(); });
+$('fbContact').addEventListener('input', () => { setFbError(null); updateFbSubmit(); });
+
+$('mnFeedback').addEventListener('click', () => {
+  closeMenu();
+  $('fbText').value = ''; $('fbContact').value = ''; setFbTextError(null); setFbError(null);
+  $('fbSubmit').textContent = 'Send feedback';
+  updateFbSubmit();
+  $('fbsheet').hidden = false;
+  $('fbText').focus();
+});
+$('fbClose').addEventListener('click', () => { $('fbsheet').hidden = true; });
+$('fbSubmit').addEventListener('click', async () => {
+  const message = $('fbText').value.trim();
+  const contact = $('fbContact').value.trim();
+  if (!message) { setFbTextError('Oops, looks like you forgot the message!'); $('fbText').focus(); return; }
+  setFbTextError(null);
+  if (!contact) { setFbError('Add your email so I can reply.'); $('fbContact').focus(); return; }
+  if (!EMAIL_RE.test(contact)) { setFbError('That email doesn’t look right — check it and try again.'); $('fbContact').focus(); return; }
+  setFbError(null);
+  $('fbSubmit').disabled = true; $('fbSubmit').textContent = 'Sending…';
+  try {
+    await submitFeedback({ message, contact });
+    $('fbsheet').hidden = true;
+    toast('Thanks — feedback sent. 💛');
+  } catch (e) {
+    console.warn('[feedback] submit failed', e);
+    toast(e.status === 404
+      ? 'Feedback isn’t hooked up yet — bug Char about it.'
+      : 'Could not send — please try again.');
+    $('fbSubmit').disabled = false; $('fbSubmit').textContent = 'Send feedback';
   }
 });
 

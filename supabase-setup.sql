@@ -111,3 +111,56 @@ create policy "report photos public read" on storage.objects
 drop policy if exists "report photos public upload" on storage.objects;
 create policy "report photos public upload" on storage.objects
   for insert with check (bucket_id = 'report-photos');
+
+-- 4. general app feedback (menu → Leave feedback) ----------------------------
+-- Free-form feedback, not tied to a block. Public insert like reports, but NO public
+-- read: nothing in the app displays these, so only you (dashboard / service_role) see them.
+create table if not exists public.feedback (
+  id         bigint generated always as identity primary key,
+  message    text        not null,
+  contact    text,                     -- optional email, only if they want a reply
+  page       text,                     -- path + query the feedback was sent from
+  created_at timestamptz not null default now()
+);
+
+create index if not exists feedback_created_at_idx on public.feedback (created_at desc);
+
+alter table public.feedback enable row level security;
+
+drop policy if exists "feedback public insert" on public.feedback;
+create policy "feedback public insert" on public.feedback
+  for insert with check (true);
+-- (deliberately no select policy — the anon key can write but never read)
+
+-- same abuse guard shape as reports: validate size, throttle volume, drop dupes.
+create or replace function public.feedback_guard()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare recent int;
+begin
+  if length(btrim(new.message)) < 1 then raise exception 'message too short'; end if;
+  if length(new.message) > 1000 then raise exception 'message too long'; end if;
+  if length(coalesce(new.contact, '')) > 120 then raise exception 'contact too long'; end if;
+  if length(coalesce(new.page, '')) > 300 then raise exception 'page too long'; end if;
+
+  select count(*) into recent from public.feedback where created_at > now() - interval '1 minute';
+  if recent >= 10 then raise exception 'rate limited — try again shortly'; end if;
+
+  if exists (
+    select 1 from public.feedback
+    where message = new.message and created_at > now() - interval '10 minutes'
+  ) then
+    raise exception 'duplicate feedback';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists feedback_guard_trg on public.feedback;
+create trigger feedback_guard_trg
+  before insert on public.feedback
+  for each row execute function public.feedback_guard();

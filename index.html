@@ -21,7 +21,7 @@
 <meta name="twitter:description" content="Find street parking rates in Vancouver, Seattle & San Francisco.">
 <meta name="twitter:image" content="https://chenicus.github.io/park-daddy/og.png">
 
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" crossorigin="anonymous">
+<link rel="stylesheet" href="vendor/maplibre-gl@4.7.1.css">
 <style>
   :root {
     --sheet: rgba(255,255,255,.72); --sheet-solid: #ffffff; --sheet-strong: rgba(252,252,253,.95); --map-cover: #f2f2f7;
@@ -119,7 +119,7 @@
   :root.theming .sc-flag, :root.theming .rc-del { transition: none; }
 
   .searchbar { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
-    left: 16px; right: 16px; height: 48px; margin: 0; border-radius: 12px;
+    left: 16px; right: 72px; height: 48px; margin: 0; border-radius: 12px;
     box-shadow: var(--shadow); display: flex; align-items: center; padding: 0 6px 0 13px; gap: 8px;
     transition: box-shadow .2s ease, transform .2s ease; }
   .searchbar:focus-within { box-shadow: 0 8px 30px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.1); }
@@ -184,11 +184,14 @@
   .rc-del { flex: none; border: none; background: none; color: var(--muted);
     width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; }
   .rc-del:active { background: var(--chip); color: var(--text); }
-  .drivebtn-top { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
+  .drivebtn-top, .menubtn { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
     right: 16px; width: 48px; height: 48px; border-radius: 12px;
     box-shadow: var(--shadow); border: 1px solid var(--stroke); display: grid; place-items: center;
     color: var(--accent); cursor: pointer; }
-  .drivebtn-top:active { filter: brightness(.94); }
+  .drivebtn-top:active, .menubtn:active { filter: brightness(.94); }
+  .menubtn svg { width: 22px; height: 22px; }
+  /* turn-by-turn owns the top strip — the banner would sit under the button */
+  body.nav .menubtn { display: none; }
   .chips { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 68px);
     left: 16px; display: flex; gap: 8px; }
   .chip { height: 32px; padding: 0 11px; border-radius: 12px; border: 1px solid var(--stroke);
@@ -468,6 +471,10 @@
   .iconbtn.mini svg { width: 19px; height: 19px; }
   .sc-tools #scclose { width: 30px; height: 30px; margin-left: 4px; background: var(--chip); color: var(--muted-strong); }
   .sc-tools #scclose svg { width: 16px; height: 16px; }
+  /* sheets without the share/report toolbar (report reasons, feedback) still get the
+     same small grey dismiss as the main spot card, not the bare 40px accent iconbtn */
+  #rsClose, #fbClose { width: 30px; height: 30px; margin-top: -2px; background: var(--chip); color: var(--muted-strong); }
+  #rsClose svg, #fbClose svg { width: 16px; height: 16px; }
   .sc-price { font-size: var(--fs-large); font-weight: 600; letter-spacing: -.5px; line-height: 1.15; }
   .sc-price .sc-unit { font-size: var(--fs-headline); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
   .sc-price.free { color: var(--free); }
@@ -535,8 +542,23 @@
     transition: transform .28s cubic-bezier(.4,0,.2,1), visibility 0s .28s; }
   .rlpanel.open { transform: translateX(0); visibility: visible;
     transition: transform .28s cubic-bezier(.4,0,.2,1); }
+  /* the top-level menu is a true bottom sheet — same rise/fall AND same padding/radius
+     as #welcome and #spotcard, not the drill-down .rlpanel defaults (those keep their
+     own denser padding for Feedback/What's-new/Default-map-app and the report list) */
+  #menupanel { padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    transform: translateY(110%); transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
+  #menupanel.open { transform: translateY(0); transition: transform .36s cubic-bezier(.32,.72,0,1); }
   .rl-head { display: flex; align-items: center; gap: 6px; padding: 6px 0 4px; }
-  .rl-head .iconbtn { margin-left: -8px; }
+  /* the top-level menu's title sits opposite its close button, flush with the sheet's
+     own padding (like .sc-head in the spot card); drill-down headers (back arrow +
+     title) stay grouped on the left with the shared .rl-head padding */
+  #menupanel .rl-head { justify-content: space-between; padding: 0; }
+  #rlBack, #clBack { margin-left: -8px; }
+  /* top-level sheet close (not a drill-down back arrow) matches the other bottom
+     sheets' small grey dismiss — see #scclose / #rsClose / #fbClose */
+  #mnClose { width: 30px; height: 30px; background: var(--chip); color: var(--muted-strong); }
+  #mnClose svg { width: 16px; height: 16px; }
+  #menupanel .rl-title { font-weight: 700; }
   .rl-title { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.4px; }
   .rl-sub { font-size: var(--fs-body); color: var(--muted); margin: 0 0 6px 2px; letter-spacing: -.2px; }
   .rp-item { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
@@ -549,6 +571,53 @@
   .rp-txt { flex: 1; min-width: 0; }
   .rp-reason { font-size: var(--fs-body); letter-spacing: -.2px; }
   .rp-sub { font-size: var(--fs-caption); color: var(--muted); margin-top: 1px; }
+
+  /* ---- menu drawer (hamburger) — rows/text/footer match #welcome's .wc-row exactly ---- */
+  .mn-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .mn-row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 15px;
+    -webkit-appearance: none; appearance: none;
+    border: 1.5px solid var(--line); border-radius: 16px; background: var(--sheet-solid); color: var(--text);
+    font-family: inherit; text-align: left; cursor: pointer;
+    transition: transform .1s ease, border-color .15s ease, background .15s ease; }
+  .mn-row:hover { border-color: var(--accent); }
+  .mn-row:active { transform: scale(.985); background: var(--chip); }
+  .mn-row > svg { flex: none; width: 20px; height: 20px; stroke: currentColor; fill: none;
+    stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; color: var(--muted-strong); }
+  .mn-txt { flex: 1; min-width: 0; }
+  .mn-nm { font-size: var(--fs-body); font-weight: 600; letter-spacing: -.1px; }
+  .mn-sub { display: block; font-size: var(--fs-caption); color: var(--muted); margin-top: 1px; }
+  .mn-chev { flex: none; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2;
+    stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
+  .mn-foot { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted); margin-top: 20px; }
+
+  /* ---- available-cities list — informational only, not tappable ---- */
+  .mn-section-label { font-size: var(--fs-caption); font-weight: 600; letter-spacing: .4px;
+    text-transform: uppercase; color: var(--muted); margin-top: 20px; }
+  .mn-cities { display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+    font-size: var(--fs-body); letter-spacing: -.2px; color: var(--text); }
+
+  /* ---- changelog list ---- */
+  .cl-rel { padding: 14px 0; border-top: 1px solid var(--line); }
+  .cl-rel:first-child { border-top: none; padding-top: 6px; }
+  .cl-date { font-size: var(--fs-caption); font-weight: 600; letter-spacing: .4px;
+    text-transform: uppercase; color: var(--muted); }
+  .cl-list { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .cl-list li { display: flex; gap: 9px; font-size: var(--fs-body); line-height: 1.45; letter-spacing: -.2px; }
+  .cl-list li::before { content: ""; flex: none; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--tertiary); margin-top: .55em; }
+  .cl-list b { font-weight: 600; }
+
+  /* ---- feedback sheet ---- */
+  #fbsheet .sc-sub { line-height: 1.45; }
+  .fb-field { width: 100%; margin-top: 14px; padding: 12px 14px; box-sizing: border-box;
+    border: 1px solid var(--line-strong); border-radius: 12px; background: var(--sheet-solid); color: var(--text);
+    font-family: inherit; font-size: var(--fs-body); letter-spacing: -.2px; }
+  textarea.fb-field { min-height: 104px; resize: none; }
+  .fb-field:focus { outline: none; border-color: var(--accent); }
+  .fb-field.err { border-color: #ff3b30; }
+  .fb-field.err:focus { border-color: #ff3b30; }
+  .fb-err { color: #ff3b30; font-size: var(--fs-caption); letter-spacing: -.1px; margin: 6px 2px 0; }
+  .fb-err[hidden] { display: none; }
 
   /* ---- report sheet (reasons + photo) ---- */
   .rs-reasons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
@@ -574,7 +643,7 @@
   .rs-submit { width: 100%; height: 46px; margin-top: 14px; border: none; border-radius: 14px;
     background: var(--accent); color: var(--on-accent); font-family: inherit; font-size: var(--fs-headline);
     font-weight: 600; letter-spacing: -.3px; cursor: pointer; }
-  .rs-submit:disabled { opacity: .55; }
+  .rs-submit:disabled { background: var(--chip); color: var(--muted); cursor: not-allowed; }
   :root[data-theme="dark"] .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
 
   #toast { position: absolute; z-index: 700; left: 16px; right: 16px;
@@ -589,10 +658,10 @@
        right — all sharing one flex row so they stay vertically aligned. */
     .topbar { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
       left: 16px; right: 16px; display: flex; align-items: center; gap: 8px; }
-    .topbar .searchbar, .topbar .chips, .topbar .drivebtn-top { position: static; flex: none; }
+    .topbar .searchbar, .topbar .chips, .topbar .drivebtn-top, .topbar .menubtn { position: static; flex: none; }
     .searchbar { width: 360px; right: auto; }
     .chips { display: flex; align-items: center; gap: 8px; }
-    .drivebtn-top { margin-left: auto; }
+    .drivebtn-top, .menubtn { margin-left: auto; }
     #navbanner { width: 420px; right: auto; }
     .recents { width: 400px; right: auto; }
     #recenter { bottom: 18px; }
@@ -631,6 +700,7 @@
   </button>
 </div>
 <button class="drivebtn-top mat" id="drivebtn" type="button" aria-label="Toggle driving mode"><svg class="ic-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 1 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><svg class="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+<button class="menubtn mat" id="menubtn" type="button" aria-label="Menu" aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
 </div>
 <div class="recents mat" id="recents" hidden>
   <div class="rc-head" id="rcHead"><span>Recent</span><button type="button" id="rcClear">Clear all</button></div>
@@ -695,7 +765,7 @@
     <button class="primary" id="scstart" type="button">
       <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Navigate
     </button>
-    <a class="ghost" id="scmaps" target="_blank" rel="noopener">Open in Google Maps ↗</a>
+    <a class="ghost" id="scmaps" target="_blank" rel="noopener">Open in Maps ↗</a>
   </div>
 </div>
 
@@ -723,6 +793,59 @@
   </div>
   <div class="rl-sub" id="rlSub"></div>
   <div id="rlList"></div>
+</div>
+
+<!-- ---- menu drawer + its two destinations ---- -->
+<div class="rlpanel" id="menupanel" role="dialog" aria-modal="true" aria-label="Menu">
+  <div class="rl-head">
+    <div class="rl-title">Park Daddy</div>
+    <button class="iconbtn" id="mnClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+  <div class="mn-section-label">Available cities</div>
+  <div class="mn-cities">
+    <div>🇨🇦 Vancouver, British Columbia</div>
+    <div>🇺🇸 Seattle, Washington</div>
+    <div>🇺🇸 San Francisco, California</div>
+    <div>🇺🇸 San Jose, California</div>
+    <div>🇺🇸 Kirkland, Washington</div>
+  </div>
+  <div class="mn-rows">
+    <button class="mn-row" id="mnFeedback" type="button">
+      <svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <span class="mn-txt"><span class="mn-nm">Leave feedback</span><span class="mn-sub">Wrong info, missing city, or an idea</span></span>
+      <svg class="mn-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+    <button class="mn-row" id="mnChangelog" type="button">
+      <svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+      <span class="mn-txt"><span class="mn-nm">What's new</span><span class="mn-sub">Recent updates and fixes</span></span>
+      <svg class="mn-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+  <div class="mn-foot">Parking data comes from free, open city datasets. It won't cover every street and can lag behind new signs — always check what's posted at the curb.</div>
+</div>
+
+<div class="rlpanel" id="changelog" role="dialog" aria-modal="true" aria-label="What's new">
+  <div class="rl-head">
+    <button class="iconbtn" id="clBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="rl-title">What's new</div>
+  </div>
+  <div id="clList"></div>
+</div>
+
+<div class="spotcard mat" id="fbsheet" hidden>
+  <div class="sc-head">
+    <div>
+      <div class="sc-price" style="font-size:var(--fs-title)">Leave me any feedback</div>
+      <div class="sc-sub">Ideas, city requests, bugs, or just say hi :)</div>
+    </div>
+    <button class="iconbtn" id="fbClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+  <textarea class="fb-field" id="fbText" maxlength="1000" placeholder="What's on your mind?"></textarea>
+  <div class="fb-err" id="fbTextErr" hidden></div>
+  <input class="fb-field" id="fbContact" type="email" inputmode="email" maxlength="120" autocomplete="email" required
+         placeholder="Email" />
+  <div class="fb-err" id="fbErr" hidden></div>
+  <button class="rs-submit" id="fbSubmit" type="button">Send feedback</button>
 </div>
 
 <div id="toast" role="status"></div>
@@ -774,7 +897,7 @@
     <div class="wc-title" id="nwTitle">Just a rough guide</div>
     <div class="wc-intro"><b>Navigate</b> gives basic in-app turn-by-turn, but it has <b>no live traffic, road closures, or incidents</b>. For real-time directions, open your usual map app instead.</div>
     <div class="nw-actions">
-      <button class="nw-secondary" id="nwMaps" type="button">Open in Google Maps</button>
+      <button class="nw-secondary" id="nwMaps" type="button">Open in Maps</button>
       <button class="nw-primary" id="nwStart" type="button">Navigate anyway</button>
     </div>
   </div>
@@ -805,49 +928,60 @@
   .wc-row:hover { border-color: var(--accent); }
   .wc-row:active { transform: scale(.985); background: var(--chip); }
   .wc-flag { flex: none; width: 34px; height: 24px; border-radius: 5px; overflow: hidden;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); }
-  .wc-flag svg { display: block; width: 100%; height: 100%; }
-  .wc-nmrow { display: flex; align-items: center; gap: 8px; }
-  .wc-nm { font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.2px; }
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); background: var(--chip); }
+  .wc-flag img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .wc-nmrow { display: flex; align-items: center; gap: 7px; }
+  .wc-nm { font-size: var(--fs-body); font-weight: 600; letter-spacing: -.1px; }
   .wc-rg { display: block; font-size: var(--fs-caption); color: var(--muted); margin-top: 1px; }
-  .wc-new { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 9px; line-height: 1;
-    letter-spacing: .5px; text-transform: uppercase; font-weight: 700; padding: 3px 5px;
-    border-radius: 5px; background: var(--accent); color: var(--on-accent); }
+  .wc-new { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; line-height: 1;
+    letter-spacing: .4px; text-transform: uppercase; font-weight: 700; padding: 3px 5px;
+    border-radius: 5px; background: var(--chip); color: var(--text); }
+  /* live-availability badge — same pulsing green dot the Kirkland spot card uses */
+  .wc-live { display: inline-flex; align-items: center; gap: 5px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 10px; line-height: 1;
+    letter-spacing: .4px; text-transform: uppercase; font-weight: 700; color: var(--green); }
+  .wc-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+    box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--green) 25%, transparent);
+    animation: livePulse 2s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .wc-live i { animation: none; } }
   .wc-chev { margin-left: auto; color: var(--muted); display: grid; place-items: center; }
   .wc-chev svg { width: 18px; height: 18px; }
+  .wc-note { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted);
+    margin-top: 20px; }
 </style>
 <div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wc-sheet">
     <div class="wc-grab"></div>
     <div class="wc-title" id="wcTitle">Pick your city</div>
-    <div class="wc-sub">Park Daddy shows metered rates <b>as you drive</b>.</div>
+    <div class="wc-sub">Park Daddy shows metered rates as you drive.</div>
     <div class="wc-rows">
       <button class="wc-row" type="button" data-city="vancouver">
-        <span class="wc-flag"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#fff"/><rect width="15" height="40" fill="#d52b1e"/><rect x="45" width="15" height="40" fill="#d52b1e"/><path transform="translate(30,20) scale(0.315) translate(-50,-52)" d="M50 12 L54 30 L70 26 L66 40 L82 38 L72 52 L88 58 L64 66 L68 74 L54 72 L56 92 L44 92 L46 72 L32 74 L36 66 L12 58 L28 52 L18 38 L34 40 L30 26 L46 30 Z" fill="#d52b1e"/></svg></span>
+        <span class="wc-flag"><img src="https://flagcdn.com/w80/ca.png" srcset="https://flagcdn.com/w160/ca.png 2x" alt="" loading="lazy"></span>
         <span><span class="wc-nmrow"><span class="wc-nm">Vancouver</span></span><span class="wc-rg">British Columbia, Canada</span></span>
         <span class="wc-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="wc-row" type="button" data-city="seattle">
-        <span class="wc-flag"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#b31942"/><rect y="3.08" width="60" height="3.08" fill="#fff"/><rect y="9.23" width="60" height="3.08" fill="#fff"/><rect y="15.38" width="60" height="3.08" fill="#fff"/><rect y="21.54" width="60" height="3.08" fill="#fff"/><rect y="27.69" width="60" height="3.08" fill="#fff"/><rect y="33.85" width="60" height="3.08" fill="#fff"/><rect width="24" height="21.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="4" cy="4" r="1.1"/><circle cx="9.5" cy="4" r="1.1"/><circle cx="15" cy="4" r="1.1"/><circle cx="20.5" cy="4" r="1.1"/><circle cx="4" cy="10.7" r="1.1"/><circle cx="9.5" cy="10.7" r="1.1"/><circle cx="15" cy="10.7" r="1.1"/><circle cx="20.5" cy="10.7" r="1.1"/><circle cx="4" cy="17.4" r="1.1"/><circle cx="9.5" cy="17.4" r="1.1"/><circle cx="15" cy="17.4" r="1.1"/><circle cx="20.5" cy="17.4" r="1.1"/></g></svg></span>
+        <span class="wc-flag"><img src="https://flagcdn.com/w80/us.png" srcset="https://flagcdn.com/w160/us.png 2x" alt="" loading="lazy"></span>
         <span><span class="wc-nmrow"><span class="wc-nm">Seattle</span><span class="wc-new">New</span></span><span class="wc-rg">Washington, USA</span></span>
         <span class="wc-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="wc-row" type="button" data-city="sf">
-        <span class="wc-flag"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#b31942"/><rect y="3.08" width="60" height="3.08" fill="#fff"/><rect y="9.23" width="60" height="3.08" fill="#fff"/><rect y="15.38" width="60" height="3.08" fill="#fff"/><rect y="21.54" width="60" height="3.08" fill="#fff"/><rect y="27.69" width="60" height="3.08" fill="#fff"/><rect y="33.85" width="60" height="3.08" fill="#fff"/><rect width="24" height="21.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="4" cy="4" r="1.1"/><circle cx="9.5" cy="4" r="1.1"/><circle cx="15" cy="4" r="1.1"/><circle cx="20.5" cy="4" r="1.1"/><circle cx="4" cy="10.7" r="1.1"/><circle cx="9.5" cy="10.7" r="1.1"/><circle cx="15" cy="10.7" r="1.1"/><circle cx="20.5" cy="10.7" r="1.1"/><circle cx="4" cy="17.4" r="1.1"/><circle cx="9.5" cy="17.4" r="1.1"/><circle cx="15" cy="17.4" r="1.1"/><circle cx="20.5" cy="17.4" r="1.1"/></g></svg></span>
+        <span class="wc-flag"><img src="https://flagcdn.com/w80/us.png" srcset="https://flagcdn.com/w160/us.png 2x" alt="" loading="lazy"></span>
         <span><span class="wc-nmrow"><span class="wc-nm">San Francisco</span><span class="wc-new">New</span></span><span class="wc-rg">California, USA</span></span>
         <span class="wc-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
       <button class="wc-row" type="button" data-city="kirkland">
-        <span class="wc-flag"><svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#b31942"/><rect y="3.08" width="60" height="3.08" fill="#fff"/><rect y="9.23" width="60" height="3.08" fill="#fff"/><rect y="15.38" width="60" height="3.08" fill="#fff"/><rect y="21.54" width="60" height="3.08" fill="#fff"/><rect y="27.69" width="60" height="3.08" fill="#fff"/><rect y="33.85" width="60" height="3.08" fill="#fff"/><rect width="24" height="21.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="4" cy="4" r="1.1"/><circle cx="9.5" cy="4" r="1.1"/><circle cx="15" cy="4" r="1.1"/><circle cx="20.5" cy="4" r="1.1"/><circle cx="4" cy="10.7" r="1.1"/><circle cx="9.5" cy="10.7" r="1.1"/><circle cx="15" cy="10.7" r="1.1"/><circle cx="20.5" cy="10.7" r="1.1"/><circle cx="4" cy="17.4" r="1.1"/><circle cx="9.5" cy="17.4" r="1.1"/><circle cx="15" cy="17.4" r="1.1"/><circle cx="20.5" cy="17.4" r="1.1"/></g></svg></span>
-        <span><span class="wc-nmrow"><span class="wc-nm">Kirkland</span><span class="wc-new">Live</span></span><span class="wc-rg">Washington, USA</span></span>
+        <span class="wc-flag"><img src="https://flagcdn.com/w80/us.png" srcset="https://flagcdn.com/w160/us.png 2x" alt="" loading="lazy"></span>
+        <span><span class="wc-nmrow"><span class="wc-nm">Kirkland</span><span class="wc-new">New</span><span class="wc-live"><i></i>Live spots</span></span><span class="wc-rg">Washington, USA</span></span>
         <span class="wc-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span>
       </button>
     </div>
+    <div class="wc-note">Rates come from free, open city data, so it won't cover every street and can lag behind new signs — always check what's posted at the curb. Still very much a work in progress, so let me know if you have feedback!</div>
   </div>
 </div>
 
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
-<script type="module" src="app.js?v=61"></script>
+<script src="vendor/maplibre-gl@4.7.1.js"></script>
+<script type="module" src="app.js?v=63"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
