@@ -1,7 +1,7 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=31';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=8';
-import { createDriving, SIM_START } from './driving.js?v=28';
+import { createDriving, SIM_START } from './driving.js?v=29';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
 import { CHANGELOG } from './changelog.js?v=1';
