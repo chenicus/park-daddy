@@ -302,6 +302,10 @@
      its staggered turn, then reverts to normal styles so a later .sel scale still wins. */
   @keyframes pillIn { 0% { opacity: 0; scale: .5; } 60% { opacity: 1; scale: 1.06; } 100% { scale: 1; } }
   .plabel.in { animation: pillIn var(--dur-base) var(--ease-out) backwards; }
+  /* filter exit — a Free/Paid toggle shrinks the excluded pills away instead of blanking them,
+     so you can see which pins the filter took. 200ms must match EXIT_MS in labels.js. */
+  @keyframes pillOut { to { opacity: 0; scale: .5; } }
+  .plabel.out { animation: pillOut 200ms var(--ease-standard) forwards; pointer-events: none; }
   .plabel.p-free.sel { --c: #1e40af; }
   .plabel.p1.sel { --c: #0e6b30; }
   .plabel.p2.sel { --c: #c26a05; }
@@ -593,6 +597,21 @@
   .mn-chev { flex: none; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2;
     stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
   .mn-foot { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted); margin-top: 20px; }
+  /* inline text link inside .mn-foot — a <button> so it opens the in-app panel rather
+     than navigating away, but it has to read as a link, so strip the button chrome */
+  .mn-flink { font: inherit; color: inherit; background: none; border: 0; padding: 0;
+    text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  .mn-flink:hover { color: var(--fg); }
+
+  /* ---- privacy policy panel — plain prose in the shared .rlpanel drill-down ---- */
+  .pv-body { font-size: var(--fs-caption); line-height: 1.6; color: var(--muted); padding-bottom: 8px; }
+  .pv-body h3 { font-size: var(--fs-body); font-weight: 650; color: var(--fg); margin: 16px 0 4px; letter-spacing: -.2px; }
+  .pv-body h3:first-child { margin-top: 4px; }
+  .pv-body p { margin: 0 0 8px; }
+  .pv-body ul { margin: 0 0 8px; padding-left: 18px; }
+  .pv-body li { margin-bottom: 3px; }
+  .pv-body a { color: inherit; }
+  .pv-updated { margin-top: 16px; font-size: var(--fs-caption); opacity: .75; }
 
   /* ---- available-cities list — informational only, not tappable. Compact 2-col grid,
      flag + name only (no state/province — this is a quick "is my city here" scan). ---- */
@@ -857,7 +876,7 @@
       <svg class="mn-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
     </button>
   </div>
-  <div class="mn-foot">Parking data comes from free, open city datasets. It won't cover every street and can lag behind new signs — always check what's posted at the curb.</div>
+  <div class="mn-foot">Parking data comes from free, open city datasets. It won't cover every street and can lag behind new signs — always check what's posted at the curb. <button class="mn-flink" id="mnPrivacy" type="button">See our privacy policy</button></div>
 </div>
 
 <div class="rlpanel" id="changelog" role="dialog" aria-modal="true" aria-label="What's new">
@@ -866,6 +885,47 @@
     <div class="rl-title">What's new</div>
   </div>
   <div id="clList"></div>
+</div>
+
+<div class="rlpanel" id="privacy" role="dialog" aria-modal="true" aria-label="Privacy policy">
+  <div class="rl-head">
+    <button class="iconbtn" id="pvBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+    <div class="rl-title">Privacy</div>
+  </div>
+  <div class="pv-body">
+    <p>Park Daddy has no accounts and no logins. I don't want your personal information and I don't collect it.</p>
+
+    <h3>What stays on your device</h3>
+    <p>Your location and your recent searches never leave your browser. Location is used to draw the map and work out drive times, then it's gone — it isn't sent anywhere or stored.</p>
+
+    <h3>What I do collect</h3>
+    <ul>
+      <li>Anonymous usage stats: pages viewed, which buttons get pressed, which city you're browsing, and the approximate city you're visiting from (worked out from your IP address, which is discarded and never stored).</li>
+      <li>Anything you type into a report or the feedback form, plus any photo you attach. That's only what you choose to send.</li>
+    </ul>
+    <p>There are no ads here, and I don't sell or share any of this with anyone.</p>
+
+    <h3>Other services this app talks to</h3>
+    <p>Loading a map and searching means your browser fetches things from other companies, who will see your IP address as a result:</p>
+    <ul>
+      <li><b>CARTO</b> and <b>MapLibre</b>: map tiles and styling</li>
+      <li><b>OpenStreetMap</b> (Nominatim, Valhalla) and <b>Komoot</b> (Photon): search, autocomplete and directions. Places you search for are sent to these to look up.</li>
+      <li><b>Cloudflare</b> and <b>PostHog</b>: the anonymous usage stats above</li>
+      <li><b>Supabase</b>: stores reports and feedback</li>
+      <li><b>ArcGIS</b>: live parking availability in Kirkland</li>
+    </ul>
+
+    <h3>Your choices</h3>
+    <p>Turning on "Do Not Track" or Global Privacy Control in your browser switches the usage stats off. Clearing your browser data wipes your saved searches. Want something you sent deleted? Just ask.</p>
+
+    <h3>Kids</h3>
+    <p>This isn't aimed at children under 13, and I don't knowingly collect anything from them.</p>
+
+    <h3>Questions</h3>
+    <p>DM me <a href="https://www.instagram.com/charlotttechen" target="_blank" rel="noopener">@charlotttechen</a> or use the feedback form.</p>
+
+    <div class="pv-updated">Last updated July 21, 2026</div>
+  </div>
 </div>
 
 <div class="spotcard mat" id="fbsheet" hidden>
@@ -1017,7 +1077,7 @@
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=63"></script>
+<script type="module" src="app.js?v=70"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

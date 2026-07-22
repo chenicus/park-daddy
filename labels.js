@@ -91,6 +91,10 @@ export function buildSeattleFreeBlocks(records, idBase = 3e6) {
     lat: o.mid[1], lon: o.mid[0],
     line: o.line.map(([lon, lat]) => [lat, lon]),
     bands: EMPTY_BANDS,
+    // Same "always free" semantics as Vancouver's buildFreeBlocks — analytics' spot_opened
+    // reads this to set the `residential` prop, so it has to be set here too or every free
+    // SF/Seattle block silently reports as metered.
+    isFree: true,
     freeLimit: o.cat === 'tl' ? (o.limit || null) : null,   // time-limited: free but capped
     noPill: o.cat !== 'tl',                                  // unrestricted: draw the line, skip the pill
     cat: o.cat, spaces: o.spaces, hblock: o.h,
@@ -196,6 +200,12 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
   let filter = { free: true, paid: true };
+  // Set for the single refresh a Free/Paid toggle triggers: pills animate in/out instead of
+  // popping, so the filter reads as pins leaving rather than the map silently changing.
+  let morph = false;
+  const exiting = new Set();        // markers mid-exit — removed on a timer, or on destroy()
+  let dotTimer = 0;
+  const EXIT_MS = 200;              // keep in sync with .plabel.out in index.html
   const keep = (free) => (free && filter.free) || (!free && filter.paid);
   let focus = null;                 // car position while driving
 
@@ -356,8 +366,21 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     const desired = z >= 13 ? pillDesired(z, mins, wknd, dw) : [];
 
     const want = new Set(desired.map((d) => d.sig));
+    let exited = false;
     for (const [sig, mk] of pillCache) {
-      if (!want.has(sig)) { mk.remove(); pillCache.delete(sig); }
+      if (want.has(sig)) continue;
+      pillCache.delete(sig);
+      if (selMarker === mk) selMarker = null;   // don't let applySel poke a marker we're dropping
+      const pill = morph && mk.getElement() && mk.getElement().firstElementChild;
+      // Filter toggles shrink the excluded pills away so you SEE what got filtered out;
+      // every other refresh (pan/zoom/clock tick) still removes them instantly.
+      if (!pill) { mk.remove(); continue; }
+      exited = true;
+      pill.classList.remove('in', 'sel');
+      pill.style.animationDelay = '';   // a stale cold-load stagger delay would hold the exit back
+      pill.classList.add('out');
+      exiting.add(mk);
+      setTimeout(() => { exiting.delete(mk); mk.remove(); }, EXIT_MS + 40);
     }
     pillByBlock.clear();
     let dropN = 0;   // staggered-entrance index among pills newly created this refresh (nearest first — `desired` is distance-sorted)
@@ -378,7 +401,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         // pop the new pill in with a small nearest-first stagger (25ms step, capped so a
         // big batch never drags on). Cached pills that merely re-appear on pan don't re-run.
         // fade the drop-in only on the cold load; later refreshes (zoom/pan/filter) render instantly.
-        const pill = firstPaint ? el.firstElementChild : null;
+        const pill = (firstPaint || morph) ? el.firstElementChild : null;
         if (pill) {
           pill.style.animationDelay = Math.min(dropN, 14) * 25 + 'ms';
           pill.classList.add('in');
@@ -391,7 +414,11 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       }
       if (d.block) pillByBlock.set(d.block.id, mk);
     }
-    refreshDots(z, mins, dw);
+    // Dots/lines are one GPU layer, so they can't fade per-feature — hold their swap until the
+    // outgoing pills have finished shrinking, and the whole category leaves as one gesture.
+    clearTimeout(dotTimer);
+    if (exited) dotTimer = setTimeout(() => refreshDots(zoomInt(), nowMins(), dowNow()), EXIT_MS);
+    else refreshDots(z, mins, dw);
     applySel();
     firstPaint = false;             // cold load done — every later refresh renders pills instantly
     layer.lastRefreshMs = performance.now() - t0;
@@ -404,9 +431,19 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     refresh,
     lastRefreshMs: 0,
     setSelected(id) { selectedId = id; applySel(); },
-    setFilter(f) { filter = f; refresh(); },
+    setFilter(f) {
+      filter = f;
+      morph = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+      refresh();
+      morph = false;                // one refresh only — pan/zoom stays instant
+    },
     setFocus(pos) { focus = pos; },
-    destroy() { clearInterval(timer); map.off('moveend', refresh); map.off('zoomend', refresh); },
+    destroy() {
+      clearInterval(timer); clearTimeout(dotTimer);
+      for (const mk of exiting) mk.remove();
+      exiting.clear();
+      map.off('moveend', refresh); map.off('zoomend', refresh);
+    },
   };
   return layer;
 }

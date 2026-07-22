@@ -8,7 +8,7 @@
 // Lifecycle (see app.js + labels.js for the UI):
 //   >= FLAG_MIN reports → warning marker on the pill + banner on the spot card
 //   >= HIDE_MIN reports → the pill drops off the map entirely (data is kept, just hidden)
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=1';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=2';
 
 export const FLAG_MIN = 1;
 export const HIDE_MIN = 5;   // raised from 3: 3 open-insert reports was too cheap a way to hide a real block

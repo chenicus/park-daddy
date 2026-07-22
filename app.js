@@ -1,10 +1,11 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=31';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=33';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=8';
 import { createDriving, SIM_START } from './driving.js?v=29';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
 import { CHANGELOG } from './changelog.js?v=1';
+import { track } from './analytics.js?v=2';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -224,6 +225,7 @@ async function goToCity(key) {
   const c = CITIES[key];
   if (!c) return;
   cityChosen = true;
+  track('city_switched', { city: key });
   activeCity = key;
   await mapLoaded;
   activeCity = key;   // re-assert: the boot IIFE resolves off mapLoaded first and sets DEFAULT_CITY
@@ -516,6 +518,8 @@ async function run(preLoc, isNew) {
   addRecent(loc, q);
   trip.userSet = false;   // a fresh destination re-arms the "arrive on arrival" default
   rankAndRender(loc);
+  // shape only, never the query itself: it's usually a real address (see analytics.js)
+  track('destination_searched', { city: activeCity, results: current.length, typed: !preLoc });
   resolveEta(loc);
 }
 
@@ -865,6 +869,28 @@ function syncCompass() {
 }
 map.on('rotate', syncCompass);
 map.on('load', syncCompass);
+// After a compass tap lands the map on its new bearing, carry the needle a few degrees past
+// and let it settle — a snap that just stops dead reads like a jump cut. WAAPI transform wins
+// over syncCompass's inline style while it runs, then hands back cleanly (same end angle).
+function springCompass(fromBearing) {
+  if (!compassSvg || !compassSvg.animate || reduceMotion()) return;
+  const dir = Math.sign(fromBearing) || 1;   // overshoot the way the needle was already travelling
+  let ran = false;
+  const run = () => {
+    if (ran) return;
+    ran = true;
+    map.off('moveend', run);
+    const b = -map.getBearing();
+    compassSvg.animate([
+      { transform: `rotate(${b}deg)` },
+      { transform: `rotate(${b + dir * 8}deg)`, offset: .35 },
+      { transform: `rotate(${b - dir * 2.5}deg)`, offset: .7 },
+      { transform: `rotate(${b}deg)` },
+    ], { duration: 460, easing: 'ease-out' });
+  };
+  map.once('moveend', run);
+  setTimeout(run, 700);   // the tap may not move the map at all (already on-bearing)
+}
 
 // match a ranked meter back to its label-layer block (same rate/limit tuple, nearest)
 const blockKey = (m) => [m.rate_9am_6pm, m.rate_6pm_10pm, m.flat_rate, m.time_limit_9am_6pm,
@@ -882,6 +908,9 @@ function blockForMeter(m) {
 
 // ---- turn-by-turn -------------------------------------------------------------
 async function startNav(target) {
+  // Fires here (not just in the one-time warning dialog's "Use anyway" handler) so it still
+  // counts every navigation start, not just a user's very first one — see nwStart below.
+  track('navigation_started', { city: activeCity });
   closeSpotCard();   // full teardown (spot line + pill highlight), not just hide
   const dest = { lat: target.lat, lon: target.lon };
   const from = driving.lastPos() || (params.get('sim') ? SIM_START : await getPosition());
@@ -1080,6 +1109,14 @@ function showSpotCard(b) {
   b._label = blockLabel(b);
   renderFlag(b);
 
+  // Rate is resolved before the isFree early-return below so the one analytics call
+  // covers both card shapes — free-residential blocks return early and would otherwise
+  // never be counted, which is exactly the population we most want to measure.
+  const r = b.isFree
+    ? { free: true, rate: 0 }
+    : (b.bands ? bandRateNow(b.bands, mins, dowNow()) : rateNow(b.rate1, b.rate2, mins));
+  track('spot_opened', { city: activeCity, free: !!r.free, residential: !!b.isFree, from_search: !!lastLoc });
+
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
     $('scsched').hidden = true;
@@ -1096,7 +1133,6 @@ function showSpotCard(b) {
     return;
   }
 
-  const r = b.bands ? bandRateNow(b.bands, mins, dowNow()) : rateNow(b.rate1, b.rate2, mins);
   $('scprice').innerHTML = r.free ? 'Free right now' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
   $('scprice').classList.toggle('free', r.free);
 
@@ -1163,9 +1199,11 @@ document.addEventListener('click', (e) => {
 // the drawer family closes it. Tapping the menu button itself is left to its own
 // click handler so it can still toggle back open.
 document.addEventListener('click', (e) => {
-  const open = $('menupanel').classList.contains('open') || $('changelog').classList.contains('open');
+  const open = $('menupanel').classList.contains('open') || $('changelog').classList.contains('open')
+    || $('privacy').classList.contains('open');
   if (!open) return;
-  if (e.target.closest('#menupanel') || e.target.closest('#changelog') || e.target.closest('#menubtn')) return;
+  if (e.target.closest('#menupanel') || e.target.closest('#changelog') || e.target.closest('#privacy')
+    || e.target.closest('#menubtn')) return;
   closeMenu();
 }, true);
 
@@ -1204,6 +1242,7 @@ function closeReport(reopen) {
   if (reopen && b) showSpotCard(b);
 }
 $('screport').addEventListener('click', () => { if (cardBlock) openReport(cardBlock); });
+$('scmaps').addEventListener('click', () => track('opened_in_maps', { city: activeCity, from: 'spotcard' }));
 
 // share the spot as a Google Maps pin — native share sheet, clipboard fallback
 function shareSpot(b) {
@@ -1238,6 +1277,7 @@ $('rsSubmit').addEventListener('click', async () => {
   $('rsSubmit').disabled = true; $('rsSubmit').textContent = 'Sending…';
   try {
     await submitReport({ block: reportBlock, reason: reportReason, detail, photoFile: $('rsPhoto').files[0] || null });
+    track('report_submitted', { city: activeCity, reason: reportReason, photo: !!$('rsPhoto').files[0] });
     const b = reportBlock;
     closeReport(false);
     toast('Thanks — report submitted. 💛');
@@ -1257,6 +1297,7 @@ function openMenu() { closeSpotCard(); $('menupanel').classList.add('open'); }
 function closeMenu() {
   $('menupanel').classList.remove('open');
   $('changelog').classList.remove('open');
+  $('privacy').classList.remove('open');
 }
 $('menubtn').addEventListener('click', () => {
   if ($('menupanel').classList.contains('open')) closeMenu(); else openMenu();
@@ -1265,6 +1306,7 @@ $('mnClose').addEventListener('click', closeMenu);
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!$('fbsheet').hidden) { closeFbSheet(); return; }
+  if ($('privacy').classList.contains('open')) { $('privacy').classList.remove('open'); return; }
   if ($('changelog').classList.contains('open')) { $('changelog').classList.remove('open'); return; }
   if ($('menupanel').classList.contains('open')) closeMenu();
 });
@@ -1278,6 +1320,9 @@ $('mnChangelog').addEventListener('click', () => {
   $('changelog').classList.add('open');
 });
 $('clBack').addEventListener('click', () => $('changelog').classList.remove('open'));
+
+$('mnPrivacy').addEventListener('click', () => $('privacy').classList.add('open'));
+$('pvBack').addEventListener('click', () => $('privacy').classList.remove('open'));
 
 // real email check — HTML5 type=email's built-in constraint accepts things like
 // "a@b" (no dot required), so validate it ourselves: local@domain.tld, no spaces.
@@ -1334,6 +1379,7 @@ $('fbSubmit').addEventListener('click', async () => {
   $('fbSubmit').disabled = true; $('fbSubmit').textContent = 'Sending…';
   try {
     await submitFeedback({ message, contact });
+    track('feedback_submitted', {});
     closeFbSheet();
     toast('Thanks — feedback sent. 💛');
   } catch (e) {
@@ -1404,6 +1450,7 @@ function initLiveLabels() {
   });
 
   $('drivebtn').addEventListener('click', () => {
+    track('drive_mode_toggled', { city: activeCity, on: !driving.isActive() });
     if (driving.isActive()) {
       endNav(false);
       driving.stop();
@@ -1436,11 +1483,14 @@ function initLiveLabels() {
     $('navwarn').classList.add('show');
   });
   $('nwStart').addEventListener('click', () => {
+    // navigation_started now fires inside startNav() itself, so every future tap is counted
+    // too — not just the one that happens to trigger this one-time warning dialog.
     try { localStorage.setItem(NAVWARN_KEY, '1'); } catch {}
     closeNavWarn();
     if (warnBlock) startNav(warnBlock);
   });
   $('nwMaps').addEventListener('click', () => {
+    track('opened_in_maps', { city: activeCity, from: 'navwarn' });
     closeNavWarn();
     if (warnBlock) window.open(navUrl(warnBlock), '_blank', 'noopener');
   });
@@ -1450,8 +1500,10 @@ function initLiveLabels() {
   $('compass').addEventListener('click', () => {
     // In a driving/nav session the compass toggles heading-up ⇄ north-up; in plain browse it
     // snaps the freely-rotated map back to north (like Google Maps).
+    const from = map.getBearing();
     if (driving && driving.isActive()) orientMode = orientMode === 'heading' ? 'north' : 'heading';
     applyOrientation();
+    springCompass(from);
   });
   $('recenter').addEventListener('click', async () => {
     if (driving.isActive()) { driving.setFollow(true); return; }
