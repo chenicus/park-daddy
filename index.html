@@ -622,6 +622,13 @@
      its place, exactly like the menu → feedback handoff. Only the padding differs: these
      two keep the denser .rlpanel padding for their long prose. */
   #menupanel { padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  /* ...and the same LAYERING, which is what still gave the handoff away. Feedback is a
+     .spotcard at 650, so the menu falls in FRONT of it; these two sat at .rlpanel's 660
+     and, being later in the DOM, painted over the falling menu instead — same two sheets,
+     same motion, crossing read backwards. Dropping them to the sheet layer makes all
+     three identical. #reportlist stays at 660: it drills out of the spot card and has to
+     cover it. Both stay above the 640 scrim. */
+  #changelog, #privacy { z-index: 650; }
   #menupanel, #changelog, #privacy {
     transform: translateY(110%); transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
   #menupanel.open, #changelog.open, #privacy.open {
