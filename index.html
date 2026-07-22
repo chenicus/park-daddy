@@ -61,7 +61,7 @@
     --line: rgba(60,60,67,.16); --line-strong: rgba(60,60,67,.29);
     --chip: rgba(120,120,128,.12); --chip-sel: rgba(255,255,255,.87); --accent: #000000; --on-accent: #fff; --clock-filter: brightness(0);
     --navy: rgba(30,30,32,.86); --green: #34c759; --free: #2563eb; --sel: #000000; --pin: #1c1c1e; --pin-fg: #fff; --pin-stroke: #fff; --pin-shadow: drop-shadow(0 2px 3px rgba(0,0,0,.4));
-    --grabber: rgba(60,60,67,.3); --seg-on: #ffffff; --stroke: rgba(0,0,0,.08); --plabel-ink: #fff; --chip-on-stroke: rgba(255,255,255,.22);
+    --seg-on: #ffffff; --stroke: rgba(0,0,0,.08); --plabel-ink: #fff; --chip-on-stroke: rgba(255,255,255,.22);
     --shadow: 0 4px 20px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.08);
     --blur: saturate(180%) blur(20px);
     /* ===== TYPE SCALE — 7 steps, ~1.15–1.2 ratio =====
@@ -86,7 +86,7 @@
     --line: rgba(84,84,88,.4); --line-strong: rgba(84,84,88,.65);
     --chip: rgba(120,120,128,.24); --chip-sel: rgba(27,25,25,.87); --accent: #ffffff; --on-accent: #000000; --clock-filter: brightness(0) invert(1);
     --navy: rgba(20,20,22,.86); --green: #30d158; --free: #60a5fa; --sel: #ffffff; --pin: #f2f2f2; --pin-fg: #16181d; --pin-stroke: transparent; --pin-shadow: drop-shadow(0 0 2px rgba(255,255,255,.9)) drop-shadow(0 3px 5px rgba(0,0,0,.9));
-    --grabber: rgba(235,235,245,.3); --seg-on: #636366;
+    --seg-on: #636366;
     --shadow: 0 4px 22px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
     --stroke: rgba(255,255,255,.12); --plabel-ink: #16181d; --chip-on-stroke: rgba(0,0,0,.16);
   }
@@ -131,7 +131,7 @@
        20px in the 40px buttons, 24px on the larger floating map controls.
      ========================================================================== */
   .ic, .rc-ic svg { width: 1.1em; height: 1.1em; flex: none; vertical-align: -.16em; }
-  .iconbtn svg, .searchbar .mi svg, .rc-del svg, .wc-close svg {
+  .iconbtn svg, .searchbar .mi svg, .rc-del svg {
     width: 20px; height: 20px; }
   .fab svg, .drivebtn-top svg { width: 24px; height: 24px; }
 
@@ -151,7 +151,7 @@
      Kill the transition during the wipe so both bake their final colour in, in lockstep. */
   :root.theming .iconbtn, :root.theming .drivebtn-top, :root.theming .tc-seg button,
   :root.theming .sc-actions .primary, :root.theming .sc-actions .ghost,
-  :root.theming .wc-close, :root.theming .rc-item, :root.theming .rs-reason,
+  :root.theming .rc-item, :root.theming .rs-reason,
   :root.theming .sc-flag, :root.theming .rc-del { transition: none; }
 
   .searchbar { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -186,10 +186,10 @@
 
   /* tactile press feedback — a subtle spring-scale on tap, the core "iOS" micro-interaction */
   .iconbtn, .drivebtn-top, .tc-seg button, .sc-actions .primary, .sc-actions .ghost,
-  .wc-close, .rc-item, .rs-reason, .sc-flag, .rc-del {
+  .rc-item, .rs-reason, .sc-flag, .rc-del {
     transition: transform .13s cubic-bezier(.4,0,.2,1), filter .13s ease, background .15s ease; }
   .iconbtn:active, .drivebtn-top:active, .tc-seg button:active, .sc-actions .primary:active,
-  .sc-actions .ghost:active, .wc-close:active, .rc-del:active { transform: scale(.93); }
+  .sc-actions .ghost:active, .rc-del:active { transform: scale(.93); }
   .rc-item:active, .rs-reason:active, .sc-flag:active { transform: scale(.985); }
 
   /* recent destinations — drops under the searchbar when it's focused */
@@ -329,15 +329,15 @@
      past its target (tall + narrow), then settles at 1.15. `scale` takes x y separately, and
      the pill's `transform-origin: bottom center` keeps the tail tip planted on its spot
      through the whole deformation. The overshoot lives in the keyframe VALUES, not in a
-     springy timing function, so each segment can stay a plain ease. */
+     springy timing function, so each segment can stay a plain ease.
+     ONE rebound, not a decaying series — the extra ripples read as a wobble on something
+     as small as a pill, and they outlast the sheet that rises underneath. */
   .plabel.sel { border: 2px solid var(--plabel-ink); box-shadow: 0 2px 10px rgba(0,0,0,.4);
-    scale: 1.15; z-index: 500; animation: pillPop .34s ease-in-out; }
+    scale: 1.15; z-index: 500; animation: pillPop .28s ease-in-out; }
   @keyframes pillPop {
     0%   { scale: 1 1; }
-    22%  { scale: 1.24 .84; }    /* squash — absorbs the tap */
-    48%  { scale: 1.04 1.26; }   /* stretch — rebounds past the target */
-    72%  { scale: 1.20 1.09; }
-    88%  { scale: 1.13 1.17; }
+    32%  { scale: 1.24 .84; }    /* squash — absorbs the tap */
+    68%  { scale: 1.06 1.24; }   /* stretch — the one rebound past the target */
     100% { scale: 1.15 1.15; }
   }
   /* staggered entrance (cold load only — labels.js gates it to first paint). Scale + a
@@ -506,9 +506,21 @@
     padding: 8px 18px; }
   #navend:active { opacity: .85; }
 
+  /* Dim behind a sheet that's asking for your attention — the menu, feedback, a report,
+     the no-coverage card. The price sheets deliberately opt out (see SCRIM_SHEETS in
+     app.js): there you're reading the card against the street it belongs to, so the map
+     has to stay legible. Sits at 640, under every sheet (650/660) and over the map chrome. */
+  #scrim { position: fixed; inset: 0; z-index: 640; background: rgba(0,0,0,.34);
+    opacity: 0; visibility: hidden;
+    transition: opacity .3s ease, visibility 0s .3s; }
+  #scrim.on { opacity: 1; visibility: visible; transition: opacity .3s ease; }
+
   /* ---- spot-detail card (iOS bottom sheet) ---- */
+  /* border: none overrides .mat's hairline — that stroke earns its keep on the floating
+     chrome (a chip afloat on the map needs an edge), but a sheet flush against the bottom
+     of the screen already has its shadow, and the .rlpanel sheets never had one. */
   .spotcard { position: absolute; z-index: 650; left: 0; right: 0; background: var(--sheet-strong);
-    bottom: 0; border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
+    border: none; bottom: 0; border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
     padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
     display: block; transform: translateY(0); visibility: visible; will-change: transform;
     transition: transform .36s cubic-bezier(.32,.72,0,1); }
@@ -529,10 +541,12 @@
   .iconbtn.dismiss { flex: none; width: 30px; height: 30px; background: var(--chip); color: var(--muted-strong); }
   .iconbtn.dismiss svg { width: 16px; height: 16px; }
   .sc-tools #scclose { margin-left: 4px; }
-  #rsClose, #fbClose { margin-top: -2px; }
+  #rsClose { margin-top: -2px; }
   .sc-price { font-size: var(--fs-large); font-weight: 600; letter-spacing: -.5px; line-height: 1.15; }
   .sc-price .sc-unit { font-size: var(--fs-headline); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
-  .sc-price.free { color: var(--free); }
+  /* "Free right now" stays in the body ink like every other sheet headline — the green
+     already lives on the pill you tapped and on the schedule row below, so a third copy
+     of it in the title just made this sheet look unlike the others. */
   /* .sc-price is sized for a dollar amount (24px). Sheets that reuse its weight and tracking
      for a plain headline step down one notch — previously each did that with an inline
      font-size, so the size lived in three copies of the markup instead of here. */
@@ -688,6 +702,14 @@
   .cl-list b { font-weight: 600; }
 
   /* ---- feedback sheet ---- */
+  /* Feedback is a drill-down (reached from the menu, or from "Request city"), so its header
+     is a back arrow like #changelog's rather than a dismiss — and back actually returns you
+     to whichever sheet sent you here. Same -8px pull as .rlpanel's drill-downs so the
+     chevron GLYPH lines up with the text under it, not the button's invisible 40px box;
+     the -9px top does the same job vertically against the title's line. */
+  #fbsheet .sc-head { gap: 6px; }
+  #fbsheet .sc-head > div { flex: 1; min-width: 0; }
+  #fbsheet #fbBack { flex: none; margin: -9px 0 0 -8px; }
   #fbsheet .sc-sub { line-height: 1.45; }
   #fbsheet .sc-sub a { color: var(--accent); font-weight: 600; text-decoration: none; }
   .fb-field { width: 100%; margin-top: 14px; padding: 12px 14px; box-sizing: border-box;
@@ -994,6 +1016,8 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button id="navend" type="button">Exit</button>
 </div>
 
+<div id="scrim"></div>
+
 <div class="spotcard mat" id="spotcard" hidden>
   <div class="sc-head">
     <div>
@@ -1124,11 +1148,11 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 
 <div class="spotcard mat" id="fbsheet" hidden>
   <div class="sc-head">
+    <button class="iconbtn" id="fbBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
     <div>
       <div class="sc-price sheet-title">Leave me any feedback</div>
       <div class="sc-sub">Share ideas, city requests, bugs and more! Or DM me <a href="https://www.instagram.com/charlotttechen" target="_blank" rel="noopener">@charlotttechen</a></div>
     </div>
-    <button class="iconbtn dismiss" id="fbClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <textarea class="fb-field" id="fbText" maxlength="1000" placeholder="Go ahead, I'm listening."></textarea>
   <div class="fb-err" id="fbTextErr" hidden></div>
@@ -1170,10 +1194,10 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   @keyframes wcPop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
   .wc-card { position: relative; width: 100%; max-width: 320px; background: var(--sheet-solid); color: var(--text);
     border-radius: 26px; box-shadow: var(--shadow); padding: 26px 22px 22px; text-align: center; }
-  .wc-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border: none;
-    background: var(--chip); color: var(--muted); border-radius: 50%; display: grid; place-items: center;
-    cursor: pointer; }
-  .wc-close:active { filter: brightness(.94); }
+  /* size/colour/icon all come from .iconbtn.dismiss — the shared sheet dismiss. This rule
+     only says WHERE it sits, since this dialog is a centred card rather than a sheet with
+     a header row to hang it off. */
+  .wc-close { position: absolute; top: 14px; right: 14px; }
   .wc-title { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.4px; }
   .wc-intro { font-size: var(--fs-body); line-height: 1.5; color: var(--muted-strong); margin-top: 10px; }
   .wc-intro b { color: var(--text); font-weight: 600; }
@@ -1194,7 +1218,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </style>
 <div id="navwarn" role="dialog" aria-modal="true" aria-labelledby="nwTitle">
   <div class="wc-card">
-    <button class="wc-close" id="nwClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    <button class="iconbtn dismiss wc-close" id="nwClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     <div class="nw-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
     </div>
@@ -1217,8 +1241,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   @keyframes wcRise { from { transform: translateY(100%); } to { transform: none; } }
   .wc-sheet { width: 100%; max-width: 440px; background: var(--sheet-solid); color: var(--text);
     border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
-    padding: 12px 18px calc(env(safe-area-inset-bottom, 0px) + 22px); }
-  .wc-grab { width: 38px; height: 5px; border-radius: 3px; background: var(--grabber); margin: 0 auto 16px; }
+    padding: 22px 18px calc(env(safe-area-inset-bottom, 0px) + 22px); }
   .wc-title { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.4px; }
   .wc-sub { font-size: var(--fs-body); line-height: 1.45; color: var(--muted-strong); margin-top: 8px; }
   .wc-sub b { color: var(--text); font-weight: 600; }
@@ -1255,7 +1278,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </style>
 <div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wc-sheet">
-    <div class="wc-grab"></div>
     <div class="wc-title" id="wcTitle">Pick your city</div>
     <div class="wc-sub">Park Daddy shows metered rates as you drive.</div>
     <div class="wc-rows">
@@ -1285,7 +1307,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=80"></script>
+<script type="module" src="app.js?v=81"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -1244,7 +1244,6 @@ function showSpotCard(b) {
   }
 
   $('scprice').innerHTML = r.free ? 'Free right now' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
-  $('scprice').classList.toggle('free', r.free);
 
   // full-day price breakdown so a "free right now" spot still shows its paid window
   renderSchedule(b, mins);
@@ -1400,6 +1399,36 @@ $('rsSubmit').addEventListener('click', async () => {
   }
 });
 
+// ---- sheet scrim ---------------------------------------------------------------
+// Every sheet that wants the map dimmed behind it, minus the price ones: on the spot card
+// (and the report list that drills out of it) you're reading the card against the street
+// it describes, so the map stays bright. Driven by a MutationObserver rather than a call
+// at each open/close — those sites are spread across five features, and the last three
+// times a sheet was added the pattern was copied and one of its exits was missed.
+const SCRIM_SHEETS = ['reportsheet', 'fbsheet', 'nasheet'];   // hidden attribute
+const SCRIM_PANELS = ['menupanel', 'changelog', 'privacy'];   // .open class
+function syncScrim() {
+  const on = SCRIM_SHEETS.some((id) => !$(id).hidden)
+          || SCRIM_PANELS.some((id) => $(id).classList.contains('open'));
+  $('scrim').classList.toggle('on', on);
+}
+{
+  const obs = new MutationObserver(syncScrim);
+  for (const id of [...SCRIM_SHEETS, ...SCRIM_PANELS]) {
+    obs.observe($(id), { attributes: true, attributeFilter: ['hidden', 'class'] });
+  }
+  syncScrim();
+}
+// Tapping the dim area dismisses, the way tapping the map already dismisses the spot card
+// and the menu. It's a plain close, not the header's back arrow — reaching past a sheet to
+// the map behind it means "I'm done", not "take me up a level".
+$('scrim').addEventListener('click', () => {
+  if (!$('fbsheet').hidden) { closeFbSheet(); return; }
+  if (!$('nasheet').hidden) { closeNaSheet(); return; }
+  if (!$('reportsheet').hidden) { closeReport(true); return; }
+  closeMenu();
+});
+
 // ---- menu drawer: feedback + changelog ---------------------------------------
 // Both destinations slide in over the drawer (same right-slide .rlpanel as the report
 // list), so "back" just closes the top layer and reveals the menu underneath.
@@ -1415,7 +1444,7 @@ $('menubtn').addEventListener('click', () => {
 $('mnClose').addEventListener('click', closeMenu);
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (!$('fbsheet').hidden) { closeFbSheet(); return; }
+  if (!$('fbsheet').hidden) { fbBack(); return; }
   if (!$('nasheet').hidden) { closeNaSheet(); return; }
   if ($('privacy').classList.contains('open')) { $('privacy').classList.remove('open'); return; }
   if ($('changelog').classList.contains('open')) { $('changelog').classList.remove('open'); return; }
@@ -1468,7 +1497,16 @@ if (vvp) {
   vvp.addEventListener('resize', syncKeyboardInset);
   vvp.addEventListener('scroll', syncKeyboardInset);
 }
-function closeFbSheet() { $('fbsheet').hidden = true; syncKeyboardInset(); }
+function closeFbSheet() { $('fbsheet').hidden = true; fbBackTo = null; syncKeyboardInset(); }
+// The feedback sheet is always a drill-down, so its header chevron goes back rather than
+// just dismissing — whoever opened it leaves behind the way to return (the menu, or the
+// no-coverage sheet with its place intact). Falls back to a plain close if nothing did.
+let fbBackTo = null;
+function fbBack() {
+  const back = fbBackTo;
+  closeFbSheet();
+  if (back) back();
+}
 
 // ---- "not available there yet" -----------------------------------------------
 // A searched place that's real but outside our five metros. Naming it matters: "not
@@ -1499,6 +1537,16 @@ function displayPlace(p) {
   if (parts.length < 2) add(p.country);   // country only earns its slot when the state didn't
   return parts.slice(0, 2).join(', ') || null;
 }
+// The request message keeps the country too — "Please add Vancouver, Washington" is
+// ambiguous in an inbox in a way the on-screen heading never is, because there the map
+// behind it already said which continent you were looking at. Same dedupe, no 2-part cap.
+function requestPlace(p) {
+  if (!p) return null;
+  const parts = [];
+  const add = (v) => { if (v && !parts.some((x) => normPlace(x) === normPlace(v))) parts.push(v); };
+  add(p.city); add(p.state); add(p.country);
+  return parts.join(', ') || null;
+}
 // "Vancouver, Seattle, San Francisco, San Jose and Kirkland" — built from the registry so
 // adding a city updates this sentence for free. It's the fourth place the list appears
 // (menu, page title, coverage sheet, here); the other three are static markup, this one
@@ -1507,18 +1555,24 @@ function coverageSentence() {
   const names = Object.values(CITIES).map((c) => c.name);
   return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
 }
-function showNoCoverage(p) {
+// Rendering is split from the search that triggered it so the feedback sheet's back arrow
+// can put this sheet back exactly as it was without logging a second search that never
+// happened.
+function openNaSheet(p) {
   naPlace = p;
   // The heading carries the place; the body carries the coverage. Neither repeats the
   // other, which is what let the third type tier go.
   // Heading takes the bare city so it stays one line on a phone; the full "Portland,
-  // Oregon" form is saved for the request message, where the disambiguation actually
-  // matters because it lands in an inbox out of context.
+  // Oregon, United States" form is saved for the request message, where the
+  // disambiguation actually matters because it lands in an inbox out of context.
   const city = p.city || p.state || p.country;
   $('naTitle').textContent = city ? `No data for ${city} yet.` : 'No data for that area yet.';
   $('naSub').textContent = `Park Daddy currently works in ${coverageSentence()}.`;
   closeSpotCard();
   $('nasheet').hidden = false;
+}
+function showNoCoverage(p) {
+  openNaSheet(p);
   // Coarse place only — town, state/province, country. Never the address that was typed.
   // This is the demand signal for what to build next (see the privacy policy).
   track('search_out_of_coverage', { city: p.city || null, state: p.state || null, country: p.country || null });
@@ -1528,8 +1582,9 @@ $('naClose').addEventListener('click', closeNaSheet);
 // Hand off to the existing feedback pipe rather than build a second one — prefilled so
 // the ask is one tap plus an email, and still fully editable before it sends.
 $('naRequest').addEventListener('click', () => {
-  const label = displayPlace(naPlace) || 'my city';
-  track('city_requested', { city: naPlace?.city || null, state: naPlace?.state || null, country: naPlace?.country || null });
+  const p = naPlace;
+  const label = requestPlace(p) || 'my city';
+  track('city_requested', { city: p?.city || null, state: p?.state || null, country: p?.country || null });
   closeNaSheet();
   // Short and warm — it's a request from one person to another, and it lands in the same
   // inbox as free-form feedback. Still editable before it sends.
@@ -1537,6 +1592,8 @@ $('naRequest').addEventListener('click', () => {
   $('fbContact').value = ''; setFbTextError(null); setFbError(null);
   $('fbSubmit').textContent = 'Send feedback';
   updateFbSubmit();
+  // back returns to the sheet that sent us here, with the same place still named on it
+  fbBackTo = () => openNaSheet(p);
   $('fbsheet').hidden = false;
   $('fbContact').focus();   // message is written for them; the email is what's still missing
 });
@@ -1546,10 +1603,11 @@ $('mnFeedback').addEventListener('click', () => {
   $('fbText').value = ''; $('fbContact').value = ''; setFbTextError(null); setFbError(null);
   $('fbSubmit').textContent = 'Send feedback';
   updateFbSubmit();
+  fbBackTo = openMenu;
   $('fbsheet').hidden = false;
   $('fbText').focus();
 });
-$('fbClose').addEventListener('click', closeFbSheet);
+$('fbBack').addEventListener('click', fbBack);
 $('fbSubmit').addEventListener('click', async () => {
   const message = $('fbText').value.trim();
   const contact = $('fbContact').value.trim();
