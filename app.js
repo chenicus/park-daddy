@@ -404,24 +404,11 @@ async function geocode(q) {
   }
   return loc;
 }
-// "Open in Maps" defers to whatever's native for the platform instead of a picker we'd
-// have to build and maintain: Android's geo: URI lets the OS route to the user's actual
-// default maps app (or prompt them to pick one, same as any other Android link); iOS has
-// no concept of a default maps app, so a maps.apple.com link opens Apple Maps directly via
-// universal link; everywhere else (desktop) falls back to Google Maps on the web.
-const mapPlatform = () => {
-  const ua = navigator.userAgent || '';
-  if (/Android/i.test(ua)) return 'android';
-  if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
-  return 'web';
-};
-const MAPAPP_NAME = { android: 'Maps', ios: 'Apple Maps', web: 'Google Maps' };
-const navUrl = (r) => {
-  const p = mapPlatform();
-  if (p === 'android') return `geo:${r.lat},${r.lon}?q=${r.lat},${r.lon}`;
-  if (p === 'ios') return `https://maps.apple.com/?daddr=${r.lat},${r.lon}&dirflg=d`;
-  return `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
-};
+// google.com/maps links are registered as a universal/app link by the Google Maps app on
+// both iOS and Android, so this deep-links straight into the installed app (the vast
+// majority of phones) instead of opening in the browser; only falls back to the website
+// when Google Maps itself isn't installed.
+const navUrl = (r) => `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
 const NAV_SVG = '<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
 // Lucide (shadcn) inline icons — inherit color via currentColor.
 const IC = {
@@ -898,11 +885,11 @@ async function startNav(target) {
   closeSpotCard();   // full teardown (spot line + pill highlight), not just hide
   const dest = { lat: target.lat, lon: target.lon };
   const from = driving.lastPos() || (params.get('sim') ? SIM_START : await getPosition());
-  if (!from) { toast(`Could not get your location — opening ${MAPAPP_NAME[mapPlatform()]}.`); window.open(navUrl(dest)); return; }
+  if (!from) { toast('Could not get your location — opening Google Maps.'); window.open(navUrl(dest)); return; }
   toast('Finding route…', 1500);
   let r;
   try { r = await fetchRoute(from, dest); }
-  catch { toast(`Routing failed — opening ${MAPAPP_NAME[mapPlatform()]}.`); window.open(navUrl(dest)); return; }
+  catch { toast('Routing failed — opening Google Maps.'); window.open(navUrl(dest)); return; }
   navTarget = dest;
   clearMap();                       // search pins off; dest marker + price pills stay
   nav.begin(r);
