@@ -1551,12 +1551,20 @@ if (vvp) {
   vvp.addEventListener('resize', syncKeyboardInset);
   vvp.addEventListener('scroll', syncKeyboardInset);
 }
-function closeFbSheet() { $('fbsheet').hidden = true; fbBackTo = null; syncKeyboardInset(); }
+function closeFbSheet() {
+  $('fbsheet').hidden = true;
+  fbBackTo = null;
+  syncKeyboardInset();
+  const done = fbOnClose; fbOnClose = null;
+  if (done) done();
+}
 // One way in, three callers: the menu, "Request city", and the first-run picker's "my city
 // isn't here". Each used to repeat the same five lines of reset, and the prefilled ones
 // only differ in what's already typed and which field still needs the user.
 // `backTo` is what the header chevron returns to — null when there's nothing behind it.
-function openFeedback({ text = '', backTo = null, focus = 'text' } = {}) {
+// `onClose` runs once on the way out, whichever exit they take (back, scrim, Esc, send).
+function openFeedback({ text = '', backTo = null, focus = 'text', onClose = null } = {}) {
+  fbOnClose = onClose;
   $('fbText').value = text;
   $('fbContact').value = '';
   setFbTextError(null); setFbError(null);
@@ -1570,6 +1578,9 @@ function openFeedback({ text = '', backTo = null, focus = 'text' } = {}) {
 // just dismissing — whoever opened it leaves behind the way to return (the menu, or the
 // no-coverage sheet with its place intact). Falls back to a plain close if nothing did.
 let fbBackTo = null;
+// Deferred work owed to whoever opened the sheet — currently the picker's "my city isn't
+// here", which owes the boot gate. Cleared as it fires, so it can never run twice.
+let fbOnClose = null;
 function fbBack() {
   const back = fbBackTo;
   closeFbSheet();
@@ -1847,8 +1858,13 @@ function initLiveLabels() {
   // attribute filter it would fall through to goToCity(null).
   $('wcAsk').addEventListener('click', () => {
     track('city_requested', { city: null, state: null, country: null, from: 'welcome' });
-    dismiss();
-    openFeedback({ text: 'Please add ' });   // they finish the sentence; nothing to go back to
+    // Answers the picker, but does NOT open the boot gate yet: the location prompt is a
+    // native dialog and would land straight on top of the form they're about to type in —
+    // the same stacking the gate exists to prevent. It opens when the sheet closes, which
+    // every exit does, so the prompt is deferred rather than lost.
+    el.classList.remove('show');
+    store.set(WELCOME_KEY, '1');
+    openFeedback({ text: 'Please add ', onClose: openBootGate });   // they finish the sentence
   });
   el.querySelectorAll('.wc-row[data-city]').forEach((row) => {
     row.addEventListener('click', () => { dismiss(); goToCity(row.getAttribute('data-city')); });
