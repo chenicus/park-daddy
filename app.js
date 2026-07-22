@@ -709,11 +709,14 @@ function rankAndRender(loc) {
   clearSpotLine();
   if (destMarker) destMarker.remove();
   // indigo teardrop — a distinct SHAPE so no price-pill color can camouflage it. As an HTML
-  // marker it renders above the GL dot/line layers and stays screen-upright on rotate; a high
-  // z-index keeps it above the price pills. anchor:'bottom' pins the tip to the coordinate.
+  // marker it renders above the GL dot/line layers and stays screen-upright on rotate;
+  // anchor:'bottom' pins the tip to the coordinate.
   const dEl = document.createElement('div');
   dEl.innerHTML = '<div class="destpinwrap"><svg class="destpin" width="34" height="34" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>';
-  dEl.style.zIndex = '3';
+  // Marker stacking (one shared context, DOM order otherwise): car chevron 900 > dest pin 600 >
+  // selected pill 500 (labels.js) > plain pills. Was 3, which lost to the selected pill and hid
+  // the very place you searched for.
+  dEl.style.zIndex = '600';
   destMarker = new maplibregl.Marker({ element: dEl, anchor: 'bottom' })
     .setLngLat([loc.lon, loc.lat]).addTo(map);
 
