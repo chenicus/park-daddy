@@ -704,12 +704,12 @@
   /* ---- feedback sheet ---- */
   /* Feedback is a drill-down (reached from the menu, or from "Request city"), so its header
      is a back arrow like #changelog's rather than a dismiss — and back actually returns you
-     to whichever sheet sent you here. Same -8px pull as .rlpanel's drill-downs so the
-     chevron GLYPH lines up with the text under it, not the button's invisible 40px box;
-     the -9px top does the same job vertically against the title's line. */
-  #fbsheet .sc-head { gap: 6px; }
-  #fbsheet .sc-head > div { flex: 1; min-width: 0; }
-  #fbsheet #fbBack { flex: none; margin: -9px 0 0 -8px; }
+     to whichever sheet sent you here. Header holds the chevron and the TITLE only, exactly
+     like .rl-head; the subtitle is a sibling below it, so the arrow indents one line rather
+     than the whole block. Same -8px pull as .rlpanel's drill-downs, so the chevron GLYPH
+     lines up with the body text below it, not the button's invisible 40px box. */
+  #fbsheet .sc-head { justify-content: flex-start; align-items: center; gap: 6px; }
+  #fbsheet #fbBack { flex: none; margin-left: -8px; }
   #fbsheet .sc-sub { line-height: 1.45; }
   #fbsheet .sc-sub a { color: var(--accent); font-weight: 600; text-decoration: none; }
   .fb-field { width: 100%; margin-top: 14px; padding: 12px 14px; box-sizing: border-box;
@@ -748,7 +748,8 @@
        shrink — when the keyboard caps the sheet's height, it gives up the room instead of
        pushing the email field and Send button out of view. */
     #fbsheet textarea.fb-field { height: 168px; min-height: 64px; flex: 0 1 auto; }
-    #fbsheet .sc-head, #fbsheet .fb-err, #fbsheet #fbContact, #fbsheet #fbSubmit { flex: none; }
+    #fbsheet .sc-head, #fbsheet .sc-sub, #fbsheet .fb-err,
+    #fbsheet #fbContact, #fbsheet #fbSubmit { flex: none; }
   }
 
   /* ---- report sheet (reasons + photo) ---- */
@@ -1149,11 +1150,9 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 <div class="spotcard mat" id="fbsheet" hidden>
   <div class="sc-head">
     <button class="iconbtn" id="fbBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
-    <div>
-      <div class="sc-price sheet-title">Leave me any feedback</div>
-      <div class="sc-sub">Share ideas, city requests, bugs and more! Or DM me <a href="https://www.instagram.com/charlotttechen" target="_blank" rel="noopener">@charlotttechen</a></div>
-    </div>
+    <div class="sc-price sheet-title">Leave me any feedback</div>
   </div>
+  <div class="sc-sub">Share ideas, city requests, bugs and more! Or DM me <a href="https://www.instagram.com/charlotttechen" target="_blank" rel="noopener">@charlotttechen</a></div>
   <textarea class="fb-field" id="fbText" maxlength="1000" placeholder="Go ahead, I'm listening."></textarea>
   <div class="fb-err" id="fbTextErr" hidden></div>
   <input class="fb-field" id="fbContact" type="email" inputmode="email" maxlength="120" autocomplete="email" required
@@ -1307,7 +1306,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=81"></script>
+<script type="module" src="app.js?v=82"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
