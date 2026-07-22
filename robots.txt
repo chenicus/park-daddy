@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Internal design/preview pages — not part of the app, no reason to index.
+Disallow: /mascot-preview.html
+
+Sitemap: https://parkdaddy.app/sitemap.xml
