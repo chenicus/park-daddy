@@ -76,7 +76,11 @@
      pills, the dest pin and the car chevron are maplibregl.Marker HTML elements that MapLibre
      keeps screen-upright automatically (rotationAlignment defaults to viewport), so none of the
      old counter-rotation CSS is needed. */
-  #map { position: absolute; inset: 0; }
+  /* isolation:isolate makes #map its own stacking context, so marker z-indexes (chevron 900,
+     dest pin 600, selected pill 500) are ranked against EACH OTHER only and can never climb over
+     the UI on top of the map. Without it those markers live in the root stacking context and a
+     900 chevron paints over the spot card, the sheets and the toast. */
+  #map { position: absolute; inset: 0; isolation: isolate; }
   #map canvas { outline: none; }
   /* the searched-destination pin wrapper (the marker element); .destpin runs the pinDrop anim */
   .destpinwrap { display: block; width: 34px; height: 34px; transform-origin: center bottom; }
@@ -621,14 +625,25 @@
   .fb-field.err:focus { border-color: #ff3b30; }
   .fb-err { color: #ff3b30; font-size: var(--fs-caption); letter-spacing: -.1px; margin: 6px 2px 0; }
   .fb-err[hidden] { display: none; }
-  /* the on-screen keyboard shrinks the visual viewport but not the layout viewport, so a
-     bottom:0 sheet ends up buried underneath it. --kb is the keyboard inset (mirrored from
-     visualViewport in app.js while the sheet is open) — lifting by it keeps the message,
-     email and Send button all on screen. */
-  #fbsheet { bottom: var(--kb, 0px); max-height: calc(100% - var(--kb, 0px) - 12px); overflow-y: auto; }
   /* iOS Safari auto-zooms the page on focusing any field under 16px — the app's 15px body
      size would do exactly that, so the feedback fields opt up to 16px. */
   .fb-field { font-size: 16px; }
+  /* On phones this is a full sheet rather than the short bottom card the other panels use:
+     the keyboard eats over a third of the screen, and a short sheet would end up buried
+     under it. Anchored top AND bottom, so the sheet itself is what the keyboard shrinks
+     (--kb is the keyboard inset, mirrored from visualViewport in app.js). The message box
+     is the flexible child, so it gives up height while the title, email and Send button all
+     stay put and visible. */
+  @media (max-width: 759px) {
+    #fbsheet { bottom: var(--kb, 0px); max-height: calc(100% - var(--kb, 0px) - 40px);
+      display: flex; flex-direction: column; overflow: hidden; }
+    /* the message box sizes itself normally (so with the keyboard down the sheet stays a
+       compact card, not a full screen of empty textarea) and is the only child allowed to
+       shrink — when the keyboard caps the sheet's height, it gives up the room instead of
+       pushing the email field and Send button out of view. */
+    #fbsheet textarea.fb-field { height: 168px; min-height: 64px; flex: 0 1 auto; }
+    #fbsheet .sc-head, #fbsheet .fb-err, #fbsheet #fbContact, #fbsheet #fbSubmit { flex: none; }
+  }
 
   /* ---- report sheet (reasons + photo) ---- */
   .rs-reasons { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
