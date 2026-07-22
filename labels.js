@@ -91,10 +91,6 @@ export function buildSeattleFreeBlocks(records, idBase = 3e6) {
     lat: o.mid[1], lon: o.mid[0],
     line: o.line.map(([lon, lat]) => [lat, lon]),
     bands: EMPTY_BANDS,
-    // Same "always free" semantics as Vancouver's buildFreeBlocks — analytics' spot_opened
-    // reads this to set the `residential` prop, so it has to be set here too or every free
-    // SF/Seattle block silently reports as metered.
-    isFree: true,
     freeLimit: o.cat === 'tl' ? (o.limit || null) : null,   // time-limited: free but capped
     noPill: o.cat !== 'tl',                                  // unrestricted: draw the line, skip the pill
     cat: o.cat, spaces: o.spaces, hblock: o.h,

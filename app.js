@@ -1,5 +1,5 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=33';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=35';
 import { CITIES, cityAt, DEFAULT_CITY } from './cities.js?v=8';
 import { createDriving, SIM_START } from './driving.js?v=29';
 import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
@@ -1115,7 +1115,19 @@ function showSpotCard(b) {
   const r = b.isFree
     ? { free: true, rate: 0 }
     : (b.bands ? bandRateNow(b.bands, mins, dowNow()) : rateNow(b.rate1, b.rate2, mins));
-  track('spot_opened', { city: activeCity, free: !!r.free, residential: !!b.isFree, from_search: !!lastLoc });
+  // One breakdown dimension rather than a pile of booleans: 'residential' is Vancouver's
+  // unmetered bylaw blocks, 'free_street' is curb that's never paid at any hour (most of
+  // Seattle/SF, and 41 of Kirkland's 46 faces), 'metered' is everything with a rate —
+  // `free` then says whether that meter happens to be free right now.
+  //
+  // Derived from the rate data rather than a builder-set flag on purpose: the two block
+  // shapes (Vancouver's rate1/rate2 vs everyone else's day bands) both encode this
+  // already, and a hand-set marker is one a new city's builder can silently forget.
+  const everPaid = b.bands
+    ? !!(b.bands.wkd?.length || b.bands.sat?.length || b.bands.sun?.length)
+    : !!(b.rate1 > 0 || b.rate2 > 0 || b.flat > 0);
+  const spotType = b.isFree ? 'residential' : (everPaid ? 'metered' : 'free_street');
+  track('spot_opened', { city: activeCity, free: !!r.free, spot_type: spotType, from_search: !!lastLoc });
 
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
