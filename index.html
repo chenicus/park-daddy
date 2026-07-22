@@ -615,12 +615,17 @@
     transition: transform .28s cubic-bezier(.4,0,.2,1), visibility 0s .28s; }
   .rlpanel.open { transform: translateX(0); visibility: visible;
     transition: transform .28s cubic-bezier(.4,0,.2,1); }
-  /* the top-level menu is a true bottom sheet — same rise/fall AND same padding/radius
-     as #welcome and #spotcard, not the drill-down .rlpanel defaults (those keep their
-     own denser padding for Feedback/What's-new/Default-map-app and the report list) */
-  #menupanel { padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  /* The menu and its two destinations are all true bottom sheets — they rise and fall the
+     way #welcome, #spotcard and #fbsheet do. What's new and Privacy used to slide in from
+     the right ON TOP of the menu, which read as a layer stacked over it rather than the
+     place you'd just chosen to go; the menu now drops away and the destination rises in
+     its place, exactly like the menu → feedback handoff. Only the padding differs: these
+     two keep the denser .rlpanel padding for their long prose. */
+  #menupanel { padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  #menupanel, #changelog, #privacy {
     transform: translateY(110%); transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
-  #menupanel.open { transform: translateY(0); transition: transform .36s cubic-bezier(.32,.72,0,1); }
+  #menupanel.open, #changelog.open, #privacy.open {
+    transform: translateY(0); transition: transform .36s cubic-bezier(.32,.72,0,1); }
   .rl-head { display: flex; align-items: center; gap: 6px; padding: 6px 0 4px; }
   /* the top-level menu's title sits opposite its close button, flush with the sheet's
      own padding (like .sc-head in the spot card); drill-down headers (back arrow +
@@ -1306,7 +1311,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=82"></script>
+<script type="module" src="app.js?v=83"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -1430,9 +1430,15 @@ $('scrim').addEventListener('click', () => {
 });
 
 // ---- menu drawer: feedback + changelog ---------------------------------------
-// Both destinations slide in over the drawer (same right-slide .rlpanel as the report
-// list), so "back" just closes the top layer and reveals the menu underneath.
+// Every destination SWAPS with the drawer rather than stacking over it: the menu drops
+// away as the destination rises in its place, and back reverses the pair. That's how
+// Feedback has always behaved (it's a .spotcard, so it couldn't stack); What's new and
+// Privacy now match it instead of sliding in from the right over a menu still sitting
+// there. Tapping the map still closes the whole family outright — see the scrim and the
+// outside-tap handler; only the header's back arrow puts the menu back.
 function openMenu() { closeSpotCard(); $('menupanel').classList.add('open'); }
+function openDrilldown(id) { $('menupanel').classList.remove('open'); $(id).classList.add('open'); }
+function closeDrilldown(id) { $(id).classList.remove('open'); openMenu(); }
 function closeMenu() {
   $('menupanel').classList.remove('open');
   $('changelog').classList.remove('open');
@@ -1446,8 +1452,8 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!$('fbsheet').hidden) { fbBack(); return; }
   if (!$('nasheet').hidden) { closeNaSheet(); return; }
-  if ($('privacy').classList.contains('open')) { $('privacy').classList.remove('open'); return; }
-  if ($('changelog').classList.contains('open')) { $('changelog').classList.remove('open'); return; }
+  if ($('privacy').classList.contains('open')) { closeDrilldown('privacy'); return; }
+  if ($('changelog').classList.contains('open')) { closeDrilldown('changelog'); return; }
   if ($('menupanel').classList.contains('open')) closeMenu();
 });
 
@@ -1457,12 +1463,12 @@ $('mnChangelog').addEventListener('click', () => {
     rel.items.map((t) => `<li><span>${t}</span></li>`).join('') +
     `</ul></div>`
   ).join('');
-  $('changelog').classList.add('open');
+  openDrilldown('changelog');
 });
-$('clBack').addEventListener('click', () => $('changelog').classList.remove('open'));
+$('clBack').addEventListener('click', () => closeDrilldown('changelog'));
 
-$('mnPrivacy').addEventListener('click', () => $('privacy').classList.add('open'));
-$('pvBack').addEventListener('click', () => $('privacy').classList.remove('open'));
+$('mnPrivacy').addEventListener('click', () => openDrilldown('privacy'));
+$('pvBack').addEventListener('click', () => closeDrilldown('privacy'));
 
 // real email check — HTML5 type=email's built-in constraint accepts things like
 // "a@b" (no dot required), so validate it ourselves: local@domain.tld, no spaces.
