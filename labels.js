@@ -263,19 +263,23 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         const r = rateFor(bl, mins, dow);
         if (!keep(r.free)) continue;
         let c = cells.get(ck);
-        if (!c) { c = { nFree: 0, nPaid: 0, minPaid: Infinity, lat: bl.lat, lon: bl.lon }; cells.set(ck, c); }
-        if (r.free) c.nFree++;
-        else { c.nPaid++; if (r.rate < c.minPaid) c.minPaid = r.rate; }
+        if (!c) { c = { nFree: 0, nPaid: 0, minPaid: Infinity, freeLat: null, freeLon: null, paidLat: null, paidLon: null }; cells.set(ck, c); }
+        // Anchor the chip to a block that MATCHES its label: a free block for the "Free"
+        // chip, the cheapest paid block for a "$X" chip. Without this the pin was whatever
+        // block hit the cell first, so a "Free" chip could land its tail on a paid curb.
+        if (r.free) { c.nFree++; if (c.freeLat === null) { c.freeLat = bl.lat; c.freeLon = bl.lon; } }
+        else { c.nPaid++; if (r.rate < c.minPaid) { c.minPaid = r.rate; c.paidLat = bl.lat; c.paidLon = bl.lon; } }
       }
       const items = [];
       for (const [ck, c] of cells) {
         const free = c.nFree >= c.nPaid;
         if (!free && c.minPaid === Infinity) continue;
         const text = free ? 'Free' : fmtRate(c.minPaid);
+        const lat = free ? c.freeLat : c.paidLat, lon = free ? c.freeLon : c.paidLon;
         items.push({
-          sig: 'g' + ck + '|' + text, lat: c.lat, lon: c.lon, text, cluster: true,
+          sig: 'g' + ck + '|' + text, lat, lon, text, cluster: true,
           cls: bucket(free ? 0 : c.minPaid, free), block: null,
-          d: distMeters(ctrLat, ctrLon, c.lat, c.lon),
+          d: distMeters(ctrLat, ctrLon, lat, lon),
         });
       }
       items.sort((a, b) => a.d - b.d);   // chips near the center win the space
