@@ -1204,7 +1204,7 @@ function renderSchedule(b, mins) {
     const free = !s.tow && s.rate === 0;
     const cost = s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`);
     // paid windows show their own max stay inline; the active row is marked by highlight alone
-    const lim = s.limit != null && s.limit !== Infinity ? ` <span class="lim">· Max ${fmtLimit(s.limit)}</span>` : '';
+    const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
       `<span class="when">${segLabel(s)}${lim}</span><span class="cost">${cost}</span></div>`;
   }).join('');
@@ -1313,7 +1313,8 @@ function showSpotCard(b) {
     const a = b.avail;
     rows.unshift(a
       ? `<span class="live"><span class="live-dot ${a.free > 0 ? 'ok' : 'full'}"></span>` +
-        `<b>${a.free}</b> of ${a.total} open <span class="live-ago">· live · ${liveAgo(a.ts)}</span></span>`
+        `<span class="live-txt"><b>${a.free}</b> of ${a.total} open</span>` +
+        `<span class="live-ago"><span class="dot-sep">live</span><span class="dot-sep">${liveAgo(a.ts)}</span></span></span>`
       : `${IC.info} Live availability unavailable right now`);
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
