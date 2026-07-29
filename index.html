@@ -54,7 +54,19 @@
 </script>
 
 <link rel="stylesheet" href="vendor/maplibre-gl@4.7.1.css">
+<!-- self-hosted so the UI font costs no extra DNS/TLS hop on a phone mid-drive, and no third-party
+     request. One variable file covers every weight we use (400-700). Preload the latin cut only —
+     latin-ext is behind its own unicode-range and stays unfetched for English/French street names. -->
+<link rel="preload" href="assets/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* DM Sans (OFL), variable 100-1000. `swap` so text paints in the system font immediately and
+     reflows when the file lands — never a blank label on a slow connection. */
+  @font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 100 1000; font-display: swap;
+    src: url(assets/fonts/dmsans-latin.woff2) format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 100 1000; font-display: swap;
+    src: url(assets/fonts/dmsans-latin-ext.woff2) format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
   :root {
     --sheet: rgba(255,255,255,.72); --sheet-solid: #ffffff; --sheet-strong: rgba(252,252,253,.95); --map-cover: #f2f2f7;
     --text: #000000; --muted: rgba(60,60,67,.75); --muted-strong: rgba(60,60,67,.85); --tertiary: rgba(60,60,67,.3);
@@ -96,7 +108,7 @@
      scroll (e.g. iOS focusing the search input) would otherwise scroll the whole app up and
      leave it stuck there. clip creates no scroll container, so scrollTop can never move. */
   html, body { margin: 0; overflow: clip; overscroll-behavior: none; color: var(--text); background: var(--map-cover);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
   html { height: 100%; }
   /* pin the app to the visual viewport. On iOS Safari `height:100%` mis-resolves as
@@ -304,14 +316,26 @@
   /* ---- price labels (block-face pills) ---- */
   /* speech-bubble pill: body sits above the point, a white-outlined tail tip marks the spot.
      --c drives both the body fill and the tail (a white border-triangle behind a colored one). */
-  .plabel { position: absolute; transform: translate(-50%, calc(-100% - 8px)); transform-origin: bottom center;
+  .plabel { position: absolute; transform: translate(-50%, calc(-100% - 7px)); transform-origin: bottom center;   /* 7px == the tail's height, so the tip lands on the point */
     white-space: nowrap; padding: 3px 9px; border-radius: 13px; font-size: var(--fs-caption); font-weight: 500;
-    color: var(--plabel-ink); background: var(--c); border: 1.5px solid var(--plabel-ink); box-shadow: 0 1px 3px rgba(0,0,0,.3); cursor: pointer;
+    --ring: 1.5px; --tail-w: 6.5px;   /* see the tail note below; .sel re-solves both */
+    color: var(--plabel-ink); background: var(--c); border: var(--ring) solid var(--plabel-ink); box-shadow: 0 1px 3px rgba(0,0,0,.3); cursor: pointer;
     transition: box-shadow .2s ease, background .2s ease, scale .18s ease-out; }  /* MapLibre keeps the marker upright; CSS translate just lifts the pill above its point. `scale` eases the DEselect back down — the select/enter/exit animations override it while they run. */
   .plabel::before, .plabel::after { content: ''; position: absolute; top: 100%; left: 50%;
     width: 0; height: 0; border-style: solid; border-color: transparent; transform: translateX(-50%); }
-  .plabel::before { border-width: 8px 7px 0 7px; border-top-color: var(--plabel-ink); }               /* outline (white in light, dark in dark) */
-  .plabel::after  { border-width: 8px 5.5px 0 5.5px; border-top-color: var(--c); margin-top: -1.5px; } /* fill, hides body seam */
+  /* The stroke you see on the tail is the PERPENDICULAR gap between the two triangles' slanted
+     edges — NOT the difference in their half-widths. So the fill has to stay SIMILAR to the
+     outline, or the edges splay and the stroke tapers from base to tip.
+     Both triangles are kept ISOSCELES (half-width == height) on purpose: Chrome FLOORS every
+     border-width to a whole device pixel, and it floors each side independently. Any other aspect
+     ratio gets wrecked by that rounding — a 7x8 outline with a 6.32x7.22 fill lands on 6x7 at
+     dpr 2 (and 6x6.5 for the 2px ring), which is exactly the taper this is fixing. With w == h
+     both sides always floor to the same number, so the shape survives at any dpr.
+     --tail-w values are multiples of .5px for the same reason. Gap for outline W, fill w, lap m:
+       (W(W-w) + W·m) / √2W   ->  1.4px at --ring 1.5px, 2.1px at 2px. */
+  .plabel::before { border-width: 7px 7px 0 7px; border-top-color: var(--plabel-ink); }               /* outline (white in light, dark in dark) */
+  .plabel::after  { border-width: var(--tail-w) var(--tail-w) 0 var(--tail-w);
+    border-top-color: var(--c); margin-top: calc(-1 * var(--ring)); }                                 /* fill, hides body seam */
   /* crowd-report warning badge — small "!" disc before the price on a flagged pill */
   .plabel .pf { display: inline-grid; place-items: center; width: 13px; height: 13px;
     margin: 0 4px 0 -2px; border-radius: 50%; background: #fff; color: #b45309;
@@ -322,7 +346,12 @@
   .plabel.p2 { --c: #d97706; }
   .plabel.p3 { --c: #ea580c; }
   .plabel.p4 { --c: #dc2626; }
-  /* selected: darker shade of its own tier + white ring — stands off the map.
+  /* selected: the fill stays EXACTLY its tier's colour — the thicker ring, the 1.15 scale, the
+     deeper shadow and the z-lift carry the state instead. Selection used to darken the fill, but
+     the tiers are a price ramp, so darkening walked a pill into its pricier neighbour's colour
+     (selected p2 landed on unselected p3, selected p3 on p4) — the pin then read as the wrong
+     price. Darkening also gave wildly uneven feedback (ΔL* 4.9 on orange vs 16.4 on green) and
+     pushed white-on-fill contrast around. Keep colour meaning price, and state on everything else.
      Enlargement uses the independent `scale` property (NOT transform) so the pill's
      positioning + heading-up counter-rotation on `transform` stay untouched.
      Squash-and-stretch on select: the tap compresses the pill (wide + short), it rebounds
@@ -332,7 +361,10 @@
      springy timing function, so each segment can stay a plain ease.
      ONE rebound, not a decaying series — the extra ripples read as a wobble on something
      as small as a pill, and they outlast the sheet that rises underneath. */
-  .plabel.sel { border: 2px solid var(--plabel-ink); box-shadow: 0 2px 10px rgba(0,0,0,.4);
+  /* the thicker ring re-solves --tail-w above, so the tail's stroke thickens with it; the outline
+     triangle is untouched, keeping the tail's outer silhouette identical between states. */
+  .plabel.sel { --ring: 2px; --tail-w: 6px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.4);
     scale: 1.15; z-index: 500; animation: pillPop .28s ease-in-out; }
   @keyframes pillPop {
     0%   { scale: 1 1; }
@@ -349,23 +381,13 @@
      so you can see which pins the filter took. 200ms must match EXIT_MS in labels.js. */
   @keyframes pillOut { to { opacity: 0; scale: .5; } }
   .plabel.out { animation: pillOut 200ms var(--ease-standard) forwards; pointer-events: none; }
-  .plabel.p-free.sel { --c: #1e40af; }
-  .plabel.p1.sel { --c: #0e6b30; }
-  .plabel.p2.sel { --c: #c26a05; }
-  .plabel.p3.sel { --c: #d24f0a; }
-  .plabel.p4.sel { --c: #991b1b; }
   /* dark mode: brighter, more saturated tiers so pills pop against the black map.
-     Selected keeps a deeper shade of the same tier (the white ring + scale mark it). */
+     Selected reuses the same tier colour — see the .sel note above. */
   :root[data-theme="dark"] .plabel.p-free { --c: #5b91f5; }
   :root[data-theme="dark"] .plabel.p1 { --c: #22c55e; }
   :root[data-theme="dark"] .plabel.p2 { --c: #f59e0b; }
   :root[data-theme="dark"] .plabel.p3 { --c: #f97316; }
   :root[data-theme="dark"] .plabel.p4 { --c: #ef4444; }
-  :root[data-theme="dark"] .plabel.p-free.sel { --c: #3b82f6; }
-  :root[data-theme="dark"] .plabel.p1.sel { --c: #16a34a; }
-  :root[data-theme="dark"] .plabel.p2.sel { --c: #d97706; }
-  :root[data-theme="dark"] .plabel.p3.sel { --c: #ea580c; }
-  :root[data-theme="dark"] .plabel.p4.sel { --c: #dc2626; }
 
   /* ---- car chevron ---- */
   .chevwrap { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px;
