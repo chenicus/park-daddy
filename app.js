@@ -2,7 +2,7 @@ import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID,
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=36';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
 import { createDriving, SIM_START } from './driving.js?v=29';
-import { fetchRoute, createNav, fmtDist } from './nav.js?v=16';
+import { fetchRoute, fetchWalkPath, createNav, fmtDist } from './nav.js?v=17';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
@@ -134,7 +134,8 @@ function installLayers() {
   });
   if (!map.getSource('spot-line')) map.addSource('spot-line', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('spot-line')) map.addLayer({
-    id: 'spot-line', type: 'line', source: 'spot-line', layout: { 'line-cap': 'round' },
+    // round join matters now the line bends around corners — a miter would spike at tight turns
+    id: 'spot-line', type: 'line', source: 'spot-line', layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#1a1a1a', 'line-width': 3, 'line-opacity': 0.7, 'line-dasharray': [1, 3] },
   });
   if (!map.getSource('route')) map.addSource('route', { type: 'geojson', data: EMPTY_FC });
@@ -158,7 +159,7 @@ function ensureLayers() {
   installLayers();
   if (labelLayer) labelLayer.refresh();       // re-push meter dots + blockface lines
   if (nav) nav.redraw();                       // re-push the active route line (its source was emptied)
-  if (cardBlock) drawSpotLine(cardBlock);      // re-push the open spot's dashed connector line
+  redrawSpotLine();                            // re-push the open spot's dotted walk line
 }
 map.on('styledata', ensureLayers);
 map.on('idle', ensureLayers);
@@ -933,15 +934,72 @@ updatePill();
 // ---- live price labels + driving mode ----------------------------------------
 let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null, preDrive = null;
 
-// straight connector from the tapped spot to the searched destination (GL line source)
+// ---- walk line: tapped spot → searched destination ---------------------------
+// A straight connector reads as a lie: it cuts through buildings and understates the walk.
+// So we ask Valhalla for a pedestrian path and draw that instead. The straight line still
+// goes down instantly (the card is already open — waiting on a network round-trip before
+// drawing anything would read as a dropped tap), then swaps to the real path when it lands,
+// and stays put as the fallback if routing is unavailable.
 function setSpotLineData(fc) { const s = map.getSource('spot-line'); if (s) s.setData(fc); }
+let spotPath = null;        // [lon,lat] coords currently drawn (straight or walked)
+let spotWalkSeq = 0;        // bumped per request/clear — only the newest response may draw
+let spotWalkTimer = null;
+const walkCache = new Map();   // spot|dest → {coords, distance, duration}; successes only, so a
+                               // flaky round-trip doesn't pin a spot to its straight line forever
+const walkKey = (b) => `${b.lon.toFixed(5)},${b.lat.toFixed(5)}|${lastLoc.lon.toFixed(5)},${lastLoc.lat.toFixed(5)}`;
+
+function pushSpotLine() {
+  setSpotLineData(spotPath ? { type: 'FeatureCollection', features: [{
+    type: 'Feature', geometry: { type: 'LineString', coordinates: spotPath },
+  }] } : EMPTY_FC);
+}
 function drawSpotLine(b) {
   if (!lastLoc) { clearSpotLine(); return; }
-  setSpotLineData({ type: 'FeatureCollection', features: [{
-    type: 'Feature', geometry: { type: 'LineString', coordinates: [[b.lon, b.lat], [lastLoc.lon, lastLoc.lat]] },
-  }] });
+  const seq = ++spotWalkSeq;               // supersede any in-flight request for a previous spot
+  clearTimeout(spotWalkTimer);
+  // Pin the key (and the destination) now — a new search can move lastLoc while we're in flight,
+  // and the answer we get back describes the walk we asked for, not the one that's current.
+  const key = walkKey(b), dest = lastLoc;
+  const cached = walkCache.get(key);
+  spotPath = cached ? cached.coords : [[b.lon, b.lat], [dest.lon, dest.lat]];
+  pushSpotLine();
+  if (cached) { setWalkSub(cached.distance, cached.duration, true); return; }
+  // Tapping across a row of price pills opens a card per pill; hold off briefly so scrubbing
+  // costs one request at the pill you settle on, not one per pill you pass over.
+  spotWalkTimer = setTimeout(async () => {
+    let w;
+    try { w = await fetchWalkPath({ lat: b.lat, lon: b.lon }, dest); }
+    catch { return; }                      // straight line + crow-flies estimate stand
+    walkCache.set(key, w);
+    if (seq !== spotWalkSeq || cardBlock !== b) return;
+    spotPath = w.coords;
+    pushSpotLine();
+    setWalkSub(w.distance, w.duration, true);
+  }, 250);
 }
-function clearSpotLine() { setSpotLineData(EMPTY_FC); }
+// Re-push the drawn path unchanged — for a theme swap, which recreates the source empty.
+function redrawSpotLine() { pushSpotLine(); }
+// "N min walk · D away". Without a routed duration we fall back to the old 80 m/min estimate
+// over the straight-line distance; with one, both numbers describe the same walked path.
+function setWalkSub(distM, durS, routed) {
+  const dist = distM < 1000 ? `${Math.round(distM)} m` : `${(distM / 1000).toFixed(1)} km`;
+  const mins = Math.max(1, Math.round(durS != null ? durS / 60 : distM / 80));
+  const sub = $('scsub');
+  const next = `${mins} min walk · ${dist} away`;
+  // The routed numbers land a beat after the card opens and usually run a little longer than
+  // the crow-flies seed. Fade only that swap — a number changing under the reader should read
+  // as an update. On a fresh open the card's own slide-up already covers the text.
+  if (routed && sub.textContent !== next && !reduceMotion() && sub.animate)
+    sub.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
+  sub.textContent = next;
+  sub.style.display = '';
+}
+function clearSpotLine() {
+  spotWalkSeq++;                           // a response still in flight must not redraw
+  clearTimeout(spotWalkTimer);
+  spotPath = null;
+  pushSpotLine();
+}
 let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 
 // ---- map orientation: native MapLibre bearing (heading-up POV ⇄ north-up) -----
@@ -1228,15 +1286,11 @@ function showSpotCard(b) {
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
 
-  // walk from the searched destination to this block (only meaningful after a search)
-  if (lastLoc) {
-    const dM = distMeters(lastLoc.lat, lastLoc.lon, b.lat, b.lon);
-    const dist = dM < 1000 ? `${Math.round(dM)} m` : `${(dM / 1000).toFixed(1)} km`;
-    $('scsub').textContent = `${Math.max(1, Math.round(dM / 80))} min walk · ${dist} away`;
-    $('scsub').style.display = '';
-  } else {
-    $('scsub').style.display = 'none';
-  }
+  // walk from this block to the searched destination (only meaningful after a search).
+  // Seeded from the crow-flies distance so the line and the line of text agree; drawSpotLine
+  // rewrites both with the routed walk once Valhalla answers.
+  if (lastLoc) setWalkSub(distMeters(lastLoc.lat, lastLoc.lon, b.lat, b.lon));
+  else $('scsub').style.display = 'none';
   drawSpotLine(b);
 
   // crowd reports (if any) — banner + detail list; also stamp a label for reports

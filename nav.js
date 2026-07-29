@@ -33,14 +33,35 @@ function decodeShape(str) {
   return out;
 }
 
-export async function fetchRoute(from, to) {
+async function valhalla(from, to, opts) {
   const q = JSON.stringify({
     locations: [{ lat: from.lat, lon: from.lon }, { lat: to.lat, lon: to.lon }],
-    costing: 'auto', units: 'kilometers',
+    units: 'kilometers', ...opts,
   });
   const j = await fetch(`${VALHALLA}?json=${encodeURIComponent(q)}`).then((r) => r.json());
   const leg = j.trip?.legs?.[0];
   if (!leg) throw new Error(j.error || 'no route');
+  return { leg, summary: j.trip.summary };
+}
+
+// The walk from a parking spot to where you're actually going. Same router as turn-by-turn,
+// but pedestrian costing — so the line follows sidewalks, paths and crossings instead of
+// cutting the block diagonally through buildings. No maneuvers: this is a drawn path and a
+// distance/time, not a guided route, so we skip instruction generation entirely.
+export async function fetchWalkPath(from, to) {
+  const { leg, summary } = await valhalla(from, to, {
+    costing: 'pedestrian', directions_type: 'none',
+  });
+  // [lat,lon] pairs → GeoJSON [lon,lat], ready to hand straight to the line source.
+  return {
+    coords: decodeShape(leg.shape).map(([la, lo]) => [lo, la]),
+    distance: summary.length * 1000,
+    duration: summary.time,
+  };
+}
+
+export async function fetchRoute(from, to) {
+  const { leg, summary } = await valhalla(from, to, { costing: 'auto' });
   const coords = decodeShape(leg.shape);
   const cum = [0];
   for (let i = 1; i < coords.length; i++)
@@ -50,7 +71,7 @@ export async function fetchRoute(from, to) {
     arrow: ARROWS[m.type] || '↑',
     along: cum[Math.min(m.begin_shape_index, cum.length - 1)],
   }));
-  return { coords, cum, steps, distance: j.trip.summary.length * 1000, duration: j.trip.summary.time };
+  return { coords, cum, steps, distance: summary.length * 1000, duration: summary.time };
 }
 
 export function createNav({ map }) {
