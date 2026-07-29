@@ -76,6 +76,10 @@
     --seg-on: #ffffff; --stroke: rgba(0,0,0,.08); --plabel-ink: #fff; --chip-on-stroke: rgba(255,255,255,.22);
     --shadow: 0 4px 20px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.08);
     --blur: saturate(180%) blur(20px);
+    /* Bottom-sheet inset. One pair of tokens because the spot card, the menu and the welcome
+       sheet are the same shell and had drifted apart (16/16 vs 22/18) — change them here or
+       they diverge again. Bottom stays per-sheet: it also carries the safe-area inset. */
+    --sheet-px: 20px; --sheet-pt: 22px;
     /* ===== TYPE SCALE — 7 steps, ~1.15–1.2 ratio =====
        micro badges/legal · caption metadata · body · headline · title · large · display */
     --fs-micro: 11px; --fs-caption: 13px; --fs-body: 15px; --fs-headline: 17px;
@@ -543,7 +547,7 @@
      of the screen already has its shadow, and the .rlpanel sheets never had one. */
   .spotcard { position: absolute; z-index: 650; left: 0; right: 0; background: var(--sheet-strong);
     border: none; bottom: 0; border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
-    padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 16px);
     display: block; transform: translateY(0); visibility: visible; will-change: transform;
     transition: transform .36s cubic-bezier(.32,.72,0,1); }
   .spotcard[hidden] { transform: translateY(110%); visibility: hidden; pointer-events: none;
@@ -594,7 +598,7 @@
   .sc-sched { margin-top: 14px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .sc-sched[hidden] { display: none; }
   .sc-sched .seg { display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; font-size: var(--fs-body); letter-spacing: -.2px; border-top: 1px solid var(--line); }
+    padding: 14px; font-size: var(--fs-body); letter-spacing: -.2px; border-top: 1px solid var(--line); }
   .sc-sched .seg:first-child { border-top: none; }
   .sc-sched .seg .when { color: var(--muted-strong); display: flex; align-items: center; gap: 8px; }
   .sc-sched .seg .cost { font-weight: 600; color: var(--text); }
@@ -629,8 +633,11 @@
     justify-content: center; gap: 8px; }
   .sc-actions .primary svg { width: 1.1em; height: 1.1em; fill: var(--on-accent); }
   .sc-actions .primary:active { filter: brightness(.92); }
+  /* the secondary sits on a translucent chip that nearly vanishes against the sheet, so it
+     carries a hairline to hold its edge next to the solid primary. box-sizing is border-box
+     globally, so the border costs no height and both buttons stay on 46px. */
   .sc-actions .ghost { flex: 1.7; height: 46px; display: grid; place-items: center;
-    border-radius: 14px; background: var(--chip); border: none; color: var(--accent);
+    border-radius: 14px; background: var(--chip); border: 1px solid var(--line); color: var(--accent);
     text-decoration: none; font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.3px; }
   .sc-actions .ghost:active { filter: brightness(.96); }
 
@@ -664,7 +671,7 @@
     transition: transform .36s cubic-bezier(.32,.72,0,1); }
   /* The menu keeps the sheet padding/radius of #welcome and #spotcard; the drill-downs
      keep .rlpanel's denser padding for their long prose. */
-  #menupanel { padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  #menupanel { padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 16px); }
   /* LAYERING is the other half of a matching handoff: in every swap the sheet you're
      LEAVING falls in front of the one arriving behind it. The menu (660) drops over its
      destinations, and the spot card (650) drops over the report list — so the list sits
@@ -1285,7 +1292,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   @keyframes wcRise { from { transform: translateY(100%); } to { transform: none; } }
   .wc-sheet { width: 100%; max-width: 440px; background: var(--sheet-solid); color: var(--text);
     border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
-    padding: 22px 18px calc(env(safe-area-inset-bottom, 0px) + 22px); }
+    padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 22px); }
   .wc-title { font-size: var(--fs-title); font-weight: 700; letter-spacing: -.4px; }
   .wc-sub { font-size: var(--fs-body); line-height: 1.45; color: var(--muted-strong); margin-top: 8px; }
   .wc-sub b { color: var(--text); font-weight: 600; }
