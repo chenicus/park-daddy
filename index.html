@@ -564,8 +564,20 @@
   .iconbtn.dismiss svg { width: 16px; height: 16px; }
   .sc-tools #scclose { margin-left: 4px; }
   #rsClose { margin-top: -2px; }
+  /* THE SHEET'S TYPE SCALE — four sizes, one job each, so a glance sorts the card:
+       24 (--fs-large)     the answer you came for: the price, or a sheet's headline
+       17 (--fs-headline)  the actions along the bottom, and nothing else
+       15 (--fs-body)      content — schedule rows, info rows, prose subtitles
+       13 (--fs-caption)   metadata and annotations hung off content: walk distance,
+                           "· Max 2h", the live timestamp, the reports banner
+     The card had drifted off this: the /hr unit and the buttons shared 17 while meaning
+     nothing alike, and every annotation sat at content size, so five blocks of 15px text
+     stacked up with no way to tell answer from footnote. Anything added here should land
+     on one of these four rather than split the difference. */
   .sc-price { font-size: var(--fs-large); font-weight: 600; letter-spacing: -.5px; line-height: 1.15; }
-  .sc-price .sc-unit { font-size: var(--fs-headline); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
+  /* the unit rides the price as content, not as a second headline — at 17 it read as its
+     own thing next to the number instead of trailing off it */
+  .sc-price .sc-unit { font-size: var(--fs-body); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
   /* "Free right now" stays in the body ink like every other sheet headline — the green
      already lives on the pill you tapped and on the schedule row below, so a third copy
      of it in the title just made this sheet look unlike the others. */
@@ -573,7 +585,12 @@
      for a plain headline step down one notch — previously each did that with an inline
      font-size, so the size lived in three copies of the markup instead of here. */
   .sc-price.sheet-title { font-size: var(--fs-title); }
+  /* One class, two jobs, which is why the head block never settled: on the feedback and
+     no-coverage sheets this is a sentence you read, but on the spot card and the report
+     sheet it's a stamp on the thing above it (walk distance, street name). Prose stays at
+     content size; the stamp drops to the caption tier so the price owns the head. */
   .sc-sub { font-size: var(--fs-body); color: var(--muted); margin-top: 4px; letter-spacing: -.2px; }
+  .sc-sub.meta { font-size: var(--fs-caption); margin-top: 3px; }
   .sc-sched { margin-top: 14px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .sc-sched[hidden] { display: none; }
   .sc-sched .seg { display: flex; justify-content: space-between; align-items: center;
@@ -585,7 +602,9 @@
   .sc-sched .seg.tow .cost { color: #ff3b30; }
   .sc-sched .seg.active { background: var(--chip); }
   .sc-sched .seg.active .when { color: var(--text); font-weight: 600; }
-  .sc-sched .seg .lim { color: var(--muted); font-weight: 400; }
+  /* the max stay is a footnote on the window, not half of it — at row size the two read as
+     one long label and the time range stopped being the thing you scan for */
+  .sc-sched .seg .lim { font-size: var(--fs-caption); color: var(--muted); font-weight: 400; }
   .sc-rows { margin-top: 14px; font-size: var(--fs-body); line-height: 1.45; letter-spacing: -.2px; color: var(--text); }
   .sc-rows > div { padding: 4px 0; }
   .sc-rows svg.ic { stroke: var(--muted); margin-right: .35em; }
@@ -599,7 +618,8 @@
   .sc-rows .live-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
   .sc-rows .live-dot.ok { background: var(--green); box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 22%, transparent); animation: livePulse 2s ease-in-out infinite; }
   .sc-rows .live-dot.full { background: #9ca3af; }
-  .sc-rows .live-ago { font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
+  /* "· live · 2 min ago" is the same kind of trailing footnote as .lim — same tier */
+  .sc-rows .live-ago { font-size: var(--fs-caption); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
   @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
   @media (prefers-reduced-motion: reduce) { .sc-rows .live-dot.ok { animation: none; } }
   .sc-actions { display: flex; gap: 10px; margin-top: 14px; }
@@ -1054,7 +1074,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div class="sc-head">
     <div>
       <div class="sc-price" id="scprice"></div>
-      <div class="sc-sub" id="scsub"></div>
+      <div class="sc-sub meta" id="scsub"></div>
     </div>
     <div class="sc-tools">
       <button class="iconbtn mini" id="scshare" type="button" aria-label="Share this spot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" x2="15.4" y1="10.5" y2="6.5"/><line x1="8.6" x2="15.4" y1="13.5" y2="17.5"/></svg></button>
@@ -1077,7 +1097,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div class="sc-head">
     <div>
       <div class="sc-price sheet-title">What's wrong here?</div>
-      <div class="sc-sub" id="rsSub"></div>
+      <div class="sc-sub meta" id="rsSub"></div>
     </div>
     <button class="iconbtn dismiss" id="rsClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
