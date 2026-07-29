@@ -17,7 +17,7 @@ const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
 // ---- trip: when you'll arrive + how long you'll stay -------------------------
 // clockMins() is the real wall clock (or the ?t= mock). The trip's ARRIVAL can
-// differ from it — you can plan for a destination's drive-time ETA or a set time.
+// differ from it — you can plan for a set time instead of right now.
 // Everything downstream (price pills, spot card, ranking) reads nowMins(), which
 // resolves to the trip arrival, so a planned arrival re-prices the whole map.
 // ?t=HH:MM mocks the clock (rate-flip testing); ?wknd=1 forces weekend limits.
@@ -49,11 +49,10 @@ function clockMins() {
 }
 // fixed assumed stay length (hours) — no longer user-set; used only to rank spots
 // (rush-hour tow-away overlap) when a destination is searched
-const trip = { mode: 'now', durH: 2, etaMins: null, setMins: null, setDate: null, userSet: false };
+const trip = { mode: 'now', durH: 2, setMins: null, setDate: null };
 function todayStr() { const p = cityParts(); return `${p.y}-${String(p.m).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`; }
 function arrivalMins() {
   if (trip.mode === 'set' && trip.setMins != null) return trip.setMins;
-  if (trip.mode === 'eta' && trip.etaMins != null) return trip.etaMins;
   return clockMins();
 }
 function nowMins() { return arrivalMins(); }
@@ -410,7 +409,7 @@ async function pollKirkLive() {
 
 function setStatus(msg) { toast(msg, 4000); }
 
-// ---- geolocation + drive-time ETA -------------------------------------------
+// ---- geolocation -------------------------------------------------------------
 function getPosition() {
   return new Promise((res) => {
     if (cachedPos) return res(cachedPos);
@@ -611,11 +610,9 @@ async function run(preLoc, isNew) {
   driving?.setFollow(false);   // searching = looking elsewhere; let the map rest on the destination
   lastLoc = loc;
   addRecent(loc, q);
-  trip.userSet = false;   // a fresh destination re-arms the "arrive on arrival" default
   rankAndRender(loc);
   // shape only, never the query itself: it's usually a real address (see analytics.js)
   track('destination_searched', { city: activeCity, results: current.length, typed: !preLoc });
-  resolveEta(loc);
 }
 
 // ---- recent destinations -----------------------------------------------------
@@ -799,21 +796,6 @@ $('rcList').addEventListener('click', (e) => {
 });
 $('rcClear').addEventListener('click', () => { saveRecents([]); hideRecents(); });
 
-// Get the drive-time ETA to the destination and, unless the user picked an arrival
-// themselves, default the trip to "arrive on arrival". Silently no-ops without a
-// location fix or on a routing failure — the ETA segment just stays hidden.
-async function resolveEta(loc) {
-  const pos = cachedPos || await getPosition();
-  if (!pos) return;
-  let r;
-  try { r = await fetchRoute(pos, loc); } catch { return; }
-  trip.etaMins = (((clockMins() + Math.round(r.duration / 60)) % 1440) + 1440) % 1440;
-  $('tcEta').hidden = false;
-  $('tcEta').textContent = fmtClock(trip.etaMins);   // e.g. "6:20pm" — the "Arrive" label carries the meaning
-  if (!trip.userSet) trip.mode = 'eta';
-  syncTrip();
-}
-
 function rankAndRender(loc) {
   const arrival = nowMins();
   const duration = durationMins(), maxWalkMin = 10;
@@ -884,8 +866,7 @@ $('chipPaid').addEventListener('click', () => {
 
 // ---- Trip: arrival + duration -------------------------------------------------
 function updatePill() {
-  let arr = trip.mode === 'eta' && trip.etaMins != null ? fmtClock(trip.etaMins)
-    : trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
+  let arr = trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
   if (trip.mode === 'set' && trip.setDate && trip.setDate !== todayStr()) {
     const [y, m, d] = trip.setDate.split('-').map(Number);
     arr = `${new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}, ${arr}`;
@@ -928,27 +909,24 @@ $('tcClose').addEventListener('click', () => { $('tripcard').hidden = true; });
 $('tcArr').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn || btn.hidden) return;
-  trip.mode = btn.dataset.m; trip.userSet = true;
+  trip.mode = btn.dataset.m;
   if (trip.mode === 'set') {
     if (trip.setMins == null) trip.setMins = clockMins();
     if (trip.setDate == null) trip.setDate = todayStr();
-    const t = $('tcTime');
-    t.value = `${String(Math.floor(trip.setMins / 60)).padStart(2, '0')}:${String(trip.setMins % 60).padStart(2, '0')}`;
+    $('tcTime').value = `${String(Math.floor(trip.setMins / 60)).padStart(2, '0')}:${String(trip.setMins % 60).padStart(2, '0')}`;
     $('tcDate').value = trip.setDate;
     $('tcDate').min = todayStr();
-    syncTrip();
-    t.focus();
-    if (t.showPicker) { try { t.showPicker(); } catch {} }
-  } else {
-    syncTrip();
   }
+  // No focus()/showPicker() here — revealing the row is enough; the wheel opens
+  // only when you deliberately tap the field.
+  syncTrip();
 });
 $('tcTime').addEventListener('input', () => {
   const [h, m] = $('tcTime').value.split(':').map(Number);
-  if (!isNaN(h)) { trip.setMins = h * 60 + (m || 0); trip.mode = 'set'; trip.userSet = true; syncTrip(); }
+  if (!isNaN(h)) { trip.setMins = h * 60 + (m || 0); trip.mode = 'set'; syncTrip(); }
 });
 $('tcDate').addEventListener('input', () => {
-  if ($('tcDate').value) { trip.setDate = $('tcDate').value; trip.mode = 'set'; trip.userSet = true; syncTrip(); }
+  if ($('tcDate').value) { trip.setDate = $('tcDate').value; trip.mode = 'set'; syncTrip(); }
 });
 updatePill();
 
