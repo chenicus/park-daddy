@@ -33,12 +33,15 @@ function decodeShape(str) {
   return out;
 }
 
-async function valhalla(from, to, opts) {
+async function valhalla(from, to, opts, timeoutMs) {
   const q = JSON.stringify({
     locations: [{ lat: from.lat, lon: from.lon }, { lat: to.lat, lon: to.lon }],
     units: 'kilometers', ...opts,
   });
-  const j = await fetch(`${VALHALLA}?json=${encodeURIComponent(q)}`).then((r) => r.json());
+  // A deadline only where a caller has something to fall back to. Left un-timed, a public
+  // server that accepts the connection and then stalls never settles the promise at all.
+  const signal = timeoutMs && AbortSignal.timeout ? AbortSignal.timeout(timeoutMs) : undefined;
+  const j = await fetch(`${VALHALLA}?json=${encodeURIComponent(q)}`, { signal }).then((r) => r.json());
   const leg = j.trip?.legs?.[0];
   if (!leg) throw new Error(j.error || 'no route');
   return { leg, summary: j.trip.summary };
@@ -48,10 +51,11 @@ async function valhalla(from, to, opts) {
 // but pedestrian costing — so the line follows sidewalks, paths and crossings instead of
 // cutting the block diagonally through buildings. No maneuvers: this is a drawn path and a
 // distance/time, not a guided route, so we skip instruction generation entirely.
+// Rejects rather than hangs, since the caller draws no line until this resolves.
 export async function fetchWalkPath(from, to) {
   const { leg, summary } = await valhalla(from, to, {
     costing: 'pedestrian', directions_type: 'none',
-  });
+  }, 6000);
   // [lat,lon] pairs → GeoJSON [lon,lat], ready to hand straight to the line source.
   return {
     coords: decodeShape(leg.shape).map(([la, lo]) => [lo, la]),

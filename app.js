@@ -2,7 +2,7 @@ import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID,
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=36';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
 import { createDriving, SIM_START } from './driving.js?v=29';
-import { fetchRoute, fetchWalkPath, createNav, fmtDist } from './nav.js?v=17';
+import { fetchRoute, fetchWalkPath, createNav, fmtDist } from './nav.js?v=18';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
@@ -936,16 +936,20 @@ let labelLayer = null, driving = null, cardBlock = null, cardOpenDist = null, pr
 
 // ---- walk line: tapped spot → searched destination ---------------------------
 // A straight connector reads as a lie: it cuts through buildings and understates the walk.
-// So we ask Valhalla for a pedestrian path and draw that instead. The straight line still
-// goes down instantly (the card is already open — waiting on a network round-trip before
-// drawing anything would read as a dropped tap), then swaps to the real path when it lands,
-// and stays put as the fallback if routing is unavailable.
+// So we ask Valhalla for a pedestrian path and draw that instead.
+//
+// Nothing is drawn until that path is in hand. Seeding the straight line first and swapping
+// it was worse than the wait: the line is the one thing on the map that moves when the card
+// opens, so the eye goes straight to it, follows the wrong geometry across four blocks, then
+// watches it jump. One line that arrives a beat late reads as considered; two lines read as
+// a glitch. The straight line survives only as the fallback for a route that never lands —
+// by then you've been looking at a line-less card, so there's nothing to flash.
 function setSpotLineData(fc) { const s = map.getSource('spot-line'); if (s) s.setData(fc); }
-let spotPath = null;        // [lon,lat] coords currently drawn (straight or walked)
+let spotPath = null;        // [lon,lat] coords currently drawn, or null for no line yet
 let spotWalkSeq = 0;        // bumped per request/clear — only the newest response may draw
 let spotWalkTimer = null;
 const walkCache = new Map();   // spot|dest → {coords, distance, duration}; successes only, so a
-                               // flaky round-trip doesn't pin a spot to its straight line forever
+                               // flaky round-trip doesn't pin a spot to a straight line forever
 const walkKey = (b) => `${b.lon.toFixed(5)},${b.lat.toFixed(5)}|${lastLoc.lon.toFixed(5)},${lastLoc.lat.toFixed(5)}`;
 
 function pushSpotLine() {
@@ -961,21 +965,31 @@ function drawSpotLine(b) {
   // and the answer we get back describes the walk we asked for, not the one that's current.
   const key = walkKey(b), dest = lastLoc;
   const cached = walkCache.get(key);
-  spotPath = cached ? cached.coords : [[b.lon, b.lat], [dest.lon, dest.lat]];
-  pushSpotLine();
-  if (cached) { setWalkSub(cached.distance, cached.duration, true); return; }
-  // Tapping across a row of price pills opens a card per pill; hold off briefly so scrubbing
-  // costs one request at the pill you settle on, not one per pill you pass over.
-  spotWalkTimer = setTimeout(async () => {
-    let w;
-    try { w = await fetchWalkPath({ lat: b.lat, lon: b.lon }, dest); }
-    catch { return; }                      // straight line + crow-flies estimate stand
-    walkCache.set(key, w);
-    if (seq !== spotWalkSeq || cardBlock !== b) return;
-    spotPath = w.coords;
+  if (cached) {                             // re-opening a spot we've already routed: no wait
+    spotPath = cached.coords;
     pushSpotLine();
-    setWalkSub(w.distance, w.duration, true);
-  }, 250);
+    setWalkSub(cached.distance, cached.duration, true);
+    return;
+  }
+  spotPath = null;                          // clear the previous spot's path; draw nothing yet
+  pushSpotLine();
+  // Tapping across a row of price pills opens a card per pill; hold off briefly so scrubbing
+  // costs one request at the pill you settle on, not one per pill you pass over. Short, since
+  // this is now dead time in front of the only line you'll see rather than a swap you'd miss.
+  spotWalkTimer = setTimeout(async () => {
+    let w = null;
+    try { w = await fetchWalkPath({ lat: b.lat, lon: b.lon }, dest); }
+    catch {}
+    if (seq !== spotWalkSeq || cardBlock !== b) return;
+    if (w) {
+      walkCache.set(key, w);
+      spotPath = w.coords;
+      setWalkSub(w.distance, w.duration, true);
+    } else {
+      spotPath = [[b.lon, b.lat], [dest.lon, dest.lat]];   // no route — the connector, late
+    }
+    pushSpotLine();
+  }, 120);
 }
 // Re-push the drawn path unchanged — for a theme swap, which recreates the source empty.
 function redrawSpotLine() { pushSpotLine(); }
