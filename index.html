@@ -431,12 +431,30 @@
     .chevwrap::after, .skel-pill::after { animation: none; }
     .chevwrap::after { opacity: 0; }
   }
-  .chev { width: 22px; height: 26px; background: var(--accent);
-    clip-path: polygon(50% 0, 100% 100%, 50% 78%, 0 100%);
+  /* An SVG, not a clip-path div, so the contrast halo below can be a real stroke.
+     `overflow: visible` lets the stroke paint outside the 22x26 viewBox, which keeps the
+     BOX exactly the size the clip-path version was — so the -2px nudge and the 60%
+     transform-origin still land on the same pixels. */
+  .chev { width: 22px; height: 26px; overflow: visible;
     /* the arrow's centroid sits ~2px below its box center; nudge up so it's centered on
        the GPS point/route line, and rotate about that centroid (not the box center) */
     position: relative; top: -2px; transform-origin: 50% 60%;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
+  /* Contrast halo. The chevron sits at z-index 900, so it crosses price pills constantly,
+     and the drop-shadow alone was a DARK shadow under a DARK arrow: over a p3/p4 fill the
+     light-theme silhouette disappeared entirely. The halo is --on-accent, NOT white — the
+     arrow's own fill is --accent, which inverts per theme, so a literal white halo would
+     be invisible in dark mode where the arrow is already white.
+     Two implementations rejected on purpose: a scaled-up triangle behind the shape TAPERS
+     (fat at the tip, thin at the flanks) because uniform scale doesn't preserve the
+     perpendicular gap — the same trap the pill tail above documents at length; and a
+     4x drop-shadow outline would re-run a filter chain every frame of the chevron glide
+     (see driving.js), which is the one place in the app that repaints continuously.
+     stroke-width 3 reads as 1.5px outside the fill, matching the pill's own 1.5px ring so
+     neither outline dominates where they overlap. The shadow drops to .35 because the halo
+     now carries the separation; at .5 it fringed the light-theme halo grey. */
+  .chev path { fill: var(--accent); stroke: var(--on-accent); stroke-width: 3;
+    stroke-linejoin: round; paint-order: stroke fill; }
   /* The chevron is a maplibregl.Marker with rotationAlignment:'map' and setRotation(heading),
      so it points along the true heading and rotates with the map natively — pointing screen-up
      in heading-up drive mode, and along the heading when north-up. No CSS rotation needed. */

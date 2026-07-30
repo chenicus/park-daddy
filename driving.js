@@ -92,7 +92,11 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
   // Car chevron: a MapLibre HTML marker. rotationAlignment:'map' + setRotation(heading) points it
   // along the true heading, so it reads screen-up in heading-up mode and along-heading when north-up.
   const chevEl = document.createElement('div');
-  chevEl.innerHTML = '<div class="chevwrap"><div class="chev"></div></div>';
+  // The arrow is an <svg> rather than a clip-path div so its contrast halo can be a real
+  // stroke (see .chev in index.html); the path is that same polygon in the same 22x26 box.
+  chevEl.innerHTML = '<div class="chevwrap">'
+    + '<svg class="chev" viewBox="0 0 22 26" aria-hidden="true">'
+    + '<path d="M11 0 L22 26 L11 20.28 L0 26 Z"/></svg></div>';
   // Markers share one stacking context and paint in DOM order, so price pills — appended fresh on
   // every refresh, i.e. after the chevron — buried the car. Sit above them all: the highest marker
   // z-index in play is a selected pill (500, labels.js) and the destination pin (3, app.js).
