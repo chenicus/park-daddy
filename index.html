@@ -552,6 +552,23 @@
     transition: transform .36s cubic-bezier(.32,.72,0,1); }
   .spotcard[hidden] { transform: translateY(110%); visibility: hidden; pointer-events: none;
     transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
+
+  /* ---- grab handle: the "you can push me down" bar every sheet wears ----
+     The standard 36x5 iOS grabber, on --tertiary — already the token for furniture at
+     exactly this weight, so it tracks both themes without a new colour.
+
+     A ::before rather than a div in eight sheets: it can't fall out of sync as sheets are
+     added, and being a pseudo-element it stays clear of the :first-child selectors the
+     headers match on. Absolutely positioned inside the sheet's EXISTING --sheet-pt top
+     padding, so adding it moves no content — the bar simply occupies room the sheets were
+     already holding open.
+
+     On the scrolling .rlpanel sheets it scrolls away with the content instead of sticking.
+     That's honest rather than lazy: the drag only engages at scrollTop 0 (see app.js), so
+     the bar is on screen exactly when the gesture it advertises is available. */
+  .spotcard::before, .rlpanel::before {
+    content: ''; position: absolute; top: 8px; left: 50%; margin-left: -18px;
+    width: 36px; height: 5px; border-radius: 3px; background: var(--tertiary); }
   /* drive mode uses the same bottom-anchored sheet as browsing — while it's open it
      covers the map chrome (recenter / compass / theme toggle), which return on close */
   .sc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -582,7 +599,7 @@
   /* the unit rides the price as content, not as a second headline — at 17 it read as its
      own thing next to the number instead of trailing off it */
   .sc-price .sc-unit { font-size: var(--fs-body); font-weight: 500; color: var(--muted); letter-spacing: -.2px; }
-  /* "Free right now" stays in the body ink like every other sheet headline — the green
+  /* "Free" stays in the body ink like every other sheet headline — the green
      already lives on the pill you tapped and on the schedule row below, so a third copy
      of it in the title just made this sheet look unlike the others. */
   /* .sc-price is sized for a dollar amount (24px). Sheets that reuse its weight and tracking
@@ -673,14 +690,16 @@
   .rlpanel { position: absolute; z-index: 660; left: 0; right: 0; bottom: 0;
     background: var(--sheet-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
     border-radius: 22px 22px 0 0; box-shadow: var(--shadow); max-height: 72vh; overflow-y: auto;
-    padding: 8px 20px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 20px);
     transform: translateY(110%); visibility: hidden; will-change: transform;
     transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
   .rlpanel.open { transform: translateY(0); visibility: visible;
     transition: transform .36s cubic-bezier(.32,.72,0,1); }
-  /* The menu keeps the sheet padding/radius of #welcome and #spotcard; the drill-downs
-     keep .rlpanel's denser padding for their long prose. */
-  #menupanel { padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  /* The drill-downs used to run a denser 8px top for their long prose, but 8px is where the
+     grab handle now sits — so every panel takes the shared --sheet-pt/--sheet-px inset that
+     #menupanel, #spotcard and #welcome were already on. That also retires #menupanel's copy
+     of the rule, which had become the same two values written twice. Only its bottom differs. */
+  #menupanel { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); }
   /* LAYERING is the other half of a matching handoff: in every swap the sheet you're
      LEAVING falls in front of the one arriving behind it. The menu (660) drops over its
      destinations, and the spot card (650) drops over the report list — so the list sits
@@ -867,6 +886,9 @@
     #recenter { bottom: 18px; }
     .spotcard { left: auto; right: 16px; bottom: 16px; width: 380px; border-radius: 22px; }
     .rlpanel { left: auto; right: 16px; bottom: 16px; width: 380px; border-radius: 22px; max-height: 70vh; }
+    /* Floating cards clear of the screen edge, dismissed by their own close button — there's
+       no bottom to push them down to, and the drag is touch-only anyway. */
+    .spotcard::before, .rlpanel::before { content: none; }
     .tripcard { right: auto; width: 340px; top: calc(env(safe-area-inset-top, 0px) + 68px); }
   }
 </style>
@@ -1352,7 +1374,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=90"></script>
+<script type="module" src="app.js?v=93"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

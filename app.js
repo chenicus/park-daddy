@@ -1347,9 +1347,11 @@ function showSpotCard(b) {
     return;
   }
 
-  $('scprice').innerHTML = r.free ? 'Free right now' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
+  // just "Free" — the schedule below lists the paid windows, so "right now" was
+  // spelling out something the reader can already see
+  $('scprice').innerHTML = r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
 
-  // full-day price breakdown so a "free right now" spot still shows its paid window
+  // full-day price breakdown so a currently-free spot still shows its paid window
   renderSchedule(b, mins);
 
   const rows = [];
@@ -1572,6 +1574,95 @@ $('scrim').addEventListener('click', () => {
   if ($('reportlist').classList.contains('open')) { closeSpotCard(); return; }
   closeMenu();
 });
+
+// ---- push a sheet down to dismiss --------------------------------------------
+// The grab handle each sheet draws is a promise, and this is what keeps it. Registered per
+// sheet rather than as one global handler like the scrim and Escape above: those fire with no
+// idea what you aimed at, so they close the innermost thing open, while a drag starts ON a
+// sheet and already knows which one it is.
+//
+// Touch and pen only. A mouse drag across a sheet is someone selecting text — the changelog
+// and privacy panels are mostly prose — and the desktop layout draws no handle at all.
+//
+// The sheets already animate on transform with one shared curve, so a drag just writes
+// translateY and hands the value back to CSS on release: the same .36s ease finishes the
+// throw or springs it back. Nothing here reimplements a close; each sheet passes in the one
+// it already has, so a drag ends up exactly where its close button does.
+const SHEET_SLOP = 6;         // px of travel before this is a drag and not a tap
+const SHEET_THROW = 0.3;      // fraction of the sheet's own height that counts as "gone"
+const SHEET_FLICK = 0.5;      // px/ms — a fast flick dismisses short of that distance
+const SHEET_VEL_MS = 60;      // trailing window the flick speed is measured over
+
+function dismissableSheet(el, close) {
+  let live = false, held = false, x0 = 0, y0 = 0, dy = 0;
+  // Two samples, kept ~SHEET_VEL_MS apart, for the release speed — see the note in pointermove.
+  let refY = 0, refT = 0, curY = 0, curT = 0;
+
+  function settle(dismiss) {
+    el.style.transition = '';     // restore the shared curve BEFORE clearing the offset, so
+    el.style.transform = '';      // the sheet animates on from where the finger left it
+    live = held = false;
+    if (dismiss) close();
+  }
+
+  el.addEventListener('pointerdown', (e) => {
+    if (live || e.pointerType === 'mouse') return;
+    // A drag starting on a control belongs to that control — these sheets hold the report
+    // reasons, the feedback fields, the photo picker and every close button.
+    if (e.target.closest('button, a, input, textarea, select, label')) return;
+    if (el.scrollTop > 0) return;   // a scrolled sheet pans its content first
+    live = true; held = false; dy = 0;
+    x0 = e.clientX; y0 = refY = curY = e.clientY; refT = curT = e.timeStamp;
+  });
+
+  el.addEventListener('pointermove', (e) => {
+    if (!live) return;
+    dy = e.clientY - y0;
+    if (!held) {
+      if (Math.abs(dy) < SHEET_SLOP) return;                    // still might be a tap
+      // Up, or mostly sideways, is not this gesture — let go rather than fight the swipe.
+      if (dy < 0 || Math.abs(e.clientX - x0) > Math.abs(dy)) { live = false; return; }
+      held = true;
+      el.style.transition = 'none';   // the finger is the animation now
+      // Capture keeps the moves coming if the finger wanders off the sheet. Touch already has
+      // implicit capture, so a browser that refuses this (a stale pointer id) still drags fine
+      // — set the transition first and swallow the failure rather than drag against a live
+      // .36s ease, which is the one outcome that would feel broken.
+      try { el.setPointerCapture(e.pointerId); } catch {}
+    }
+    // Speed is measured across a trailing window, NOT between the last two points. Move events
+    // coalesce, so two samples can land a fraction of a millisecond apart — which turned a 6px
+    // nudge into an apparent 12px/ms flick and threw away a sheet the reader was only shifting.
+    // Keeping a reference sample ~SHEET_VEL_MS old makes the number a speed rather than noise.
+    if (e.timeStamp - refT > SHEET_VEL_MS) { refY = curY; refT = curT; }
+    curY = e.clientY; curT = e.timeStamp;
+    el.style.transform = `translateY(${Math.max(0, dy)}px)`;    // downward only
+  });
+
+  const end = () => {
+    if (!live) return;
+    if (!held) { live = false; return; }                        // never became a drag
+    const span = curT - refT;
+    // Under a few milliseconds there's no speed to measure — let distance decide on its own.
+    const vy = span >= 8 ? (curY - refY) / span : 0;
+    settle(dy > el.offsetHeight * SHEET_THROW || vy > SHEET_FLICK);
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+
+// Each sheet gets the same close a tap on the scrim would run: pushing a sheet away means
+// "I'm done", not "take me up a level" — so the drill-downs close the whole menu family
+// rather than stepping back to it, and the report list hands off to closeSpotCard so the
+// card doesn't pop back in behind it.
+dismissableSheet($('spotcard'), closeSpotCard);
+dismissableSheet($('reportsheet'), () => closeReport(true));
+dismissableSheet($('fbsheet'), closeFbSheet);
+dismissableSheet($('nasheet'), closeNaSheet);
+dismissableSheet($('reportlist'), closeSpotCard);
+dismissableSheet($('menupanel'), closeMenu);
+dismissableSheet($('changelog'), closeMenu);
+dismissableSheet($('privacy'), closeMenu);
 
 // ---- menu drawer: feedback + changelog ---------------------------------------
 // Every destination SWAPS with the drawer rather than stacking over it: the menu drops
