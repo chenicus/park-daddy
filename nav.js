@@ -5,7 +5,9 @@
 // ships ready-made English instructions.)
 import { distMeters } from './rank.js?v=15';
 
-const VALHALLA = 'https://valhalla1.openstreetmap.de/route';
+export const VALHALLA_HOST = 'https://valhalla1.openstreetmap.de';
+const VALHALLA = `${VALHALLA_HOST}/route`;
+const VALHALLA_MATRIX = `${VALHALLA_HOST}/sources_to_targets`;
 
 // Valhalla maneuver type → banner arrow
 const ARROWS = {
@@ -45,6 +47,30 @@ async function valhalla(from, to, opts, timeoutMs) {
   const leg = j.trip?.legs?.[0];
   if (!leg) throw new Error(j.error || 'no route');
   return { leg, summary: j.trip.summary };
+}
+
+// Walk distance/time for MANY spots against one destination, in a single request. This is how
+// the spot card gets to open already knowing its walk instead of filling the line in a beat
+// later: one call after a search covers everything on screen. Measured at ~690ms and 6.4KB for
+// 50 origins, and it agrees with fetchWalkPath to the metre — same costing model, so a card
+// showing matrix numbers and a line drawn from a route can't contradict each other.
+//
+// Returns one entry per origin, IN ORDER, null where the router couldn't reach it. No geometry:
+// the matrix endpoint doesn't return shapes, so the drawn line still comes from fetchWalkPath.
+export async function fetchWalkMatrix(origins, to) {
+  const q = JSON.stringify({
+    sources: origins.map((o) => ({ lat: o.lat, lon: o.lon })),
+    targets: [{ lat: to.lat, lon: to.lon }],
+    costing: 'pedestrian', units: 'kilometers',
+  });
+  const signal = AbortSignal.timeout ? AbortSignal.timeout(10000) : undefined;
+  const j = await fetch(`${VALHALLA_MATRIX}?json=${encodeURIComponent(q)}`, { signal }).then((r) => r.json());
+  const rows = j.sources_to_targets;
+  if (!rows) throw new Error(j.error || 'no matrix');
+  return rows.map((row) => {
+    const c = row && row[0];
+    return c && c.distance != null ? { distance: c.distance * 1000, duration: c.time } : null;
+  });
 }
 
 // The walk from a parking spot to where you're actually going. Same router as turn-by-turn,

@@ -1,8 +1,8 @@
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=36';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
-import { createDriving, SIM_START } from './driving.js?v=29';
-import { fetchRoute, fetchWalkPath, createNav, fmtDist } from './nav.js?v=18';
+import { createDriving, SIM_START } from './driving.js?v=30';
+import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
@@ -388,6 +388,16 @@ async function pollKirkLive() {
 
   if (params.get('dest')) { run(null, true); return; }   // text-search deep link
 
+  // ?sim=1 drives a scripted downtown track, so there is no real fix worth waiting for — and a
+  // demo opened over a plain-http LAN address (phone testing, screen recordings) gets its
+  // geolocation prompt refused by the browser anyway, so the race below would idle 5 s and then
+  // leave the map at city zoom, where pills collapse into cluster chips. Open where the sim
+  // opens, at street zoom, so the drive starts on real price pills.
+  if (params.get('sim')) {
+    map.jumpTo({ center: [SIM_START.lon, SIM_START.lat], zoom: 16.5 });
+    return;
+  }
+
   // Hold the permission prompt until the splash is gone and the picker is answered,
   // so the boot reads: animation -> map -> city picker -> location prompt.
   await bootUISettled;
@@ -612,6 +622,7 @@ async function run(preLoc, isNew) {
   lastLoc = loc;
   addRecent(loc, q);
   rankAndRender(loc);
+  prefetchWalks(loc);   // one matrix call, so spot cards open already knowing their walk
   // shape only, never the query itself: it's usually a real address (see analytics.js)
   track('destination_searched', { city: activeCity, results: current.length, typed: !preLoc });
 }
@@ -950,12 +961,89 @@ let spotWalkSeq = 0;        // bumped per request/clear — only the newest resp
 let spotWalkTimer = null;
 const walkCache = new Map();   // spot|dest → {coords, distance, duration}; successes only, so a
                                // flaky round-trip doesn't pin a spot to a straight line forever
-const walkKey = (b) => `${b.lon.toFixed(5)},${b.lat.toFixed(5)}|${lastLoc.lon.toFixed(5)},${lastLoc.lat.toFixed(5)}`;
+const walkKey = (b, dest) => `${b.lon.toFixed(5)},${b.lat.toFixed(5)}|${dest.lon.toFixed(5)},${dest.lat.toFixed(5)}`;
 
-function pushSpotLine() {
-  setSpotLineData(spotPath ? { type: 'FeatureCollection', features: [{
-    type: 'Feature', geometry: { type: 'LineString', coordinates: spotPath },
-  }] } : EMPTY_FC);
+// One matrix call per search fills in the walk for everything the map is about to show, so a
+// spot card opens already knowing its numbers instead of filling them in a beat later — the
+// price landing first and the walk arriving after it was the thing that read as unfinished.
+// Nearest-first and capped, because those are the spots people actually tap and a free public
+// router shouldn't be asked to solve a whole city. Entries land WITHOUT geometry; the drawn
+// line is still routed per spot on tap (see drawSpotLine), which the card no longer waits on.
+const WALK_PREFETCH_MAX = 50;
+const WALK_PREFETCH_M = 2000;     // past ~25 min on foot, nobody is walking it from a spot
+async function prefetchWalks(dest) {
+  const near = blocks
+    .map((b) => ({ b, d: distMeters(dest.lat, dest.lon, b.lat, b.lon) }))
+    .filter((n) => n.d <= WALK_PREFETCH_M && !walkCache.has(walkKey(n.b, dest)))
+    .sort((a, z) => a.d - z.d)
+    .slice(0, WALK_PREFETCH_MAX);
+  if (!near.length) return;
+  let rows;
+  try { rows = await fetchWalkMatrix(near.map((n) => n.b), dest); }
+  catch { return; }               // silent: every card can still route itself on tap
+  if (lastLoc !== dest) return;   // a newer search owns the map — its own prefetch is running
+  rows.forEach((r, i) => { if (r) walkCache.set(walkKey(near[i].b, dest), r); });
+}
+
+const lineFC = (coords) => (coords && coords.length > 1 ? { type: 'FeatureCollection', features: [{
+  type: 'Feature', geometry: { type: 'LineString', coordinates: coords },
+}] } : EMPTY_FC);
+function pushSpotLine() { setSpotLineData(lineFC(spotPath)); }
+
+// ---- tracing the walk in ------------------------------------------------------
+// The line draws itself from the parking spot toward the destination rather than appearing all
+// at once. It reads as the answer to the question you just asked — park HERE, walk THAT way —
+// and the direction is the half a static dotted line can't convey. It also earns the wait: the
+// path is routed after the card opens, so a line that arrives by drawing looks intended, where
+// one that pops looks late.
+//
+// Cheap on purpose: one rAF over ~460ms pushing a growing slice of coordinates the router
+// already gave us. No per-frame geometry, nothing running once it lands, and reduced-motion
+// skips straight to the finished line.
+const SPOT_TRACE_MS = 460;
+let spotTraceRaf = 0;
+function stopSpotTrace() { if (spotTraceRaf) { cancelAnimationFrame(spotTraceRaf); spotTraceRaf = 0; } }
+
+// coords up to `upTo` metres along the path, plus the partial point where it stops — so the
+// head slides continuously between vertices instead of snapping from corner to corner.
+function pathSlice(coords, cum, upTo) {
+  const out = [coords[0]];
+  for (let i = 1; i < coords.length; i++) {
+    if (cum[i] <= upTo) { out.push(coords[i]); continue; }
+    const seg = cum[i] - cum[i - 1];
+    const t = seg > 0 ? (upTo - cum[i - 1]) / seg : 0;
+    out.push([coords[i - 1][0] + (coords[i][0] - coords[i - 1][0]) * t,
+              coords[i - 1][1] + (coords[i][1] - coords[i - 1][1]) * t]);
+    break;
+  }
+  return out;
+}
+
+// Set the drawn path, tracing it on if this is the line arriving for a freshly opened card.
+function setSpotPath(coords, trace) {
+  stopSpotTrace();
+  spotPath = coords;
+  if (!trace || reduceMotion() || !coords || coords.length < 2) { pushSpotLine(); return; }
+  // Metres, not raw degrees: a degree of longitude is ~2/3 of a degree of latitude up here, and
+  // pacing the trace on unscaled coordinates makes it visibly crawl east-west and rush north-south.
+  const cum = [0];
+  for (let i = 1; i < coords.length; i++)
+    cum.push(cum[i - 1] + distMeters(coords[i - 1][1], coords[i - 1][0], coords[i][1], coords[i][0]));
+  const total = cum[cum.length - 1];
+  if (!total) { pushSpotLine(); return; }
+  const t0 = performance.now();
+  const step = (now) => {
+    const p = Math.min(1, (now - t0) / SPOT_TRACE_MS);
+    // Smoothstep, NOT the decelerating curve the sheets use. That curve is right for a panel
+    // arriving — it lands and settles — but a line being drawn is a different gesture: ease-out
+    // put a quarter of the route on screen in the first frame and then crawled the last stretch
+    // into the destination. Easing both ends instead gives the head a steady hand, which is what
+    // makes the path readable as a path.
+    const eased = p * p * (3 - 2 * p);
+    setSpotLineData(lineFC(pathSlice(coords, cum, total * eased)));
+    spotTraceRaf = p < 1 ? requestAnimationFrame(step) : 0;
+  };
+  spotTraceRaf = requestAnimationFrame(step);
 }
 function drawSpotLine(b) {
   if (!lastLoc) { clearSpotLine(); return; }
@@ -963,16 +1051,15 @@ function drawSpotLine(b) {
   clearTimeout(spotWalkTimer);
   // Pin the key (and the destination) now — a new search can move lastLoc while we're in flight,
   // and the answer we get back describes the walk we asked for, not the one that's current.
-  const key = walkKey(b), dest = lastLoc;
+  const dest = lastLoc, key = walkKey(b, dest);
   const cached = walkCache.get(key);
-  if (cached) {                             // re-opening a spot we've already routed: no wait
-    spotPath = cached.coords;
-    pushSpotLine();
-    setWalkSub(cached.distance, cached.duration, true);
-    return;
-  }
-  spotPath = null;                          // clear the previous spot's path; draw nothing yet
-  pushSpotLine();
+  // Numbers first, and after a search they're normally already here from prefetchWalks — which
+  // is the whole point: the card opens complete. A prefetched entry carries distance and time
+  // but no geometry, so the line below still gets routed; that arrives on the map rather than
+  // as a gap in the card. A fully routed entry (a spot re-opened) has both and skips the wait.
+  if (cached) setWalkSub(cached.distance, cached.duration);
+  if (cached && cached.coords) { setSpotPath(cached.coords, true); return; }
+  setSpotPath(null);                        // clear the previous spot's path; draw nothing yet
   // Tapping across a row of price pills opens a card per pill; hold off briefly so scrubbing
   // costs one request at the pill you settle on, not one per pill you pass over. Short, since
   // this is now dead time in front of the only line you'll see rather than a swap you'd miss.
@@ -982,37 +1069,36 @@ function drawSpotLine(b) {
     catch {}
     if (seq !== spotWalkSeq || cardBlock !== b) return;
     if (w) {
-      walkCache.set(key, w);
-      spotPath = w.coords;
-      setWalkSub(w.distance, w.duration, true);
+      walkCache.set(key, w);                 // upgrades a prefetched entry with its geometry
+      setWalkSub(w.distance, w.duration);
+      setSpotPath(w.coords, true);
     } else {
-      spotPath = [[b.lon, b.lat], [dest.lon, dest.lat]];   // no route — the connector, late
+      // No route. Prefetched numbers stand if we have them — they came from the same costing
+      // model, so they're the real walk, just without a shape to draw. Only with nothing at all
+      // do we invent a crow-flies estimate, late rather than never: the subtitle starts blank
+      // now, so without this it would stay blank for good.
+      if (!cached) setWalkSub(distMeters(dest.lat, dest.lon, b.lat, b.lon));
+      setSpotPath([[b.lon, b.lat], [dest.lon, dest.lat]], true);
     }
-    pushSpotLine();
   }, 120);
 }
 // Re-push the drawn path unchanged — for a theme swap, which recreates the source empty.
 function redrawSpotLine() { pushSpotLine(); }
-// "N min walk · D away". Without a routed duration we fall back to the old 80 m/min estimate
-// over the straight-line distance; with one, both numbers describe the same walked path.
-function setWalkSub(distM, durS, routed) {
+// "N min walk · D away", written once. Normally both numbers describe the routed walk; called
+// without a duration (the routing-failed path only) it falls back to crow-flies distance over
+// a flat 80 m/min. No animation, because this no longer replaces a value — the line is blank
+// until it's called, so there's an arrival to read rather than a change to catch.
+function setWalkSub(distM, durS) {
   const dist = distM < 1000 ? `${Math.round(distM)} m` : `${(distM / 1000).toFixed(1)} km`;
   const mins = Math.max(1, Math.round(durS != null ? durS / 60 : distM / 80));
   const sub = $('scsub');
-  const next = `${mins} min walk · ${dist} away`;
-  // The routed numbers land a beat after the card opens and usually run a little longer than
-  // the crow-flies seed. Fade only that swap — a number changing under the reader should read
-  // as an update. On a fresh open the card's own slide-up already covers the text.
-  if (routed && sub.textContent !== next && !reduceMotion() && sub.animate)
-    sub.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 220, easing: 'ease-out' });
-  sub.textContent = next;
+  sub.textContent = `${mins} min walk · ${dist} away`;
   sub.style.display = '';
 }
 function clearSpotLine() {
   spotWalkSeq++;                           // a response still in flight must not redraw
   clearTimeout(spotWalkTimer);
-  spotPath = null;
-  pushSpotLine();
+  setSpotPath(null);                       // also stops a trace mid-draw
 }
 let nav = null, navTarget = null, blocks = [], lastRerouteT = 0;
 
@@ -1300,12 +1386,14 @@ function showSpotCard(b) {
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
 
-  // walk from this block to the searched destination (only meaningful after a search).
-  // Seeded from the crow-flies distance so the line and the line of text agree; drawSpotLine
-  // rewrites both with the routed walk once Valhalla answers.
-  if (lastLoc) setWalkSub(distMeters(lastLoc.lat, lastLoc.lon, b.lat, b.lon));
+  // Walk from this block to the searched destination (only meaningful after a search). Left
+  // blank for drawSpotLine to fill, on the same terms as the line it draws: this used to open
+  // on a crow-flies estimate, and both numbers then visibly changed a beat later when the real
+  // route landed — always upward, since a diagonal through a block always beats the streets
+  // around it. The row holds its height while empty (see #scsub), so nothing shifts.
+  if (lastLoc) { $('scsub').textContent = ''; $('scsub').style.display = ''; }
   else $('scsub').style.display = 'none';
-  drawSpotLine(b);
+  drawSpotLine(b);   // fills the line above, from the route or from crow-flies if it fails
 
   // crowd reports (if any) — banner + detail list; also stamp a label for reports
   b._label = blockLabel(b);

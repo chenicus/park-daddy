@@ -58,6 +58,12 @@
      request. One variable file covers every weight we use (400-700). Preload the latin cut only —
      latin-ext is behind its own unicode-range and stays unfetched for English/French street names. -->
 <link rel="preload" href="assets/fonts/dmsans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<!-- The router is the one third-party host on the critical path for an interaction: the walk
+     shown on a spot card, and the route when you start navigating. Measured, its first call of
+     a session costs ~680ms against ~180ms for every call after — that gap is DNS + TLS, paid
+     the moment someone taps a spot. Opening the connection during idle boot moves it off the
+     tap. Nothing is fetched here; if the router is never used, this costs one idle handshake. -->
+<link rel="preconnect" href="https://valhalla1.openstreetmap.de" crossorigin>
 <style>
   /* DM Sans (OFL), variable 100-1000. `swap` so text paints in the system font immediately and
      reflows when the file lands — never a blank label on a slow connection. */
@@ -630,6 +636,11 @@
      content size; the stamp drops to the caption tier so the price owns the head. */
   .sc-sub { font-size: var(--fs-body); color: var(--muted); margin-top: 4px; letter-spacing: -.2px; }
   .sc-sub.meta { font-size: var(--fs-caption); margin-top: 3px; }
+  /* The walk line starts empty and fills when the routed distance/time arrive (~300ms), so it
+     holds one line of height up front. Without this the row collapses to nothing and the price
+     above it drops and springs back — a bigger flash than the one blanking the text avoids.
+     line-height is pinned so the reservation is exact rather than at the mercy of `normal`. */
+  #scsub { line-height: 1.25; min-height: 1.25em; }
   .sc-sched { margin-top: 14px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .sc-sched[hidden] { display: none; }
   .sc-sched .seg { display: flex; justify-content: space-between; align-items: center;
@@ -1392,7 +1403,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=93"></script>
+<script type="module" src="app.js?v=97"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
