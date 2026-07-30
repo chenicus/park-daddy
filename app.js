@@ -265,6 +265,13 @@ async function goToCity(key) {
   activeCity = key;
   await mapLoaded;
   activeCity = key;   // re-assert: the boot IIFE resolves off mapLoaded first and sets DEFAULT_CITY
+  // A destination in the city you just left is not a destination any more. Ranking would score
+  // this city's meters against a place hundreds of kilometres away, and a pill tap would ask the
+  // router for a WALKING route between two metros. Guarded, because the first-run city picker
+  // also lands here with nothing to clear — and clearDestination touches map sources, so it must
+  // stay behind the mapLoaded await. Only the explicit switch clears: panning is left alone,
+  // since the metros are far enough apart that you can't drift between them at street zoom.
+  if (lastLoc) clearDestination();
   map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
   // Passive follow (started in initLiveLabels) eases the camera onto every GPS fix inside ANY
   // covered city — which yanks the map straight back off the city you just picked. Picking a city
@@ -769,11 +776,25 @@ $('dest').addEventListener('focus', () => { $('dest').value.trim().length >= 2 ?
 // custom clear button (replaces the native search cancel button so it centers cleanly)
 function updateClear() { $('clearDest').hidden = $('dest').value.length === 0; }
 $('dest').addEventListener('input', updateClear);
-$('clearDest').addEventListener('click', () => {
+// Forget the DESTINATION, not just the text that found it. `lastLoc` is what every consumer
+// reads to decide whether a destination exists at all — drawSpotLine's guard, the spot card's
+// walk row, prefetchWalks — and it was written in exactly one place and cleared in none. So
+// emptying the input alone left the app still answering "how far from this spot to your
+// destination?" about a place you had just deleted: tap a pill and the dotted walk line traced
+// itself out to it, with its pin still sitting on the map. Everything a destination put on
+// screen has to come off together, or the ones left behind are lying about the ones that went.
+function clearDestination() {
+  lastLoc = null;
+  if (destMarker) { destMarker.remove(); destMarker = null; }
+  clearSpotLine();                      // drops the dotted line AND cancels an in-flight walk
+  $('scsub').style.display = 'none';    // same call showSpotCard makes when there's no lastLoc
   $('dest').value = '';
+  updateClear();
+}
+$('clearDest').addEventListener('click', () => {
+  clearDestination();
   $('dest').focus();
   onType();          // 0 chars → drops back to recents
-  updateClear();
 });
 updateClear();       // sync on load (a prefilled ?dest= should show the X)
 // keep the panel open until you pick, clear, or tap away — not on every input blur
