@@ -196,6 +196,24 @@ applyTheme((forcedTheme === 'dark' || forcedTheme === 'light')
 darkMedia.addEventListener('change', () => {
   if (!store.get(THEME_KEY)) applyTheme(darkMedia.matches ? 'dark' : 'light');
 });
+
+// ---- reading the motion system from JS -------------------------------------------------
+// The easings and durations live in one place (:root in index.html) and everything is
+// supposed to resolve through them — but a WAAPI animation can't write `var(--dur-slow)`
+// into its own options, so the theme wipe used to carry a hand-typed 500 and a hand-typed
+// curve. Two copies of a value that has to agree is just a slower way of drifting apart.
+// Read at call time rather than cached: the tokens are on :root and a theme swap re-resolves.
+function motionVal(name, fallback = '') {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+function motionMs(name, fallback) {
+  const v = motionVal(name);
+  if (!v) return fallback;
+  const n = parseFloat(v);
+  if (!isFinite(n)) return fallback;
+  return v.endsWith('ms') ? n : n * 1000;   // the tokens are authored in seconds
+}
+
 document.getElementById('themetoggle')?.addEventListener('click', (e) => {
   const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
   const swap = () => { store.set(THEME_KEY, next); applyTheme(next); };
@@ -216,7 +234,9 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
   vt.ready.then(() => {
     document.documentElement.animate(
       { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-      { duration: 500, easing: 'cubic-bezier(.36,.66,.3,1)', pseudoElement: '::view-transition-new(root)' }
+      { duration: motionMs('--dur-slow', 500),
+        easing: motionVal('--ease-standard', 'cubic-bezier(.36,.66,.3,1)'),
+        pseudoElement: '::view-transition-new(root)' }
     );
   });
   vt.finished.finally(() => document.documentElement.classList.remove('theming'));
@@ -1246,12 +1266,31 @@ function endNav(arrived) {
   if (arrived) toast('You’ve arrived — tap any price on the map to see spot details.', 7000);
 }
 
-let toastTimer = null;
+// The toast animates both ways off one class (see #toast in index.html). It used to be shown
+// with display:block and removed with display:none — so it had no exit at all, and a toast
+// fired while another was up couldn't announce itself, which is exactly what routing does.
+//
+// The re-fire is a .bump dip rather than a remove-and-re-add of .on. Removing the class would
+// need a frame to land before re-adding, and rAF does not reliably run in a backgrounded tab —
+// nav can easily reroute with the app behind the lock screen, and the pending callback would
+// fire on return and resurrect a toast whose hide timer had already passed. The dip is one
+// class on, one class off, correct in whatever order the timers actually land.
+//
+// Text is written immediately in both paths: a toast showing the PREVIOUS message is worse
+// than one that changes without ceremony, so the words are never allowed to lag the state.
+let toastTimer = null, toastBump = null;
 function toast(msg, ms = 5000) {
   const t = $('toast');
-  t.textContent = msg; t.style.display = 'block';
   clearTimeout(toastTimer);   // a prior toast's pending hide-timer must not hide this newer one
-  toastTimer = setTimeout(() => { t.style.display = 'none'; }, ms);
+  clearTimeout(toastBump);
+  const replay = t.classList.contains('on');
+  t.textContent = msg;
+  t.classList.add('on');
+  if (replay) {
+    t.classList.add('bump');
+    toastBump = setTimeout(() => t.classList.remove('bump'), 130);
+  }
+  toastTimer = setTimeout(() => { t.classList.remove('on', 'bump'); }, ms);
 }
 
 
@@ -1706,12 +1745,17 @@ function dismissableSheet(el, close) {
   let live = false, held = false, x0 = 0, y0 = 0, dy = 0;
   // Two samples, kept ~SHEET_VEL_MS apart, for the release speed — see the note in pointermove.
   let refY = 0, refT = 0, curY = 0, curT = 0;
+  let layerTimer = null;
 
   function settle(dismiss) {
     el.style.transition = '';     // restore the shared curve BEFORE clearing the offset, so
     el.style.transform = '';      // the sheet animates on from where the finger left it
     live = held = false;
     if (dismiss) close();
+    // Hand the compositor layer back, but not until the CSS curve that finishes the gesture
+    // has run — dropping will-change mid-transition forces the repaint it was there to avoid.
+    clearTimeout(layerTimer);
+    layerTimer = setTimeout(() => { el.style.willChange = ''; }, 500);
   }
 
   el.addEventListener('pointerdown', (e) => {
@@ -1733,6 +1777,12 @@ function dismissableSheet(el, close) {
       if (dy < 0 || Math.abs(e.clientX - x0) > Math.abs(dy)) { live = false; return; }
       held = true;
       el.style.transition = 'none';   // the finger is the animation now
+      // will-change lives HERE rather than in the stylesheet. Four sheets declaring it
+      // statically kept four compositor layers alive for the whole session, on top of a map
+      // that is already repainting continuously — it's a hint you're meant to take back, and
+      // this is the one moment it buys anything: a transform written on every pointermove.
+      clearTimeout(layerTimer);
+      el.style.willChange = 'transform';
       // Capture keeps the moves coming if the finger wanders off the sheet. Touch already has
       // implicit capture, so a browser that refuses this (a stale pointer id) still drags fine
       // — set the transition first and swallow the failure rather than drag against a live

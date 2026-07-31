@@ -92,12 +92,35 @@
     --fs-title: 20px; --fs-large: 24px; --fs-display: 34px;
     /* Spacing follows a 4pt grid (4 / 8 / 12 / 16 / 20) applied directly in each rule. */
     /* ===== MOTION SYSTEM — one shared vocabulary of easings + durations =====
-       spring: playful overshoot (selection pops) · standard: smooth decel (theme wipe, map)
-       · out: crisp settle (entrances). JS (flyTo duration, stagger step) mirrors these values. */
+       This used to be aspirational: the tokens were declared, then the 850 lines below
+       spent 14 hand-written durations and 10 hand-written curves instead, and --ease-spring
+       was never used once. Everything now resolves through these, so a change here is a
+       change everywhere — which is the only reason to have them.
+
+       EASINGS
+         sheet     the iOS drawer curve — every bottom sheet, panel and dropdown. The
+                   workhorse; it was pasted 12 times before this.
+         out       crisp settle, for entrances that aren't sheets
+         standard  smooth decel, for on-screen movement (theme wipe, map, segmented ind.)
+         press     short symmetric curve for contact feedback
+         spring    slight overshoot — floating controls popping in
+       Two deliberate exceptions keep their own curves: the pin drop (its bounce is baked
+       into the keyframe VALUES, and it's tuned against this specific curve) and the splash
+       block, which is a self-contained scene with its own timing.
+
+       DURATIONS — 5 steps, ~1.4 ratio
+         press .13  contact           fast .18  colour, chips, dropdowns
+         base  .24  popovers, toasts, AND every sheet EXIT
+         sheet .36  every sheet ENTER               slow .5   theme wipe, skeleton fade
+       base/sheet are the asymmetry on purpose: arriving is the app presenting something and
+       can take its time; leaving is the app obeying you, and must not look like it's
+       deciding whether to. JS (flyTo duration, stagger step) mirrors these values. */
+    --ease-sheet: cubic-bezier(.32,.72,0,1);
     --ease-spring: cubic-bezier(.34,1.56,.64,1);
     --ease-standard: cubic-bezier(.36,.66,.3,1);
     --ease-out: cubic-bezier(.22,1,.36,1);
-    --dur-fast: .16s; --dur-base: .28s; --dur-slow: .5s;
+    --ease-press: cubic-bezier(.4,0,.2,1);
+    --dur-press: .13s; --dur-fast: .18s; --dur-base: .24s; --dur-sheet: .36s; --dur-slow: .5s;
   }
   /* dark mode — driven by [data-theme="dark"] on <html>, which app.js sets from the
      toggle (persisted) or the OS default. Keying off the attribute keeps the chrome in
@@ -167,7 +190,7 @@
      let the frosted chrome flash its translucent bg over the sharp pills. Go near-opaque
      for the duration so nothing shows through. */
   :root.theming .mat { background: var(--sheet-strong); }
-  /* Same idea for the tappable chrome: the .15s background ease (below, for :active press
+  /* Same idea for the tappable chrome: the var(--dur-fast) background ease (below, for :active press
      feedback) otherwise freezes a half-swapped background into the snapshot while the icon's
      currentColor stroke snaps — so the X and its container appear to change colour out of sync.
      Kill the transition during the wipe so both bake their final colour in, in lockstep. */
@@ -179,10 +202,10 @@
   .searchbar { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 12px);
     left: 16px; right: 72px; height: 48px; margin: 0; border-radius: 12px;
     box-shadow: var(--shadow); display: flex; align-items: center; padding: 0 6px 0 13px; gap: 8px;
-    transition: box-shadow .2s ease, transform .2s ease; }
+    transition: box-shadow var(--dur-fast) ease, transform var(--dur-fast) ease; }
   .searchbar:focus-within { box-shadow: 0 8px 30px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.1); }
   .searchbar .mi { flex: none; color: var(--muted); display: grid; place-items: center;
-    transition: color .2s ease; }
+    transition: color var(--dur-fast) ease; }
   .searchbar:focus-within .mi { color: var(--text); }
   /* geocoding spinner — replaces the pin while a search resolves */
   .searchbar .spin { flex: none; display: none; width: 20px; height: 20px; border-radius: 50%;
@@ -206,22 +229,44 @@
     color: var(--accent); display: grid; place-items: center; cursor: pointer; }
   .iconbtn:active { background: var(--chip); }
 
-  /* tactile press feedback — a subtle spring-scale on tap, the core "iOS" micro-interaction */
-  .iconbtn, .drivebtn-top, .tc-seg button, .sc-actions .primary, .sc-actions .ghost,
-  .rc-item, .rs-reason, .sc-flag, .rc-del {
-    transition: transform .13s cubic-bezier(.4,0,.2,1), filter .13s ease, background .15s ease; }
-  .iconbtn:active, .drivebtn-top:active, .tc-seg button:active, .sc-actions .primary:active,
-  .sc-actions .ghost:active, .rc-del:active { transform: scale(.93); }
+  /* ===== TACTILE PRESS FEEDBACK — one gesture, one answer ======================
+     Every pressable surface in the app scales down slightly under the finger. It used to be
+     three different dialects — some scaled, .sc-actions .primary also dimmed, #navend only
+     changed OPACITY (which reads as "disabled", not "pressed"), and .rs-submit, the primary
+     CTA on THREE sheets, did nothing at all. A press is one gesture; it should get one answer.
+
+     Two depths, chosen by what's being pressed, not by taste:
+       .965  discrete controls — buttons, chips, the round map controls
+       .985  full-width rows — a list row shrinking .965 lurches, because the eye has the
+             sheet's edge right next to it as a ruler
+     The old .93/.90 was a visible lurch on a 48px control: it looked like the button fell
+     into the screen rather than acknowledging a touch. Subtle reads as responsive; deep
+     reads as rubbery. .rc-item was already at .985 and was the one that had it right. */
+  .iconbtn, .drivebtn-top, .menubtn, #compass, .tc-seg button,
+  .sc-actions .primary, .sc-actions .ghost, .rs-submit, #navend,
+  .rc-item, .rs-reason, .sc-flag, .rc-del, .rc-head button, .nw-primary, .nw-secondary {
+    transition: transform var(--dur-press) var(--ease-press), filter var(--dur-press) ease, background var(--dur-fast) ease; }
+  .iconbtn:active, .drivebtn-top:active, .menubtn:active, #compass:active, .tc-seg button:active,
+  .sc-actions .primary:active, .sc-actions .ghost:active, .rs-submit:not(:disabled):active,
+  #navend:active, .rc-del:active, .rc-head button:active,
+  .nw-primary:active, .nw-secondary:active { transform: scale(.965); }
   .rc-item:active, .rs-reason:active, .sc-flag:active { transform: scale(.985); }
 
   /* recent destinations — drops under the searchbar when it's focused */
   .recents { position: absolute; z-index: 600; left: 16px; right: 72px;
     top: calc(env(safe-area-inset-top, 0px) + 68px); border-radius: 14px;
     box-shadow: var(--shadow); overflow: hidden; padding-bottom: 4px;
-    display: block; transform-origin: top center; transform: translateY(0); opacity: 1; will-change: transform, opacity;
-    transition: opacity .18s ease, transform .18s cubic-bezier(.32,.72,0,1); }
-  .recents[hidden] { opacity: 0; transform: translateY(-8px); visibility: hidden; pointer-events: none;
-    transition: opacity .18s ease, transform .18s ease, visibility 0s .18s; }
+    display: block; transform-origin: top center; transform: translateY(0) scale(1); opacity: 1;
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-sheet); }
+  /* Grows out of the search bar rather than sliding down past it. `transform-origin: top center`
+     was already declared here but nothing scaled, so the origin had nothing to act on and the
+     panel arrived as a separate object that happened to stop below the bar. The .96 is what
+     ties it to its trigger — and it's .96 rather than 0, because nothing in the real world
+     appears from nothing; even a barely-there scale reads as unfolding instead of materialising.
+     ease (not ease-out) on the exit is deliberate: the panel is retreating into the bar, not
+     settling into place. */
+  .recents[hidden] { opacity: 0; transform: translateY(-8px) scale(.96); visibility: hidden; pointer-events: none;
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease, visibility 0s var(--dur-fast); }
   .rc-head { display: flex; align-items: center; justify-content: space-between;
     padding: 10px 10px 6px 15px; font-size: var(--fs-caption); font-weight: 600; letter-spacing: .4px;
     text-transform: uppercase; color: var(--muted); }
@@ -255,8 +300,8 @@
   .chip { height: 32px; padding: 0 11px; border-radius: 12px; border: 1px solid var(--stroke);
     color: var(--text); font-family: inherit; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px;
     display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); cursor: pointer;
-    transition: background .15s, color .15s, transform .13s cubic-bezier(.4,0,.2,1); }
-  .chip:active { transform: scale(.93); }
+    transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-press) var(--ease-press); }
+  .chip:active { transform: scale(.965); }
   .chip.on { background: var(--chip-sel); color: var(--text); border-color: var(--stroke); box-shadow: var(--shadow); }
   .chip.on::before { display: none; }
   .chip svg { width: 1.1em; height: 1.1em; }
@@ -269,17 +314,17 @@
   .tripcard { position: absolute; z-index: 520; top: calc(env(safe-area-inset-top, 0px) + 120px);
     left: 16px; right: 16px; max-width: 360px; border-radius: 12px; box-shadow: var(--shadow);
     padding: 16px;
-    display: block; transform-origin: top left; opacity: 1; transform: translateY(0) scale(1); will-change: transform, opacity;
-    transition: opacity .2s ease, transform .2s cubic-bezier(.32,.72,0,1); }
+    display: block; transform-origin: top left; opacity: 1; transform: translateY(0) scale(1);
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-sheet); }
   .tripcard[hidden] { opacity: 0; transform: translateY(-8px) scale(.98); visibility: hidden; pointer-events: none;
-    transition: opacity .2s ease, transform .2s ease, visibility 0s .2s; }
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease, visibility 0s var(--dur-fast); }
   .tc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .tc-head b { font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.3px; }
   .tc-head .iconbtn { margin: -10px -8px -10px 0; }
   .tc-seg { position: relative; display: flex; background: var(--chip); border-radius: 12px; padding: 3px; gap: 3px; }
   .tc-seg-ind { position: absolute; top: 3px; bottom: 3px; left: 0; width: 0; border-radius: 9px; z-index: 0;
     background: var(--seg-on); box-shadow: 0 1px 4px rgba(0,0,0,.16); pointer-events: none;
-    transition: transform .3s cubic-bezier(.32,.72,0,1), width .3s cubic-bezier(.32,.72,0,1); }
+    transition: transform var(--dur-base) var(--ease-sheet), width var(--dur-base) var(--ease-sheet); }
   .tc-seg button { position: relative; z-index: 1; flex: 1; border: none; background: none; font-family: inherit; font-size: var(--fs-body);
     font-weight: 500; color: var(--text); padding: 8px 6px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
   .tc-seg button[hidden] { display: none; }
@@ -330,7 +375,15 @@
     white-space: nowrap; padding: 3px 9px; border-radius: 13px; font-size: var(--fs-caption); font-weight: 500;
     --ring: 1.5px; --tail-w: 6.5px;   /* see the tail note below; .sel re-solves both */
     color: var(--plabel-ink); background: var(--c); border: var(--ring) solid var(--plabel-ink); box-shadow: 0 1px 3px rgba(0,0,0,.3); cursor: pointer;
-    transition: box-shadow .2s ease, background .2s ease, scale .18s ease-out; }  /* MapLibre keeps the marker upright; CSS translate just lifts the pill above its point. `scale` eases the DEselect back down — the select/enter/exit animations override it while they run. */
+    transition: background var(--dur-fast) ease, scale var(--dur-fast) var(--ease-out); }
+  /* MapLibre keeps the marker upright; CSS translate just lifts the pill above its point.
+     `scale` eases the DEselect back down — the select/enter/exit animations override it while
+     they run.
+     box-shadow is deliberately NOT in that list. It's the one property here that can't be
+     composited: every frame of a deselect asked for a re-paint, on a marker that exists by the
+     screenful, while the map underneath is already painting continuously. `scale` is carrying
+     the state change anyway — the shadow simply cuts, under a moving pill, at a moment the eye
+     is tracking the size. Nobody has ever seen the difference; the dropped frames were real. */
   .plabel::before, .plabel::after { content: ''; position: absolute; top: 100%; left: 50%;
     width: 0; height: 0; border-style: solid; border-color: transparent; transform: translateX(-50%); }
   /* The stroke you see on the tail is the PERPENDICULAR gap between the two triangles' slanted
@@ -375,7 +428,7 @@
      triangle is untouched, keeping the tail's outer silhouette identical between states. */
   .plabel.sel { --ring: 2px; --tail-w: 6px;
     box-shadow: 0 2px 10px rgba(0,0,0,.4);
-    scale: 1.15; z-index: 500; animation: pillPop .28s ease-in-out; }
+    scale: 1.15; z-index: 500; animation: pillPop var(--dur-base) ease-in-out; }
   @keyframes pillPop {
     0%   { scale: 1 1; }
     32%  { scale: 1.24 .84; }    /* squash — absorbs the tap */
@@ -476,7 +529,7 @@
      fab only for turn-by-turn nav. */
   body.driving:not(.nav) #recenter { display: none; }
   /* drive button stays put — icon cross-rotates from car → X and goes red while driving */
-  .drivebtn-top svg { grid-area: 1 / 1; transition: opacity .22s ease, transform .3s cubic-bezier(.32,.72,0,1); }
+  .drivebtn-top svg { grid-area: 1 / 1; transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-sheet); }
   .drivebtn-top .ic-x { opacity: 0; transform: rotate(-90deg); }
   body.driving .drivebtn-top { background: var(--accent); color: var(--on-accent); }
   body.driving .drivebtn-top .ic-car { opacity: 0; transform: rotate(90deg); }
@@ -485,10 +538,15 @@
     border: 1px solid var(--stroke); box-shadow: var(--shadow); display: grid; place-items: center;
     cursor: pointer; font-family: inherit;
     opacity: 0; transform: scale(.7); pointer-events: none;
-    transition: opacity .22s ease, transform .22s cubic-bezier(.34,1.5,.64,1); }
+    transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-spring); }
   #recenter { right: 16px; bottom: calc(44vh + 16px); color: var(--accent); }
   #recenter.show { opacity: 1; transform: scale(1); pointer-events: auto; }
-  #recenter.show:active { transform: scale(.9); }
+  /* The .fab transition below is tuned for the fab APPEARING — --dur-base on a spring, so it
+     pops in. A press borrowing that is 240ms of bounce under a finger that's already lifted,
+     which is why this states its own timing. Release falls back to the spring, so it settles
+     back up rather than snapping — the one place the overshoot earns its keep. */
+  #recenter.show:active { transform: scale(.965);
+    transition: transform var(--dur-press) var(--ease-press); }
   body.driving #recenter { right: auto; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
   /* during turn-by-turn, recenter + compass + theme toggle float as a right-side stack above the full-width ETA bar */
   body.nav #recenter { left: auto; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 210px); }
@@ -554,7 +612,7 @@
   #navend { flex: none; border: none; cursor: pointer; font: inherit; font-weight: 600;
     letter-spacing: -.2px; color: #fff; background: #dc2626; border-radius: 11px;   /* match red pills */
     padding: 8px 18px; }
-  #navend:active { opacity: .85; }
+  #navend:active { filter: brightness(.92); }
 
   /* Dim behind a sheet that's asking for your attention — the menu, feedback, a report,
      the no-coverage card. The price sheets deliberately opt out (see SCRIM_SHEETS in
@@ -562,8 +620,8 @@
      has to stay legible. Sits at 640, under every sheet (650/660) and over the map chrome. */
   #scrim { position: fixed; inset: 0; z-index: 640; background: rgba(0,0,0,.34);
     opacity: 0; visibility: hidden;
-    transition: opacity .3s ease, visibility 0s .3s; }
-  #scrim.on { opacity: 1; visibility: visible; transition: opacity .3s ease; }
+    transition: opacity var(--dur-base) ease, visibility 0s var(--dur-base); }
+  #scrim.on { opacity: 1; visibility: visible; transition: opacity var(--dur-base) ease; }
 
   /* ---- spot-detail card (iOS bottom sheet) ---- */
   /* border: none overrides .mat's hairline — that stroke earns its keep on the floating
@@ -572,10 +630,13 @@
   .spotcard { position: absolute; z-index: 650; left: 0; right: 0; background: var(--sheet-strong);
     border: none; bottom: 0; border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
     padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 16px);
-    display: block; transform: translateY(0); visibility: visible; will-change: transform;
-    transition: transform .36s cubic-bezier(.32,.72,0,1); }
+    display: block; transform: translateY(0); visibility: visible;
+    transition: transform var(--dur-sheet) var(--ease-sheet); }
+  /* Leaving is faster than arriving — see the --dur-base/--dur-sheet note in :root. At a
+     matched .36s each way the dismissal read as the sheet deliberating; the shorter exit
+     makes it read as the sheet obeying. Same curve, so it's still recognisably one motion. */
   .spotcard[hidden] { transform: translateY(110%); visibility: hidden; pointer-events: none;
-    transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
+    transition: transform var(--dur-base) var(--ease-sheet), visibility 0s var(--dur-base); }
 
   /* ---- grab handle: the "you can push me down" bar every sheet wears ----
      The standard 36x5 iOS grabber, on --tertiary — already the token for furniture at
@@ -687,7 +748,7 @@
     font-weight: 600; letter-spacing: -.3px; cursor: pointer; display: flex; align-items: center;
     justify-content: center; gap: 8px; }
   .sc-actions .primary svg { width: 1.1em; height: 1.1em; fill: var(--on-accent); }
-  .sc-actions .primary:active { filter: brightness(.92); }
+  .sc-actions .primary:active { filter: brightness(.96); }
   /* the secondary sits on a translucent chip that nearly vanishes against the sheet, so it
      carries a hairline to hold its edge next to the solid primary. box-sizing is border-box
      globally, so the border costs no height and both buttons stay on 46px. */
@@ -720,10 +781,10 @@
     background: var(--sheet-strong); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
     border-radius: 22px 22px 0 0; box-shadow: var(--shadow); max-height: 72vh; overflow-y: auto;
     padding: var(--sheet-pt) var(--sheet-px) calc(env(safe-area-inset-bottom, 0px) + 20px);
-    transform: translateY(110%); visibility: hidden; will-change: transform;
-    transition: transform .36s cubic-bezier(.32,.72,0,1), visibility 0s .36s; }
+    transform: translateY(110%); visibility: hidden;
+    transition: transform var(--dur-base) var(--ease-sheet), visibility 0s var(--dur-base); }
   .rlpanel.open { transform: translateY(0); visibility: visible;
-    transition: transform .36s cubic-bezier(.32,.72,0,1); }
+    transition: transform var(--dur-sheet) var(--ease-sheet); }
   /* The drill-downs used to run a denser 8px top for their long prose, but 8px is where the
      grab handle now sits — so every panel takes the shared --sheet-pt/--sheet-px inset that
      #menupanel, #spotcard and #welcome were already on. That also retires #menupanel's copy
@@ -770,8 +831,14 @@
     -webkit-appearance: none; appearance: none;
     border: 1.5px solid var(--line); border-radius: 16px; background: var(--sheet-solid); color: var(--text);
     font-family: inherit; text-align: left; cursor: pointer;
-    transition: transform .1s ease, border-color .15s ease, background .15s ease; }
-  .mn-row:hover { border-color: var(--accent); }
+    transition: transform var(--dur-press) ease, border-color var(--dur-fast) ease, background var(--dur-fast) ease; }
+  /* Hover is a POINTER state, and this app is used with a thumb. On touch, :hover latches
+     after the tap and leaves the row wearing the accent border until you tap something else
+     — so a row you merely opened reads as selected, and nothing is. Gate it behind a real
+     pointer; the press feedback below is what touch gets, and a press releases. */
+  @media (hover: hover) and (pointer: fine) {
+    .mn-row:hover { border-color: var(--accent); }
+  }
   .mn-row:active { transform: scale(.985); background: var(--chip); }
   .mn-row > svg { flex: none; width: 20px; height: 20px; stroke: currentColor; fill: none;
     stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; color: var(--muted-strong); }
@@ -785,11 +852,13 @@
      than navigating away, but it has to read as a link, so strip the button chrome */
   .mn-flink { font: inherit; color: inherit; background: none; border: 0; padding: 0;
     text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
-  .mn-flink:hover { color: var(--fg); }
+  @media (hover: hover) and (pointer: fine) {
+    .mn-flink:hover { color: var(--text); }
+  }
 
   /* ---- privacy policy panel — plain prose in the shared .rlpanel drill-down ---- */
   .pv-body { font-size: var(--fs-caption); line-height: 1.6; color: var(--muted); padding-bottom: 8px; }
-  .pv-body h3 { font-size: var(--fs-body); font-weight: 650; color: var(--fg); margin: 16px 0 4px; letter-spacing: -.2px; }
+  .pv-body h3 { font-size: var(--fs-body); font-weight: 650; color: var(--text); margin: 16px 0 4px; letter-spacing: -.2px; }
   .pv-body h3:first-child { margin-top: 4px; }
   .pv-body p { margin: 0 0 8px; }
   .pv-body ul { margin: 0 0 8px; padding-left: 18px; }
@@ -894,12 +963,41 @@
   .rs-submit:disabled { background: var(--chip); color: var(--muted); cursor: not-allowed; }
   :root[data-theme="dark"] .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
 
+  /* ---- toast ----
+     TRANSITIONS, not a keyframe, and the reason is specific to this element: toasts are
+     re-fired while one is already up. Routing alone does it twice in a row ("Finding route…"
+     then "Rerouting…"). A keyframe on a `display: none` element can't replay — display was
+     already `block`, so the second message used to swap its TEXT under a motionless box, and
+     the one moment the user most needs to notice new information was the one moment nothing
+     moved. A transition retargets from wherever it currently is, so a re-fire re-animates.
+
+     It also now LEAVES. It used to be removed with display:none — entering on a considered
+     260ms curve and then simply ceasing to exist. Exit is the direction you're most likely
+     to be looking at, because you're still reading it. Same direction it came from, so
+     "arrived from below / left downward" is one coherent motion, and faster than the
+     entrance per --dur-base vs --dur-sheet.
+
+     pointer-events stay off in both states: it's a status line, never a target. visibility
+     is what takes it out of the a11y tree, delayed by the exit so the fade can finish. */
   #toast { position: absolute; z-index: 700; left: 16px; right: 16px;
     bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); background: rgba(30,30,32,.86);
     -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-    color: #fff; padding: 12px 18px; border-radius: 14px; font-size: var(--fs-body); display: none;
-    text-align: center; letter-spacing: -.2px; animation: toastIn .26s cubic-bezier(.32,.72,0,1); }
-  @keyframes toastIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    color: #fff; padding: 12px 18px; border-radius: 14px; font-size: var(--fs-body);
+    text-align: center; letter-spacing: -.2px; pointer-events: none;
+    opacity: 0; visibility: hidden; transform: translateY(14px) scale(.98);
+    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out),
+                visibility 0s var(--dur-fast); }
+  #toast.on { opacity: 1; visibility: visible; transform: translateY(0) scale(1);
+    transition: opacity var(--dur-base) ease, transform var(--dur-base) var(--ease-sheet); }
+  /* A toast fired while one is ALREADY up is the case this element exists to survive: routing
+     does it every time, "Finding route…" then "Rerouting…". That used to be a text swap under
+     a motionless box — the one moment new information arrives was the one moment nothing moved.
+     .bump is a short dip the new message lands on. A dip rather than a full exit-and-re-enter
+     because the toast never left: it's the same object saying something new, and 500ms of
+     round trip for a four-word change is theatre. Because these are transitions, a burst of
+     re-fires retargets from wherever the last one got to instead of restarting from zero. */
+  #toast.bump { opacity: .4; transform: translateY(5px) scale(.99);
+    transition: opacity var(--dur-press) ease, transform var(--dur-press) ease; }
 
   @media (min-width: 760px) {
     /* Google-Maps-style row: search bar, pills, then the drive-mode button pinned to the far
@@ -1289,12 +1387,49 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 <div id="toast" role="status"></div>
 
 
-<!-- global reduced-motion fallback -->
+<!-- ===== GLOBAL REDUCED-MOTION FALLBACK =====================================
+     Reduced motion means LESS MOVEMENT, not fewer transitions. Someone who gets motion sick
+     from a sheet flying up the screen is not helped by that sheet teleporting: the fade that
+     says "this arrived, and it came from down there" is comprehension, and it costs them
+     nothing. What has to go is travel, spin and anything that loops.
+
+     What this replaces: `*, *::before, *::after { transition-duration: .001ms !important }`.
+     Two problems with it. It killed every transition indiscriminately, including the pure
+     opacity and colour ones. And being late in the document and !important, it silently beat
+     all five of the hand-tuned reduced-motion blocks written earlier in this file — they had
+     been dead code for as long as they'd existed.
+
+     So: kill ANIMATIONS wholesale (that's where the loops and the travel keyframes live —
+     ping, shimmer, pillPop, pillIn, pinDrop), then hand the handful of
+     moving TRANSITIONS a still version of themselves, one rule each. Everything not named
+     here — colour, background, border, opacity, and every press-feedback scale, which is
+     contact rather than motion — keeps working exactly as it does for everyone else.
+     ========================================================================= -->
 <style>
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important;
-      transition-duration: .001ms !important; }
-    .spin { animation: none !important; }
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      /* labels.js writes an inline stagger delay of up to 350ms on cold-load pills, and
+         pillIn fills `backwards` — without this they'd sit invisible for their whole delay
+         and then pop, which is the one behaviour worse than the animation itself. */
+      animation-delay: 0s !important;
+    }
+    /* A spinner IS the loading state, not decoration — a frozen one says "hung". Slowed
+       rather than removed, since the fast spin is the part that reads as urgency. */
+    .searchbar .spin { animation: spin 1.1s linear infinite !important; }
+    /* Bottom sheets and panels: cross-fade in place instead of travelling 110% of their own
+       height up the screen. visibility still does the hiding, so nothing is left reachable. */
+    .spotcard, .rlpanel { transform: none !important;
+      transition: opacity var(--dur-base) ease, visibility 0s !important; opacity: 1; }
+    .spotcard[hidden], .rlpanel:not(.open) { opacity: 0;
+      transition: opacity var(--dur-fast) ease, visibility 0s var(--dur-fast) !important; }
+    /* Popovers, the dropdown and the toast: keep the fade, drop the slide and the scale. */
+    .recents, .recents[hidden], .tripcard, .tripcard[hidden], #toast, #toast.on {
+      transform: none !important; }
+    /* The theme wipe isn't handled here on purpose: it's a WAAPI animation driven from
+       app.js, which no CSS rule can reach. It checks the same media query itself and swaps
+       instantly — see the themetoggle handler. */
   }
 </style>
 
@@ -1314,17 +1449,17 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   #navwarn { position: fixed; inset: 0; z-index: 1001; display: none;
     align-items: center; justify-content: center; padding: 20px;
     background: rgba(0,0,0,.32); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-  #navwarn.show { display: flex; animation: wcFade .2s ease; }
-  #navwarn.show .wc-card { animation: wcPop .3s cubic-bezier(.32,.72,0,1); }
+  #navwarn.show { display: flex; animation: wcFade var(--dur-fast) ease; }
+  #navwarn.show .wc-card { animation: wcPop var(--dur-base) var(--ease-sheet); }
   .nw-icon { display: grid; place-items: center; margin: 0 auto 14px; }
   .nw-icon svg { width: 40px; height: 40px; stroke: var(--text); }
   .nw-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
   .nw-primary, .nw-secondary { height: 44px; border: none; border-radius: 14px;
     font-family: inherit; font-size: var(--fs-body); font-weight: 600; cursor: pointer; }
   .nw-primary { background: var(--accent); color: var(--on-accent); }
-  .nw-primary:active { filter: brightness(.9); }
+  .nw-primary:active { filter: brightness(.96); }
   .nw-secondary { background: var(--chip); color: var(--text); }
-  .nw-secondary:active { filter: brightness(.94); }
+  .nw-secondary:active { filter: brightness(.96); }
 </style>
 <div id="navwarn" role="dialog" aria-modal="true" aria-labelledby="nwTitle">
   <div class="wc-card">
@@ -1346,8 +1481,8 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   #welcome { position: fixed; inset: 0; z-index: 1200; display: none;
     align-items: flex-end; justify-content: center;
     background: rgba(0,0,0,.34); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-  #welcome.show { display: flex; animation: wcFade .28s ease; }
-  #welcome.show .wc-sheet { animation: wcRise .52s cubic-bezier(.32,.72,0,1); }
+  #welcome.show { display: flex; animation: wcFade var(--dur-base) ease; }
+  #welcome.show .wc-sheet { animation: wcRise var(--dur-slow) var(--ease-sheet); }
   @keyframes wcRise { from { transform: translateY(100%); } to { transform: none; } }
   .wc-sheet { width: 100%; max-width: 440px; background: var(--sheet-solid); color: var(--text);
     border-radius: 22px 22px 0 0; box-shadow: var(--shadow);
@@ -1361,8 +1496,10 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
        over our dark sheet colour, hiding the white labels in dark mode — neutralize it. */
     border: 1.5px solid var(--line); background: var(--sheet-solid); color: var(--text);
     font-family: inherit; cursor: pointer; text-align: left;
-    transition: transform .1s ease, border-color .15s ease, background .15s ease; }
-  .wc-row:hover { border-color: var(--accent); }
+    transition: transform var(--dur-press) ease, border-color var(--dur-fast) ease, background var(--dur-fast) ease; }
+  @media (hover: hover) and (pointer: fine) {
+    .wc-row:hover { border-color: var(--accent); }   /* see the .mn-row:hover note */
+  }
   .wc-row:active { transform: scale(.985); background: var(--chip); }
   .wc-flag { flex: none; width: 34px; height: 24px; border-radius: 5px; overflow: hidden;
     box-shadow: inset 0 0 0 1px rgba(0,0,0,.14); background: var(--chip); }
