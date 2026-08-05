@@ -408,8 +408,11 @@ async function pollKirkLive() {
   // NOTE: require the raw params to be PRESENT before coercing — `+null` and `+''` are both 0
   // (a finite number), so an ordinary no-params open would otherwise take this branch and fly to
   // [0,0] (null island), stranding a "Dropped pin" on a blank ocean. That was the blank-map bug.
+  // parseFloat, not `+`: some share targets glue the share text onto the end of the copied URL
+  // (`...&lon=-123.1 Parking at this spot`) with no `&` to delimit it — `+` rejects the whole
+  // string as NaN the moment it sees trailing junk, parseFloat just reads the leading number.
   const rawLat = params.get('lat'), rawLon = params.get('lon');
-  const plat = +rawLat, plon = +rawLon;
+  const plat = parseFloat(rawLat), plon = parseFloat(rawLon);
   const hasCoords = rawLat && rawLon && Number.isFinite(plat) && Number.isFinite(plon);
 
   // Deep link from the share sheet (shareSpot() above): reopen the exact spot card, not just a
@@ -421,7 +424,7 @@ async function pollKirkLive() {
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
-    const b = blocks.find((x) => x.id === +rawSpot);
+    const b = blocks.find((x) => x.id === parseInt(rawSpot, 10));
     if (b) { showSpotCard(b); return; }
   }
 
