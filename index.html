@@ -572,7 +572,9 @@
     color: var(--text); display: grid; place-items: center; cursor: pointer; }
   #themetoggle svg { width: 22px; height: 22px; transition: transform var(--dur-slow) var(--ease-standard); }
   #themetoggle:active { filter: brightness(.94); }
-  #themetoggle:active svg { transform: rotate(180deg) scale(.85); }
+  /* 180deg used to be a full flip — fine on the sun's 8-fold symmetry, but it reads as the
+     crescent moon spinning backwards. A slight twist gives the same press feedback on both. */
+  #themetoggle:active svg { transform: rotate(25deg) scale(.85); }
 
   /* Circular theme wipe (View Transitions API). The new theme is revealed by an
      expanding circle centered on the toggle; JS drives the radius. We disable the
