@@ -17,13 +17,20 @@
 #      and point RATE_CSV at it. Rates change quarterly — re-download + re-run each quarter.
 #
 # Operating hours are policy, not in either feed, so we bake in SF's current rules
-# (verified 2026-07, sfmta.com):
-#   • Meters run 9am–10pm Mon–Sat; Sundays 12pm–6pm.
-#   • No time limits after 6pm or any time Sunday.
-#   • Sunday rates aren't published separately — the CSV has only Weekday + Weekend
-#     (Weekend = Saturday's 9am–10pm grid). We approximate Sunday by clipping the
-#     Saturday rates to the noon–6pm Sunday window. This is deliberately NOT "free on
-#     Sunday" — SF meters Sundays, and a false free label sends drivers to a ticket.
+# (corrected 2026-08 after a field report on Van Ness Ave — see load_rates()):
+#   • Standard meters run 9am–6pm Mon–Sat, free evenings, free all day Sunday.
+#   • A 2023 plan to extend this to 9am–10pm Mon–Sat + Sun 12pm–6pm citywide was HALTED
+#     after Board of Supervisors pushback and never fully rolled out. Only a handful of
+#     pre-existing corridors actually enforce evening hours today (Fisherman's Wharf,
+#     Mission Bay, South Beach, the 18th St business district in Potrero Hill, the
+#     waterfront). load_rates() detects those from the CSV's PMT_RATE compliance data
+#     rather than assuming citywide evening hours.
+#   • KNOWN GAP: Sunday bands below are still synthesized for every block that has ANY
+#     rate data (sunday_bands()), i.e. the same halted-citywide assumption applies to
+#     Sundays and hasn't been corrected — a block with no real evening enforcement may
+#     still show a Sunday rate. This was a deliberate prior tradeoff (a false "free on
+#     Sunday" risks a real ticket) that we're leaving in place pending a clearer signal;
+#     flagged here so it isn't mistaken for an oversight.
 import csv, json, math, re, urllib.parse, urllib.request
 
 from sf_towaway import TowMatcher, fetch_towaway
@@ -119,38 +126,74 @@ def load_rates(path):
     """{block_key -> {'Weekday': [{r,s,e}...], 'Weekend': [...]}} from the SFMTA CSV.
     Tolerant of both quarterly schemas; GMP and Commercial rows are identical so we keep
     the first seen per (block, day, band). Only rate>0 bands are stored — everything else
-    reads as free via bandRateNow's no-band-covers-now rule."""
+    reads as free via bandRateNow's no-band-covers-now rule.
+
+    Band 4 (6pm-10pm) is special: SF's 2023 evening/Sunday meter extension was proposed
+    citywide but HALTED after Board of Supervisors pushback (Nov 2023) — only a handful of
+    pre-existing corridors (Fisherman's Wharf, Mission Bay, South Beach, the 18th St business
+    district in Potrero Hill, the waterfront) actually enforce evening hours. The CSV still
+    carries a formulaic band-4 $ rate for EVERY block regardless (a planning placeholder for
+    the stalled citywide rollout), so rate>0 alone can't tell a real evening meter from a
+    block that's actually free after 6pm. PMT_RATE (payment-compliance %) is populated only
+    where meters were actually checked/paid during that window — real field data, not a
+    formula — so we use "any PMT_RATE for this (block, day) in band 4" as the enforcement
+    signal and drop band 4 everywhere else. If a future quarterly schema drops the PMT_RATE
+    column entirely, this can't be determined and we fall back to keeping band 4 everywhere
+    (old behavior) rather than silently hiding evening rates citywide."""
+    rows = []
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        has_pmt_col = any(re.sub(r"\s+", "_", (h or "").strip().upper()) == "PMT_RATE" for h in (reader.fieldnames or []))
+        for raw in reader:
+            rows.append({(k or "").strip(): (v or "").strip() for k, v in raw.items()})
+
+    evening_enforced = set()
+    for row in rows:
+        block = row.get("Street Block") or row.get("STREET_BLOCK", "")
+        day = row.get("Day Type") or row.get("Date Type") or row.get("DATE_TYPE") or ""
+        bid = row.get("Time Band") or row.get("Time Band ID") or row.get("TIME_BAND_ID") or ""
+        mb = re.search(r"(\d)", bid)
+        if not mb or int(mb.group(1)) != 4:
+            continue
+        if (row.get("Pmt Rate") or row.get("PMT_RATE") or "").strip():
+            evening_enforced.add((block, day))
+    dropped_band4 = 0
+
     out = {}
     seen = set()
-    with open(path, newline="") as f:
-        for raw in csv.DictReader(f):
-            row = {(k or "").strip(): (v or "").strip() for k, v in raw.items()}
-            block = row.get("Street Block") or row.get("STREET_BLOCK", "")
-            day = row.get("Day Type") or row.get("Date Type") or row.get("DATE_TYPE") or ""
-            if day not in ("Weekday", "Weekend"):   # skip blanks + embedded header rows
-                continue
-            bid = row.get("Time Band") or row.get("Time Band ID") or row.get("TIME_BAND_ID") or ""
-            mb = re.search(r"(\d)", bid)
-            if not mb or int(mb.group(1)) not in BAND:
-                continue
-            bid = int(mb.group(1))
-            raw_rate = (row.get("Final Rate") or row.get("Rate") or row.get("FINAL_RATE") or "").replace("$", "").strip()
-            try:
-                rate = round(float(raw_rate), 2)
-            except ValueError:
-                continue
-            dedup = (block, day, bid)
-            if dedup in seen:
-                continue
-            seen.add(dedup)
-            if rate <= 0:
-                continue
-            s = clock(row.get("Time Band From")) or BAND[bid][0]
-            e = clock(row.get("Time Band To")) or BAND[bid][1]
-            out.setdefault(block, {}).setdefault(day, []).append({"r": rate, "s": s, "e": e})
+    for row in rows:
+        block = row.get("Street Block") or row.get("STREET_BLOCK", "")
+        day = row.get("Day Type") or row.get("Date Type") or row.get("DATE_TYPE") or ""
+        if day not in ("Weekday", "Weekend"):   # skip blanks + embedded header rows
+            continue
+        bid = row.get("Time Band") or row.get("Time Band ID") or row.get("TIME_BAND_ID") or ""
+        mb = re.search(r"(\d)", bid)
+        if not mb or int(mb.group(1)) not in BAND:
+            continue
+        bid = int(mb.group(1))
+        if bid == 4 and has_pmt_col and (block, day) not in evening_enforced:
+            dropped_band4 += 1
+            continue
+        raw_rate = (row.get("Final Rate") or row.get("Rate") or row.get("FINAL_RATE") or "").replace("$", "").strip()
+        try:
+            rate = round(float(raw_rate), 2)
+        except ValueError:
+            continue
+        dedup = (block, day, bid)
+        if dedup in seen:
+            continue
+        seen.add(dedup)
+        if rate <= 0:
+            continue
+        s = clock(row.get("Time Band From")) or BAND[bid][0]
+        e = clock(row.get("Time Band To")) or BAND[bid][1]
+        out.setdefault(block, {}).setdefault(day, []).append({"r": rate, "s": s, "e": e})
     for b in out.values():
         for day in b:
             b[day].sort(key=lambda x: x["s"])
+    print(f"  evening (6pm-10pm) enforcement confirmed for {len(evening_enforced)} block/day pairs"
+          f" ({'PMT_RATE column found' if has_pmt_col else 'PMT_RATE column MISSING — band 4 kept everywhere'})")
+    print(f"  dropped {dropped_band4} band-4 rows with no evening enforcement evidence")
     return out
 
 
