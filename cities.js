@@ -48,7 +48,7 @@ export const CITIES = {
     center: [37.7749, -122.4194], zoom: 13,
     bounds: [[37.70, -122.53], [37.84, -122.35]],
     data: [
-      { url: 'data/sf-meters.json?v=2', kind: 'sf' },
+      { url: 'data/sf-meters.json?v=3', kind: 'sf' },
       { url: 'data/sf-free.json?v=2', kind: 'sf-free' },
     ],
     // Point meters (drawn as dots, like Vancouver) but priced by time-of-day bands (like
