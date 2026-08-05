@@ -3,7 +3,7 @@ import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks,
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=3';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 

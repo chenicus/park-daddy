@@ -13,11 +13,19 @@ create table if not exists public.reports (
   photo_url   text,                    -- public URL of the sign photo, nullable
   lat         double precision,
   lon         double precision,
-  created_at  timestamptz not null default now()
+  created_at  timestamptz not null default now(),
+  resolved    boolean     not null default false   -- flip true once you've fixed the underlying
+                                                     -- data; excluded from the pill's warning/hide
+                                                     -- count from then on. Table Editor only — see
+                                                     -- RLS note below, there's no public update policy.
 );
 
 create index if not exists reports_block_key_idx on public.reports (block_key);
 create index if not exists reports_created_at_idx on public.reports (created_at desc);
+create index if not exists reports_unresolved_idx on public.reports (block_key) where not resolved;
+
+-- pre-existing table from before the `resolved` column existed: add it without dropping data.
+alter table public.reports add column if not exists resolved boolean not null default false;
 
 -- 2. row level security ------------------------------------------------------
 -- Anyone may read reports (needed to show flags on the map) and add a report.

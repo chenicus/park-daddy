@@ -8,6 +8,10 @@
 // Lifecycle (see app.js + labels.js for the UI):
 //   >= FLAG_MIN reports → warning marker on the pill + banner on the spot card
 //   >= HIDE_MIN reports → the pill drops off the map entirely (data is kept, just hidden)
+//   resolved = true      → excluded from both counts (fixed the underlying data; report
+//                          stays in the table for history, just stops flagging the pill).
+//                          Flip it from the Supabase Table Editor — no public update policy,
+//                          same as the rest of the table (see supabase-setup.sql).
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=2';
 
 export const FLAG_MIN = 1;
@@ -40,7 +44,7 @@ async function apiReports() {
   const since = new Date(Date.now() - RECENT_DAYS * 864e5).toISOString();
   const url = `${SUPABASE_URL}/rest/v1/reports` +
     `?select=block_key,block_label,reason,detail,photo_url,created_at` +
-    `&created_at=gte.${since}&order=created_at.desc`;
+    `&created_at=gte.${since}&resolved=eq.false&order=created_at.desc`;
   const r = await fetch(url, { headers: H() });
   if (!r.ok) throw new Error('reports fetch ' + r.status);
   return r.json();
