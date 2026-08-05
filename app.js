@@ -425,7 +425,19 @@ async function pollKirkLive() {
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
     const b = blocks.find((x) => x.id === parseInt(rawSpot, 10));
-    if (b) { showSpotCard(b); return; }
+    if (b) {
+      showSpotCard(b);
+      // Below 760px the card is a full-width sheet pinned to the bottom (see the .spotcard
+      // media query) and covers whatever a plain center-of-viewport pin would land on. Re-center
+      // using MapLibre's offset so the pin sits mid-screen in the space still visible above it,
+      // instead of directly underneath. Desktop's card floats in a small bottom-right corner
+      // and doesn't need this.
+      if (window.innerWidth < 760) {
+        const sheetH = $('spotcard').getBoundingClientRect().height;
+        map.easeTo({ center: [plon, plat], zoom: 16, duration: 0, offset: [0, -sheetH / 2] });
+      }
+      return;
+    }
   }
 
   if (hasCoords) {
