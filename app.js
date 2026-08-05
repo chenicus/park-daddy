@@ -136,7 +136,10 @@ function installLayers() {
   if (!map.getLayer('spot-line')) map.addLayer({
     // round join matters now the line bends around corners — a miter would spike at tight turns
     id: 'spot-line', type: 'line', source: 'spot-line', layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': '#1a1a1a', 'line-width': 3, 'line-opacity': 0.7, 'line-dasharray': [1, 3] },
+    // near-black reads fine on the light basemap but vanishes on dark-matter; installLayers()
+    // re-runs on every theme swap so this picks up the theme in effect at (re)install time.
+    paint: { 'line-color': document.documentElement.dataset.theme === 'dark' ? '#e8e8e8' : '#1a1a1a',
+      'line-width': 3, 'line-opacity': 0.7, 'line-dasharray': [1, 3] },
   });
   if (!map.getSource('route')) map.addSource('route', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('route-casing')) map.addLayer({
@@ -147,6 +150,17 @@ function installLayers() {
     id: 'route', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#1e1e20', 'line-width': 6 },
   });
+  brightenDarkPaths();
+}
+// CARTO's dark-matter basemap draws footpaths (road_path/tunnel_path/bridge_path) at #262626 —
+// a dashed line that all but disappears against the map's #0e0e0e background. Positron (light)
+// uses #d5d5d5 for the same layers with no such problem, so only dark mode needs the override.
+// Matches this app's own dark-theme muted-line token (rgba(235,235,245,.4-ish) over near-black).
+function brightenDarkPaths() {
+  if (document.documentElement.dataset.theme !== 'dark') return;
+  for (const id of ['road_path', 'tunnel_path', 'bridge_path']) {
+    if (map.getLayer(id)) map.setPaintProperty(id, 'line-color', 'rgba(235,235,245,0.45)');
+  }
 }
 // A theme swap (setStyle) wipes all custom sources/layers, and MapLibre v4 does NOT fire
 // 'style.load' on setStyle — and the interim 'styledata' events fire before the style is
