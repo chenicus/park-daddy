@@ -410,7 +410,22 @@ async function pollKirkLive() {
   // [0,0] (null island), stranding a "Dropped pin" on a blank ocean. That was the blank-map bug.
   const rawLat = params.get('lat'), rawLon = params.get('lon');
   const plat = +rawLat, plon = +rawLon;
-  if (rawLat && rawLon && Number.isFinite(plat) && Number.isFinite(plon)) {
+  const hasCoords = rawLat && rawLon && Number.isFinite(plat) && Number.isFinite(plon);
+
+  // Deep link from the share sheet (shareSpot() above): reopen the exact spot card, not just a
+  // dropped pin. Falls through to the plain coords branch below if the id doesn't resolve — the
+  // city's data refreshed since the link was shared and this block no longer exists.
+  const rawSpot = params.get('spot');
+  if (rawSpot && hasCoords) {
+    const key = cityAt(plat, plon) || DEFAULT_CITY;
+    activeCity = key;
+    map.jumpTo({ center: [plon, plat], zoom: 16 });
+    await loadCity(key);
+    const b = blocks.find((x) => x.id === +rawSpot);
+    if (b) { showSpotCard(b); return; }
+  }
+
+  if (hasCoords) {
     const key = cityAt(plat, plon) || DEFAULT_CITY;
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });   // MapLibre wants [lng, lat]
@@ -1622,10 +1637,11 @@ function closeReport(reopen) {
 $('screport').addEventListener('click', () => { if (cardBlock) openReport(cardBlock); });
 $('scmaps').addEventListener('click', () => track('opened_in_maps', { city: activeCity, from: 'spotcard' }));
 
-// share the spot as a Google Maps pin — native share sheet, clipboard fallback
+// share the spot as a Park Daddy deep link — opens straight back to this spot's card
+// (see the ?spot= boot branch), not a Google Maps pin. Native share sheet, clipboard fallback.
 function shareSpot(b) {
   const label = b._label || blockLabel(b) || 'this parking spot';
-  const url = `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lon}`;
+  const url = `${location.origin}/?spot=${b.id}&lat=${b.lat}&lon=${b.lon}`;
   if (navigator.share) { navigator.share({ title: 'Park Daddy', text: `Parking at ${label}`, url }).catch(() => {}); return; }
   if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => toast('Link copied to clipboard.'), () => window.open(url, '_blank', 'noopener')); return; }
   window.open(url, '_blank', 'noopener');
