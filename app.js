@@ -3,10 +3,9 @@ import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks,
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, serverRefused, isDuplicateReport, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
-import { createTicketLayer } from './tickets.js?v=10';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -118,9 +117,6 @@ const mapLoaded = new Promise((res) => map.on('load', () => {
 }));
 
 const EMPTY_FC = { type: 'FeatureCollection', features: [] };
-// Pulled out as a constant because the ticket lens swaps it for a flat, near-silent value
-// and has to be able to put the real one back — see applyLensDim().
-const DOT_OPACITY = ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9];
 // All custom sources/layers live here. setStyle (theme swap) wipes them, so this is re-run on
 // every 'style.load'. HTML markers (pills/pin/car) are NOT part of the style and survive.
 function installLayers() {
@@ -134,12 +130,8 @@ function installLayers() {
   if (!map.getLayer('meter-dots')) map.addLayer({
     id: 'meter-dots', type: 'circle', source: 'meter-dots',
     paint: { 'circle-color': ['get', 'color'], 'circle-radius': ['step', ['zoom'], 3, 15, 2.5, 16, 3.5],
-      'circle-opacity': DOT_OPACITY },
+      'circle-opacity': ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9] },
   });
-  // Ticket history sits here — above the price layers it replaces, below the route and the
-  // spot connector, which are answers to a question you've already asked and outrank a lens.
-  tix?.install();
-  applyLensDim();
   if (!map.getSource('spot-line')) map.addSource('spot-line', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('spot-line')) map.addLayer({
     // round join matters now the line bends around corners — a miter would spike at tight turns
@@ -969,180 +961,6 @@ $('chipPaid').addEventListener('click', () => {
   }
 });
 
-// ---- Ticket history lens ------------------------------------------------------
-// Vancouver publishes every citation it writes, going back to 2010. The last three full
-// years of that, joined onto block geometry, answers a question the meter feed can't: this
-// curb is $2, but it's also written up 2,600 times a year. See build-vancouver-tickets.py.
-//
-// A lens, not a filter — so it's off by default and it quiets the price layer while it's on.
-// It lives in the MENU rather than the chip row, because it answers an occasional question
-// ("is this cheap block actually a trap?"), not one of the standing filters you keep set.
-// Nor is it restored on boot any more: a map that opens already painted purple, with its only
-// control folded inside a drawer, is a mode you didn't ask for and can't see the way out of.
-const tix = createTicketLayer(map, {
-  url: 'data/vancouver-tickets.json?v=1',
-  onTap: showTixCard,
-  onLoadError: () => setStatus('Couldn’t load ticket history — try again in a moment.'),
-});
-// Price dots go monochrome and quiet under the lens — same reasoning as the pills in CSS
-// (body.tickets): a coloured mark sitting on a ticket block visibly shifts what that block's
-// colour reads as, so the ramp can't be trusted while the price ramp is still lit. Grey can't
-// do that. Re-applied from installLayers, because a theme swap rebuilds the layer's paint.
-function applyLensDim() {
-  if (!map.getLayer('meter-dots')) return;
-  const lens = !!tix?.isOn();
-  map.setPaintProperty('meter-dots', 'circle-opacity', lens ? 0.22 : DOT_OPACITY);
-  // one neutral grey works in both themes — it's the mid point the basemap sits either side of.
-  // to-color is required, not tidiness: setPaintProperty validates a colour property harder
-  // than addLayer does, and a bare ['get'] (type `value`) is rejected — which threw inside the
-  // map's load handler, where MapLibre swallows it, and hung the whole boot on the splash.
-  map.setPaintProperty('meter-dots', 'circle-color',
-    lens ? '#8e8e93' : ['to-color', ['get', 'color']]);
-}
-
-const paintTixRow = (active) => $('mnTix').setAttribute('aria-checked', String(active));
-
-async function setTickets(on) {
-  tix.setClock(nowMins());        // before the paint goes up, so it lands lit for the right hour
-  await tix.set(on);
-  const active = tix.isOn();
-  paintTixRow(active);
-  applyLensDim();
-  if (!active) closeTixCard();
-}
-$('mnTix').addEventListener('click', () => {
-  const next = !tix.isOn();
-  track('tickets_toggled', { on: next });
-  setTickets(next);
-  // Close the drawer either way. Switching the lens on has nothing to show while the menu is
-  // covering the map, and switching it off leaves you looking at what you just changed.
-  closeMenu();
-});
-
-// The lens only means anything where there's a citation feed, so its row comes and goes with
-// the city under the map center — the same rule that decides which city's data is loaded.
-function syncTixEntry() {
-  const ok = activeCity === 'vancouver';
-  tix.setAvailable(ok);           // drops the lens itself if we've left Vancouver with it on
-  $('mnTix').hidden = !ok;
-  if (!ok) {
-    paintTixRow(false);
-    closeTixCard();
-    applyLensDim();
-  }
-}
-map.on('moveend', syncTixEntry);
-mapLoaded.then(syncTixEntry);
-
-function fmtTix(n) { return n.toLocaleString(); }
-let tixBlock = null;      // the open block, so changing the arrival time can re-render it
-/** `quiet` re-renders the card in place (the trip clock moved) rather than opening it: no
- *  re-tracking, and it mustn't close the spot card a second time. */
-function showTixCard(p, quiet) {
-  if (!p) { closeTixCard(); return; }                   // tapped the map, not a block
-  // Tapping the open block again closes it, the way a price pill does.
-  if (!quiet && !$('tixcard').hidden && $('tixcard').dataset.h === p.h) { closeTixCard(); return; }
-  tixBlock = p;
-  const meta = tix.meta();
-  const bands = meta?.bands || [];
-  $('tixcard').dataset.h = p.h;
-  $('txCount').textContent = fmtTix(p.n);
-  $('txWhere').textContent = p.h;
-  $('txBand').dataset.band = p.b;        // CSS picks the swatch off the ramp tokens
-  $('txBandTxt').textContent = bands[p.b] || '';
-  const rows = [];
-  if (p.r) rows.push(`Usually: ${esc(p.r.charAt(0).toLowerCase() + p.r.slice(1))}`);
-  const unknownWindow = renderClock(p);
-  if (unknownWindow) rows.push(unknownWindow);
-  const shape = shapeLine(p);
-  if (shape) rows.push(shape);
-  $('txRows').innerHTML = rows.map((t) => `<div>${t}</div>`).join('');
-  const yrs = meta?.years;
-  $('txFoot').textContent = yrs
-    ? `Average per year over ${yrs[0]}–${yrs[yrs.length - 1]}, from the City of Vancouver's ticket records. It's what enforcement did, not a promise about today.`
-    : '';
-  if (!quiet) closeSpotCard();
-  $('tixcard').hidden = false;
-  if (!quiet) track('ticket_block_opened', { band: p.b });
-}
-
-// ---- when the rule bites -------------------------------------------------------
-// The feed has no time of day and the City doesn't publish enforcement shifts, so this is
-// NOT "when officers write tickets". It's when the block's dominant violation is possible
-// at all — an expired meter can't be written at 3am. Two states, never a curve.
-const HHMM = (m) => {
-  const h = Math.floor(m / 60) % 24, mm = m % 60;
-  const ampm = h < 12 ? 'am' : 'pm';
-  const h12 = h % 12 === 0 ? 12 : h % 12;
-  return mm ? `${h12}:${String(mm).padStart(2, '0')}${ampm}` : `${h12}${ampm}`;
-};
-function renderClock(p) {
-  const box = $('txClock'), bar = $('txBar');
-  const w0 = +p.w0, w1 = +p.w1;
-  // -2 = the window is whatever a posted sign says. We can't read the sign, so the card
-  // says so in words — a wrong bar is worse than no bar. Returns the sentence to sit with
-  // the other rows, since a bar with nothing in it just looks broken.
-  if (!Number.isFinite(w0) || w0 === -2) {
-    box.hidden = true;
-    $('txWhen').textContent = '';        // don't leave the last block's hours in the DOM
-    return 'When it applies depends on the posted sign — read the curb.';
-  }
-  box.hidden = false;
-  const pct = (m) => `${(m / 1440) * 100}%`;
-  const spans = w0 === -1
-    ? [[0, 1440]]                                   // in force round the clock
-    : w0 < w1 ? [[w0, w1]] : [[w0, 1440], [0, w1]]; // wraps midnight → two pieces of one day
-  bar.innerHTML = spans
-    .map(([a, b]) => `<span class="tx-win" style="left:${pct(a)};width:${pct(b - a)}"></span>`)
-    .join('') + `<span class="tx-now" style="left:${pct(nowMins())}"></span>`;
-  bar.style.setProperty('--tx-c', `var(--tx${Math.max(p.b, 1)})`);
-  $('txWhen').textContent = w0 === -1
-    ? 'Enforced around the clock here.'
-    : `Only possible ${HHMM(w0)}–${HHMM(w1)}.`;
-}
-
-// One line, not two: whichever of season or day-of-week leans harder. The build script only
-// ships these when a block actually skews, so a flat block simply says nothing.
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'];
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-function shapeLine(p) {
-  const mo = p.mo ? String(p.mo).split(',').map(Number) : null;
-  const dw = p.dw ? String(p.dw).split(',').map(Number) : null;
-  // ratio 0 means the quiet slot was empty — a bigger story than any finite multiple
-  const strength = (v) => (v ? (v[2] === 0 ? Infinity : v[2]) : 0);
-  if (mo && strength(mo) >= strength(dw)) {
-    const [hi, lo, r] = mo;
-    const a = /^[AO]/.test(MONTHS[hi]) ? 'an' : 'a';    // an April / an August / an October
-    if (r === 0) return `Almost entirely ${a} ${MONTHS[hi]} thing — barely any in ${MONTHS[lo]}.`;
-    if (r >= 2) return `Mostly ${a} ${MONTHS[hi]} problem — ${r}× the tickets of ${MONTHS[lo]}.`;
-    return `Busiest in ${MONTHS[hi]}.`;
-  }
-  if (dw) {
-    const [hi, , r] = dw;
-    return r >= 2 ? `Worst on ${DAYS[hi]}s — ${r}× a quiet day.` : `Worst on ${DAYS[hi]}s.`;
-  }
-  return null;
-}
-
-function closeTixCard() {
-  if ($('tixcard').hidden) return;
-  $('tixcard').hidden = true;
-  $('tixcard').dataset.h = '';
-  tixBlock = null;
-  tix.clearSelection();
-}
-$('txClose').addEventListener('click', closeTixCard);
-// Taps on the map itself are resolved by the layer (hit or miss, both meaningful). This only
-// catches the rest of the chrome — opening a pill, a sheet, the menu — where the ticket card
-// is simply no longer what you're looking at.
-document.addEventListener('click', (e) => {
-  if ($('tixcard').hidden) return;
-  if (e.target.closest('#tixcard')) return;
-  if (e.target.closest('.maplibregl-canvas-container') && !e.target.closest('.maplibregl-marker')) return;
-  closeTixCard();
-}, true);
-
 // ---- Trip: arrival + duration -------------------------------------------------
 function updatePill() {
   let arr = trip.mode === 'set' && trip.setMins != null ? fmtClock(trip.setMins) : 'Now';
@@ -1169,8 +987,6 @@ function syncTrip() {
   updatePill(); syncSeg();
   if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
   if (cardBlock) showSpotCard(cardBlock);         // spot card totals reflect arrival + duration
-  tix?.setClock(nowMins());                       // and the ticket lens re-lights for that hour
-  if (!$('tixcard').hidden && tixBlock) showTixCard(tixBlock, true);
 }
 // on the desktop row layout, anchor the dropdown under the pill instead of under the search bar
 function positionTripcard() {
@@ -1670,7 +1486,6 @@ function showSpotCard(b) {
   cardBlock = b;
   closeReportList();
   closeMenu();
-  closeTixCard();          // one card at a time — they share the bottom of the screen
   const p = driving && driving.lastPos();
   cardOpenDist = p ? distMeters(p.lat, p.lon, b.lat, b.lon) : null;
   const mins = nowMins();
@@ -1927,7 +1742,7 @@ renderCityLists();
 // there's no price left on screen to read against. Driven by a MutationObserver rather
 // than a call at each open/close — those sites are spread across five features, and the
 // last three times a sheet was added the pattern was copied and one exit was missed.
-const SCRIM_SHEETS = ['reportsheet', 'fbsheet', 'nasheet', 'snsheet'];    // hidden attribute
+const SCRIM_SHEETS = ['reportsheet', 'fbsheet', 'nasheet'];               // hidden attribute
 const SCRIM_PANELS = ['menupanel', 'changelog', 'privacy', 'reportlist']; // .open class
 function syncScrim() {
   const on = SCRIM_SHEETS.some((id) => !$(id).hidden)
@@ -1947,7 +1762,6 @@ function syncScrim() {
 $('scrim').addEventListener('click', () => {
   if (!$('fbsheet').hidden) { closeFbSheet(); return; }
   if (!$('nasheet').hidden) { closeNaSheet(); return; }
-  if (!$('snsheet').hidden) { closeScan(); return; }
   if (!$('reportsheet').hidden) { closeReport(true); return; }
   // closeSpotCard nulls cardBlock first, so the list closes without the card popping back
   if ($('reportlist').classList.contains('open')) { closeSpotCard(); return; }
@@ -2046,11 +1860,9 @@ function dismissableSheet(el, close) {
 // rather than stepping back to it, and the report list hands off to closeSpotCard so the
 // card doesn't pop back in behind it.
 dismissableSheet($('spotcard'), closeSpotCard);
-dismissableSheet($('tixcard'), closeTixCard);
 dismissableSheet($('reportsheet'), () => closeReport(true));
 dismissableSheet($('fbsheet'), closeFbSheet);
 dismissableSheet($('nasheet'), closeNaSheet);
-dismissableSheet($('snsheet'), closeScan);
 dismissableSheet($('reportlist'), closeSpotCard);
 dismissableSheet($('menupanel'), closeMenu);
 dismissableSheet($('changelog'), closeMenu);
@@ -2079,8 +1891,6 @@ window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
   if (!$('fbsheet').hidden) { fbBack(); return; }
   if (!$('nasheet').hidden) { closeNaSheet(); return; }
-  if (!$('snsheet').hidden) { closeScan(); return; }
-  if (!$('tixcard').hidden) { closeTixCard(); return; }
   if ($('privacy').classList.contains('open')) { closeDrilldown('privacy'); return; }
   if ($('changelog').classList.contains('open')) { closeDrilldown('changelog'); return; }
   if ($('menupanel').classList.contains('open')) closeMenu();
@@ -2252,115 +2062,6 @@ $('naRequest').addEventListener('click', () => {
   // us here, with the same place still named on it.
   openFeedback({ text: `Please add ${label} 🙏`, backTo: () => openNaSheet(p), focus: 'contact' });
 });
-
-// ---- sign scan sheet -----------------------------------------------------------
-// Same capture loop as the standalone /scan.html (built for a Home Screen fast-launch, so it
-// boots without the map at all), reimplemented as an in-app sheet so closing it returns to
-// the live map instead of navigating away and reloading everything.
-let snLastPos = null, snWatchId = null, snWatchStarted = false;
-let snSaved = 0, snFailed = 0;
-const SN_DEFAULT_DETAIL = 'Field scan — read sign for actual rate/hours';
-
-function snRenderCount() {
-  $('snCount').textContent = snFailed ? `${snSaved} saved, ${snFailed} failed` : `${snSaved} saved`;
-}
-
-function snArmShutter() {
-  $('snShotBtn').classList.remove('waiting');
-  $('snShotLabel').textContent = 'Tap to shoot the sign';
-  $('snPhoto').disabled = false;
-}
-
-// iOS gives no JS/URL way to jump straight to its location settings, so a denied prompt gets
-// plain-language steps instead of a dead "fix it" link — see the standalone page for the
-// same reasoning in more detail.
-function snGeoError(err) {
-  if (snWatchId != null) { navigator.geolocation.clearWatch(snWatchId); snWatchId = null; }
-  if (err.code === err.PERMISSION_DENIED) {
-    $('snGpsText').textContent = 'Location unavailable';
-    $('snErr').hidden = false;
-  } else if (err.code === err.POSITION_UNAVAILABLE) {
-    $('snGpsText').textContent = 'No GPS signal — try moving away from buildings or indoors.';
-  } else {
-    $('snGpsText').textContent = 'Still finding your signal…';
-  }
-}
-
-function snStartWatch() {
-  $('snErr').hidden = true;
-  if (!('geolocation' in navigator)) { $('snGpsText').textContent = 'Geolocation not supported on this browser'; return; }
-  $('snGpsText').textContent = 'Finding your location…';
-  snWatchId = navigator.geolocation.watchPosition(
-    (p) => {
-      const first = !snLastPos;
-      snLastPos = { lat: p.coords.latitude, lon: p.coords.longitude };
-      $('snGps').classList.add('fix');
-      $('snGpsText').textContent = `Location found — accurate to about ${Math.max(1, Math.round(p.coords.accuracy))} m`;
-      if (first) snArmShutter();
-    },
-    snGeoError,
-    { enableHighAccuracy: true, maximumAge: 4000, timeout: 15000 }
-  );
-}
-
-async function snSaveWithRetry(file, pos, detail, attempt = 1) {
-  try {
-    await submitReport({
-      block: { lat: pos.lat, lon: pos.lon, _label: 'Field scan' },
-      reason: 'other',
-      detail: detail.slice(0, 200),
-      photoFile: file,
-    });
-    snSaved++; snRenderCount();
-    toast('Saved — we’ll review it', 2000);
-  } catch (e) {
-    console.warn('[sign scan] submit failed, attempt', attempt, e);
-    // Already on the server (a retry whose first attempt landed, or the dedup guard catching a
-    // photo-less row) — nothing was lost, so don't tell them it failed.
-    if (isDuplicateReport(e)) { snSaved++; snRenderCount(); toast('Already saved — same spot, moments ago', 2000); return; }
-    // A refusal is the server's verdict on these exact bytes; retrying gets the same answer, and
-    // "check connection" points at the wrong thing entirely.
-    if (serverRefused(e)) {
-      snFailed++; snRenderCount();
-      toast(e.serverMessage ? 'Scan rejected — ' + e.serverMessage : 'Scan rejected by the server', 2600);
-      return;
-    }
-    if (attempt < 3) {
-      setTimeout(() => snSaveWithRetry(file, pos, detail, attempt + 1), attempt * 2000);
-    } else {
-      snFailed++; snRenderCount();
-      toast('A scan failed to save — check connection');
-    }
-  }
-}
-
-// Re-opens the camera immediately after a capture, chained off this same trusted 'change'
-// event — browsers only allow a file/camera picker to open from a real user gesture, and
-// completing the previous capture is one, so the loop continues with no tap in between.
-// Fire-and-forget: the shutter is ready again before the upload even finishes.
-$('snPhoto').addEventListener('change', () => {
-  const input = $('snPhoto');
-  const f = input.files[0];
-  if (!f) return;
-  const pos = snLastPos;
-
-  $('snFlash').classList.remove('go'); void $('snFlash').offsetWidth; $('snFlash').classList.add('go');
-  input.value = '';
-  input.click();
-
-  if (!pos) { toast('No GPS fix yet — try again in a sec'); return; }
-  snSaveWithRetry(f, pos, SN_DEFAULT_DETAIL);
-});
-
-function openScan() {
-  $('snsheet').hidden = false;
-  if (!snWatchStarted) { snWatchStarted = true; snStartWatch(); }
-}
-function closeScan() { $('snsheet').hidden = true; }
-
-$('snClose').addEventListener('click', closeScan);
-$('snRetry').addEventListener('click', snStartWatch);
-$('mnScan').addEventListener('click', () => { closeMenu(); openScan(); });
 
 $('mnFeedback').addEventListener('click', () => {
   closeMenu();

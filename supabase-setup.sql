@@ -13,12 +13,6 @@ create table if not exists public.reports (
   photo_url   text,                    -- public URL of the sign photo, nullable
   lat         double precision,
   lon         double precision,
-  gps_accuracy_m double precision,     -- GPS confidence radius in metres at the moment of capture
-                                       -- (Geolocation coords.accuracy). Only the field-scan flow
-                                       -- has a live fix; reports filed from the map send null.
-  gps_samples    int,                  -- how many readings were combined into the coordinate:
-                                       -- 1 = a single moving reading, >1 = averaged while standing
-                                       -- still. Read alongside gps_accuracy_m, never on its own.
   created_at  timestamptz not null default now(),
   resolved    boolean     not null default false   -- flip true once you've fixed the underlying
                                                      -- data; excluded from the pill's warning/hide
@@ -32,8 +26,6 @@ create index if not exists reports_unresolved_idx on public.reports (block_key) 
 
 -- pre-existing table from before the `resolved` column existed: add it without dropping data.
 alter table public.reports add column if not exists resolved boolean not null default false;
-alter table public.reports add column if not exists gps_accuracy_m double precision;
-alter table public.reports add column if not exists gps_samples int;
 
 -- 2. row level security ------------------------------------------------------
 -- Anyone may read reports (needed to show flags on the map) and add a report.
@@ -76,14 +68,6 @@ begin
   end if;
   if new.lat is not null and (new.lat < -90 or new.lat > 90) then raise exception 'bad lat'; end if;
   if new.lon is not null and (new.lon < -180 or new.lon > 180) then raise exception 'bad lon'; end if;
-  -- accuracy is a radius, so negatives are junk; the ceiling is generous (a coarse IP-based
-  -- fix can legitimately be tens of km) and only exists to keep absurd values out of the stats.
-  if new.gps_accuracy_m is not null and (new.gps_accuracy_m < 0 or new.gps_accuracy_m > 100000) then
-    raise exception 'bad gps accuracy';
-  end if;
-  if new.gps_samples is not null and (new.gps_samples < 1 or new.gps_samples > 100) then
-    raise exception 'bad gps sample count';
-  end if;
 
   -- coarse global flood guard: cap total inserts per minute
   select count(*) into recent from public.reports where created_at > now() - interval '1 minute';
@@ -94,17 +78,11 @@ begin
     where block_key = new.block_key and created_at > now() - interval '24 hours';
   if recent >= 6 then raise exception 'too many reports for this block today'; end if;
 
-  -- dedup: reject an identical report within 10 minutes. Text-only reports ONLY — for a
-  -- photo report the photo IS the content, and every upload is a different file, so
-  -- (block_key, reason, detail) is not its identity. The field-scan flow gives every shot
-  -- the same placeholder detail and the same 'other' reason, and rptKey() rounds a bare
-  -- lat/lon to ~11 x 7 m, so re-shooting one sign after a blurry photo lands on all three
-  -- of those columns again and was being rejected as a duplicate of itself.
-  if new.photo_url is null and exists (
+  -- dedup: reject an identical report within 10 minutes
+  if exists (
     select 1 from public.reports
     where block_key = new.block_key and reason = new.reason
       and coalesce(detail, '') = coalesce(new.detail, '')
-      and photo_url is null
       and created_at > now() - interval '10 minutes'
   ) then
     raise exception 'duplicate report';

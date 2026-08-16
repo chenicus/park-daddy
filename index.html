@@ -80,10 +80,6 @@
     --chip: rgba(120,120,128,.12); --chip-sel: rgba(255,255,255,.87); --accent: #000000; --on-accent: #fff; --clock-filter: brightness(0);
     --navy: rgba(30,30,32,.86); --green: #34c759; --free: #2563eb; --sel: #000000; --pin: #1c1c1e; --pin-fg: #fff; --pin-stroke: #fff; --pin-shadow: drop-shadow(0 2px 3px rgba(0,0,0,.4));
     --seg-on: #ffffff; --stroke: rgba(0,0,0,.08); --plabel-ink: #fff; --chip-on-stroke: rgba(255,255,255,.22);
-    /* Ticket-lens ramp — one hue (325°), light→dark, mirrored from RAMP in tickets.js so the
-       legend swatches and the menu row wear the exact ink the map draws. Kept in both places
-       by hand: the map layer is a MapLibre expression and can't read a CSS variable. */
-    --tx1: #c69cd2; --tx2: #9c6cae; --tx3: #714888; --tx4: #472b5c; --plabel-mono: #6e6e73;
     --shadow: 0 4px 20px rgba(0,0,0,.14), 0 1px 3px rgba(0,0,0,.08);
     --blur: saturate(180%) blur(20px);
     /* Bottom-sheet inset. One pair of tokens because the spot card, the menu and the welcome
@@ -138,9 +134,6 @@
     --seg-on: #636366;
     --shadow: 0 4px 22px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.4);
     --stroke: rgba(255,255,255,.12); --plabel-ink: #16181d; --chip-on-stroke: rgba(0,0,0,.16);
-    /* Anchor flips on a dark basemap: light now means MORE. Not an inversion of the light
-       ramp — its own four steps, validated against the dark surface. */
-    --tx1: #5b4166; --tx2: #86668f; --tx3: #b193ba; --tx4: #dcc6e2; --plabel-mono: #aeaeb4;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   /* overflow:clip (not hidden) forbids programmatic scrolling too — the off-screen sheets
@@ -302,20 +295,8 @@
   .menubtn svg { width: 22px; height: 22px; }
   /* turn-by-turn owns the top strip — the banner would sit under the button */
   body.nav .menubtn { display: none; }
-  /* The row scrolls sideways (the standard filter-chip behaviour) rather than wrapping or
-     clipping. Three chips fit a 320px phone, but the trip pill's label grows with the arrival
-     time — "Now" is 3 characters, "Thu 8:30 PM" is 11 — so the row still overflows on a narrow
-     screen, and it costs nothing on wider ones where it never does.
-     The padding/margin pair is for the chips' own drop shadow: overflow-x makes overflow-y
-     computed non-visible, so without room to breathe the shadow gets sliced off. Padding
-     that generous would swallow taps meant for the map, hence pointer-events on the chips
-     themselves rather than the strip. */
   .chips { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 68px);
-    left: 16px; right: 12px; display: flex; gap: 8px;
-    overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
-    padding: 14px 12px 20px 0; margin: -14px 0 -20px; pointer-events: none; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chips > * { pointer-events: auto; flex: none; }
+    left: 16px; display: flex; gap: 8px; }
   .chip { height: 32px; padding: 0 11px; border-radius: 12px; border: 1px solid var(--stroke);
     color: var(--text); font-family: inherit; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px;
     display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); cursor: pointer;
@@ -326,70 +307,6 @@
   .chip svg { width: 1.1em; height: 1.1em; }
   .chip .chk { width: 1em; height: 1em; margin-left: -2px; display: none; }
   .chip.on .chk { display: block; }
-
-  /* ---- ticket legend ----
-     There wasn't one, which is its own answer to "I can't tell which are the bad blocks".
-     Four swatches, ends labelled — the middle two need no words, the ramp does that work.
-     Sits above the attribution, out of the thumb's way, and leaves during nav. */
-  .tixkey { position: absolute; z-index: 480; left: 16px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 26px);
-    display: flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 13px;
-    font-size: var(--fs-caption); font-weight: 500; letter-spacing: -.1px; color: var(--muted-strong);
-    /* Opaque, not frosted: this is the one piece of chrome that always sits on top of the
-       ramp it explains, and a translucent sheet lets those colours read through the words. */
-    background: var(--sheet-solid);
-    pointer-events: none; opacity: 0; transform: translateY(4px);
-    transition: opacity var(--dur-base) var(--ease-standard), transform var(--dur-base) var(--ease-standard); }
-  body.tickets .tixkey { opacity: 1; transform: none; }
-  body.nav .tixkey, body.tickets.nav .tixkey { opacity: 0; }
-  .tixkey .sw { display: flex; gap: 2px; }
-  .tixkey .sw i { width: 16px; height: 9px; border-radius: 2px; }
-  .tixkey .lo { opacity: .8; }
-
-  /* Two encodings on one map is none. With the lens on, the price dots drop back to a
-     whisper and the pills go translucent — still there, still tappable, no longer the
-     thing your eye lands on. */
-  /* Under the lens the pills go MONOCHROME, not just faint. Dimming alone wasn't enough and
-     wasn't the real problem: a pale orange pill sitting over a purple block genuinely shifts
-     what that block's colour looks like, so the ramp read darker or warmer than the data. A
-     grey pill can't do that. Cheap side benefit — with the hue competition gone they can sit
-     at a higher opacity than the .22 they needed before, so prices stay readable.
-     One override on --c does both the body and the tail, which is the same custom property. */
-  body.tickets .plabel { opacity: .34;
-    transition: opacity var(--dur-base) var(--ease-standard), background var(--dur-base) ease; }
-  body.tickets .plabel.sel { opacity: 1; }
-  /* the crowd-report badge is a warning, not a price — it keeps its own colour */
-  body.tickets .plabel .pf { background: #fff; color: #b45309; }
-
-  /* ---- ticket card ---- */
-  .tx-band { display: flex; align-items: center; gap: 7px; margin-top: 10px;
-    font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px; color: var(--text); }
-  /* Driven off the band attribute rather than an inline colour, so the card tracks a theme
-     swap for free and the ramp lives in exactly one place in this file. */
-  .tx-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; background: var(--tertiary); }
-  .tx-band[data-band="1"] .tx-dot { background: var(--tx1); }
-  .tx-band[data-band="2"] .tx-dot { background: var(--tx2); }
-  .tx-band[data-band="3"] .tx-dot { background: var(--tx3); }
-  .tx-band[data-band="4"] .tx-dot { background: var(--tx4); }
-  /* ---- when the rule is in force ----
-     Midnight to midnight. The filled span is when this block's dominant violation is even
-     POSSIBLE; the tick is the arrival time the map is currently showing. Two states only —
-     there is no hour-by-hour ticket data anywhere in the city feed, so a shaded curve here
-     would be invention. A block whose window is set by an unreadable posted sign shows no
-     bar at all and says so in words instead. */
-  .tx-clock { margin-top: 13px; }
-  .tx-bar { position: relative; height: 8px; border-radius: 4px; background: var(--chip); overflow: hidden; }
-  /* One span per piece — a window that wraps midnight (10pm-6am) draws as two, so the bar
-     always reads as a single day rather than pretending the rule stops at the edge. */
-  .tx-win { position: absolute; top: 0; bottom: 0; background: var(--tx-c, var(--tx3)); border-radius: 4px; }
-  .tx-now { position: absolute; top: -2px; width: 2px; height: 12px; border-radius: 1px;
-    background: var(--text); box-shadow: 0 0 0 1.5px var(--sheet-strong); }
-  .tx-hrs { display: flex; justify-content: space-between; margin-top: 5px;
-    font-size: var(--fs-micro); color: var(--tertiary); font-variant-numeric: tabular-nums; }
-  .tx-when { margin-top: 6px; font-size: var(--fs-body); letter-spacing: -.2px; color: var(--text); }
-
-  .tx-foot { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line);
-    font-size: var(--fs-micro); color: var(--muted); line-height: 1.45; }
 
   /* ---- trip pill (arrival) ---- */
   .chip.trip { gap: 5px; }
@@ -534,13 +451,6 @@
   :root[data-theme="dark"] .plabel.p2 { --c: #f59e0b; }
   :root[data-theme="dark"] .plabel.p3 { --c: #f97316; }
   :root[data-theme="dark"] .plabel.p4 { --c: #ef4444; }
-
-  /* Monochrome under the ticket lens. Declared here, after the per-theme pill colours, and
-     as an explicit pair: the dark overrides above are (0,4,0), so a lone `body.tickets
-     .plabel` at (0,2,1) wins in light and silently loses in dark — which is exactly how it
-     shipped broken the first time. */
-  body.tickets .plabel { --c: var(--plabel-mono); }
-  :root[data-theme="dark"] body.tickets .plabel { --c: var(--plabel-mono); }
 
   /* ---- car chevron ---- */
   .chevwrap { position: absolute; transform: translate(-50%, -50%); width: 44px; height: 44px;
@@ -922,7 +832,7 @@
   .mn-row { display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 15px;
     -webkit-appearance: none; appearance: none;
     border: 1.5px solid var(--line); border-radius: 16px; background: var(--sheet-solid); color: var(--text);
-    font-family: inherit; text-align: left; text-decoration: none; cursor: pointer;
+    font-family: inherit; text-align: left; cursor: pointer;
     transition: transform var(--dur-press) ease, border-color var(--dur-fast) ease, background var(--dur-fast) ease; }
   /* Hover is a POINTER state, and this app is used with a thumb. On touch, :hover latches
      after the tap and leaves the row wearing the accent border until you tap something else
@@ -939,33 +849,6 @@
   .mn-sub { display: block; font-size: var(--fs-caption); color: var(--muted); margin-top: 1px; }
   .mn-chev { flex: none; width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2;
     stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
-  /* .mn-row is display:flex, and an author display beats the UA's [hidden] rule outright —
-     cascade origin, not specificity. Rows that come and go with the city need this. */
-  .mn-row[hidden] { display: none; }
-
-  /* ---- ticket-history lens, in the menu ----
-     Every other row here is a door: tap it and something opens. This one is a SWITCH — it
-     changes what the map behind the drawer is about — so it wears an on/off toggle where the
-     navigating rows wear a chevron.
-
-     Only the knob's TRANSFORM is transitioned, never the track's background. Transitioning a
-     property whose value is a var() makes Chrome keep substituting the OLD custom property:
-     flip the theme with the lens on and the track sits stranded on the light ramp's aubergine
-     until something else invalidates the element. Verified, not theorised. */
-  .mn-sw { flex: none; position: relative; width: 44px; height: 26px; border-radius: 13px;
-    background: var(--line-strong); }
-  .mn-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px;
-    border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.28);
-    transition: transform var(--dur-base) var(--ease-standard); }
-  .mn-row[aria-checked="true"] .mn-sw::after { transform: translateX(18px); }
-  @media (prefers-reduced-motion: reduce) { .mn-sw::after { transition: none; } }
-  /* The "on" track is the hottest band's own ink, so the thing you flipped and the thing
-     you're then looking for are the same colour — scoped to this row rather than to any
-     checked one, since a future switch in here would have no business wearing it. The dark
-     ramp's top band is LIGHT, so the knob has to invert along with it. */
-  .mn-row.tix[aria-checked="true"] > svg { color: var(--tx4); }
-  .mn-row.tix[aria-checked="true"] .mn-sw { background: var(--tx4); }
-  :root[data-theme="dark"] .mn-row.tix[aria-checked="true"] .mn-sw::after { background: #1a0f16; }
   .mn-foot { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted); margin-top: 20px; }
   /* inline text link inside .mn-foot — a <button> so it opens the in-app panel rather
      than navigating away, but it has to read as a link, so strip the button chrome */
@@ -1081,45 +964,6 @@
     font-weight: 600; letter-spacing: -.3px; cursor: pointer; }
   .rs-submit:disabled { background: var(--chip); color: var(--muted); cursor: not-allowed; }
   :root[data-theme="dark"] .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
-
-  /* ---- sign scan sheet ---- */
-  #snsheet .sc-head { justify-content: flex-start; align-items: center; gap: 6px; }
-  #snsheet .sc-sub { line-height: 1.45; }
-  .sn-gps { display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    margin-top: 14px; font-size: var(--fs-caption); color: var(--muted); }
-  .sn-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; flex: none; }
-  .sn-gps.fix .sn-dot { background: var(--green); }
-  .sn-count { margin-left: auto; }
-  /* A denied-permission fix is a full "go here, tap this" instruction, not a one-line status —
-     stacking it as plain text under the intro paragraph read as one undifferentiated wall of
-     grey copy. Giving it its own tinted card, a short bold headline instead of a run-on
-     sentence, and a real button (not an inline text link) makes it read as ONE distinct thing
-     to act on rather than more of the same prose. */
-  .sn-err { display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
-    margin-top: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(255,59,48,.1); }
-  :root[data-theme="dark"] .sn-err { background: rgba(255,59,48,.16); }
-  .sn-err-ic { flex: none; width: 20px; height: 20px; color: #ff3b30; }
-  .sn-err-body { flex: 1 1 180px; min-width: 0; }
-  .sn-err-title { font-size: var(--fs-body); font-weight: 600; color: var(--text); }
-  .sn-err-steps { font-size: var(--fs-caption); color: var(--muted); margin-top: 2px; line-height: 1.4; }
-  .sn-err-retry { flex: none; border: none; border-radius: 999px; background: var(--accent);
-    color: var(--on-accent); font-family: inherit; font-size: var(--fs-caption); font-weight: 600;
-    padding: 8px 14px; cursor: pointer; }
-  /* the whole tile IS the shutter — biggest reasonable target for a moving thumb, short of
-     taking over the full screen the way the standalone /scan.html page does. */
-  .sn-shot { position: relative; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 12px; height: 44vh; min-height: 240px; margin-top: 14px;
-    border: 2px dashed var(--line); border-radius: 20px; background: var(--chip); overflow: hidden;
-    cursor: pointer; transition: background var(--dur-fast) ease; }
-  .sn-shot:active { background: color-mix(in srgb, var(--accent) 10%, var(--chip)); }
-  .sn-shot.waiting { opacity: .45; pointer-events: none; }
-  .sn-shot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-  .sn-shot input:disabled { pointer-events: none; }
-  .sn-shot svg { width: 48px; height: 48px; color: var(--muted); }
-  .sn-shot span { color: var(--muted); font-size: var(--fs-headline); font-weight: 600; text-align: center; padding: 0 24px; }
-  .sn-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
-  .sn-flash.go { animation: sn-flash .35s ease-out; }
-  @keyframes sn-flash { from { opacity: .9; } to { opacity: 0; } }
 
   /* ---- toast ----
      TRANSITIONS, not a keyframe, and the reason is specific to this element: toasts are
@@ -1415,35 +1259,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   </div>
 </div>
 
-<!-- The key to the ramp. Rides body.tickets, so it appears and leaves with the lens. -->
-<div class="tixkey mat" id="tixkey" aria-hidden="true">
-  <span class="lo">Rare</span>
-  <span class="sw"><i style="background:var(--tx1)"></i><i style="background:var(--tx2)"></i><i style="background:var(--tx3)"></i><i style="background:var(--tx4)"></i></span>
-  <span>Beware</span>
-</div>
-
-<!-- Tapping a block on the ticket layer. One number, one band, one reason — anything more
-     and it stops being a glance and becomes a report. -->
-<div class="spotcard mat" id="tixcard" hidden>
-  <div class="sc-head">
-    <div>
-      <div class="sc-price"><span id="txCount"></span> <span class="sc-unit">tickets a year</span></div>
-      <div class="sc-sub meta" id="txWhere"></div>
-    </div>
-    <button class="iconbtn dismiss" id="txClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-  </div>
-  <div class="tx-band" id="txBand"><span class="tx-dot"></span><span id="txBandTxt"></span></div>
-  <div class="sc-rows" id="txRows"></div>
-  <!-- When the rule can bite. A BINARY bar — in force or not — never a density curve:
-       we know when the rule applies, we don't know when officers walk. -->
-  <div class="tx-clock" id="txClock" hidden>
-    <div class="tx-bar" id="txBar"></div>
-    <div class="tx-hrs"><span>12a</span><span>6a</span><span>12p</span><span>6p</span><span>12a</span></div>
-    <div class="tx-when" id="txWhen"></div>
-  </div>
-  <div class="tx-foot" id="txFoot"></div>
-</div>
-
 <div class="spotcard mat" id="reportsheet" hidden>
   <div class="sc-head">
     <div>
@@ -1479,19 +1294,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div class="mn-section-label">Available cities</div>
   <div class="mn-cities" id="mnCities"></div>
   <div class="mn-rows">
-    <!-- Vancouver only — it's the one city publishing citation history. app.js hides it elsewhere.
-         role=switch rather than a plain pressed button: this is a setting with two states, and
-         the toggle to its right stands in for the chevron the navigating rows wear. -->
-    <button class="mn-row tix" id="mnTix" type="button" role="switch" aria-checked="false" hidden>
-      <svg viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 11v2"/><path d="M13 17v2"/></svg>
-      <span class="mn-txt"><span class="mn-nm">Ticket hotspots</span><span class="mn-sub">Colour the map by where Vancouver actually writes tickets</span></span>
-      <span class="mn-sw" aria-hidden="true"></span>
-    </button>
-    <button class="mn-row" id="mnScan" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.5A1.5 1.5 0 0 1 9.4 4h5.2a1.5 1.5 0 0 1 1.3.75L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.5"/></svg>
-      <span class="mn-txt"><span class="mn-nm">Snap a sign</span><span class="mn-sub">Snap a sign we're missing or got wrong while you're out</span></span>
-      <svg class="mn-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-    </button>
     <button class="mn-row" id="mnFeedback" type="button">
       <svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       <span class="mn-txt"><span class="mn-nm">Leave feedback</span><span class="mn-sub">Ideas, city requests, bugs and more!</span></span>
@@ -1568,32 +1370,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
          placeholder="Email" />
   <div class="fb-err" id="fbErr" hidden></div>
   <button class="rs-submit" id="fbSubmit" type="button">Send feedback</button>
-</div>
-
-<div class="spotcard mat" id="snsheet" hidden role="dialog" aria-modal="true" aria-label="Snap a sign">
-  <div class="sc-head">
-    <button class="iconbtn dismiss" id="snClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-    <div class="sc-price sheet-title">Snap a sign</div>
-  </div>
-  <div class="sc-sub">See a parking sign we're missing or got wrong? Snap it here. We'll read it and fix the map.</div>
-  <div class="sn-gps" id="snGps">
-    <span class="sn-dot"></span><span id="snGpsText">Finding your location…</span>
-    <span class="sn-count" id="snCount">0 saved</span>
-  </div>
-  <div class="sn-err" id="snErr" hidden>
-    <svg class="sn-err-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
-    <div class="sn-err-body">
-      <div class="sn-err-title">Location access needed</div>
-      <div class="sn-err-steps">Settings › Privacy &amp; Security › Location Services › Safari Websites › While Using</div>
-    </div>
-    <button class="sn-err-retry" id="snRetry" type="button">Try again</button>
-  </div>
-  <label class="sn-shot waiting" id="snShotBtn">
-    <input id="snPhoto" type="file" accept="image/*" capture="environment" disabled>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8a2 2 0 0 1 2-2h1.2l.9-1.5A1.5 1.5 0 0 1 9.4 4h5.2a1.5 1.5 0 0 1 1.3.75L16.8 6H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Z"/><circle cx="12" cy="13" r="3.5"/></svg>
-    <span id="snShotLabel">Waiting for GPS…</span>
-    <div class="sn-flash" id="snFlash"></div>
-  </label>
 </div>
 
 <!-- Shown when a search resolves somewhere we have no parking data — a real place, just
@@ -1766,7 +1542,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=119"></script>
+<script type="module" src="app.js?v=117"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
