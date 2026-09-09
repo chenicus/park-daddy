@@ -1,7 +1,9 @@
 // Driving mode: live follow-me tracking, car chevron, wake lock, GPS simulator.
 // Routing lives in nav.js — this module only produces fixes and follows them.
-// MapLibre renders/eases the map on the GPU, so following is a single easeTo per fix
-// (center + heading-up bearing) — no hand-rolled sub-pixel glide or dead-reckoning.
+// MapLibre renders/eases the map on the GPU, so following the CAMERA is a single easeTo per
+// fix (center + heading-up bearing). The chevron then has to be glided across the same
+// interval rather than set straight to the new fix — see the glide note below. Still no
+// dead-reckoning: nothing is extrapolated past a fix, we only interpolate between two real ones.
 import { distMeters } from './rank.js?v=15';
 
 function bearingDeg(lat1, lon1, lat2, lon2) {
@@ -29,18 +31,37 @@ function smoothHeading(prev, next) {
   return (prev + delta * HDG_EASE + 360) % 360;
 }
 
-// ---- GPS simulator (?sim=1): plays a downtown track at ~12 m/s with jitter ----
-const SIM_TRACK = [   // up Howe St, left onto Robson toward Burrard
-  [49.2740, -123.1295], [49.2762, -123.1268], [49.2784, -123.1242],
-  [49.2806, -123.1215], [49.2823, -123.1196], [49.2836, -123.1240],
-  [49.2846, -123.1266], [49.2856, -123.1292],
+// ---- GPS simulator (?sim=1): laps a downtown track at ~12 m/s ----
+// A closed circuit through Downtown South — northeast on Homer, northwest across Richards and
+// Seymour, back southwest and southeast onto Davie. Chosen by counting the pills the app
+// actually renders along it: 19 on average and never below 14, against 8 on the old Howe/Robson
+// track, whose long Robson blockfaces left the map looking empty. Built from real Valhalla
+// geometry (videos/downtown-parking-demo/tools/build-sim-track.mjs), so it follows drivable
+// streets and the correct one-ways. Last point repeats the first, so laps join seamlessly.
+const SIM_TRACK = [
+  [49.27506, -123.12359], [49.27623, -123.12178], [49.27662, -123.12217],
+  [49.27696, -123.12269], [49.27750, -123.12353], [49.27788, -123.12411],
+  [49.27737, -123.12489], [49.27689, -123.12562], [49.27646, -123.12514],
+  [49.27596, -123.12437], [49.27557, -123.12377], [49.27526, -123.12328],
+  [49.27506, -123.12359],
 ];
 export const SIM_START = { lat: SIM_TRACK[0][0], lon: SIM_TRACK[0][1] };
+
+// Fixes land every SIM_MS. Real GPS is ~1 Hz, but the sim is also what demos and screen
+// recordings run on, and a shorter interval keeps corners tight. It has to stay long enough
+// that one step clears accept()'s 3 m "holding station" gate: 500 ms x 12 m/s = 6 m.
+const SIM_MS = 500;
+
 function makeSimGeo(speed = 12) {
-  let timer = null, track = SIM_TRACK, seg = 0, prog = 0;
+  const params = new URLSearchParams(location.search);
+  // Position jitter and a periodic bad fix exercise accept()'s accuracy/jitter gates, but they
+  // also make the puck visibly wobble and stall — wrong for a demo, so they're opt-in now.
+  const stress = !!params.get('simstress');
+  let timer = null, track = SIM_TRACK, looping = true, seg = 0, prog = 0;
   return {
-    // nav mode swaps in the route geometry so the sim car drives the route
-    setTrack(t) { if (t && t.length > 1) { track = t; seg = 0; prog = 0; } },
+    // nav mode swaps in the route geometry so the sim car drives the route — a route ends at a
+    // destination rather than closing, so laps are for the built-in circuit only.
+    setTrack(t) { if (t && t.length > 1) { track = t; looping = false; seg = 0; prog = 0; } },
     watchPosition(cb) {
       let tick = 0;
       timer = setInterval(() => {
@@ -48,25 +69,29 @@ function makeSimGeo(speed = 12) {
         let [aLat, aLon] = track[seg];
         let [bLat, bLon] = track[seg + 1];
         let segLen = distMeters(aLat, aLon, bLat, bLon);
-        prog += speed;
-        while ((prog > segLen || segLen === 0) && seg < track.length - 2) {
-          prog -= segLen; seg++;
+        prog += speed * (SIM_MS / 1000);
+        // guard: a degenerate track (every segment zero-length) would spin here forever
+        let guard = 0;
+        while ((prog > segLen || segLen === 0) && guard++ <= track.length) {
+          if (!looping && seg >= track.length - 2) break;
+          prog -= segLen;
+          seg = looping ? (seg + 1) % (track.length - 1) : seg + 1;
           [aLat, aLon] = track[seg]; [bLat, bLon] = track[seg + 1];
           segLen = distMeters(aLat, aLon, bLat, bLon);
         }
         const f = segLen ? Math.min(prog / segLen, 1) : 1;
-        const jit = () => (Math.random() - 0.5) * 2 * 0.00004; // ~±4 m
+        const jit = () => (stress ? (Math.random() - 0.5) * 2 * 0.00004 : 0); // ~±4 m
         cb({
           coords: {
             latitude: aLat + (bLat - aLat) * f + jit(),
             longitude: aLon + (bLon - aLon) * f + jit(),
-            accuracy: tick % 12 === 0 ? 80 : 8,   // periodic bad fix exercises the gate
+            accuracy: stress && tick % 12 === 0 ? 80 : 8,
             heading: bearingDeg(aLat, aLon, bLat, bLon),
             speed,
           },
           timestamp: Date.now(),
         });
-      }, 1000);
+      }, SIM_MS);
       return 1;
     },
     clearWatch() { clearInterval(timer); timer = null; },
@@ -103,12 +128,67 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
   chevEl.style.zIndex = '900';
   const chev = new maplibregl.Marker({ element: chevEl, rotationAlignment: 'map', pitchAlignment: 'map' });
 
+  // ---- chevron glide ----
+  // Fixes land about once a second, but the camera EASES to each one across that whole second.
+  // Setting the marker straight to the new fix therefore threw it ahead of the camera, and it
+  // spent the rest of the interval sliding back as the map caught up — a 1 Hz lurch that read as
+  // a choppy arrow even though the map underneath was moving perfectly smoothly. So interpolate
+  // the marker across the SAME interval the camera uses (see fixDur): both reach the fix at the
+  // same moment, and the puck holds still against the map instead of surging and settling.
+  // Rotation is interpolated the short way round, so a left turn never spins 270° right.
+  let drawn = null;        // where the chevron is painted right now, not where the last fix was
+  let glide = null, raf = 0;
+  const shortTurn = (a, b) => ((b - a + 540) % 360) - 180;
+
+  function paintChev(p) {
+    drawn = p;
+    chev.setLngLat([p.lon, p.lat]).setRotation(p.hdg);
+    if (!chevAdded) { chev.addTo(map); chevAdded = true; }
+  }
+
+  function stepGlide(now) {
+    raf = 0;
+    if (!glide) return;
+    const k = glide.dur > 0 ? Math.min(1, (now - glide.t0) / glide.dur) : 1;
+    const { from, to } = glide;
+    paintChev({
+      lat: from.lat + (to.lat - from.lat) * k,
+      lon: from.lon + (to.lon - from.lon) * k,
+      hdg: (from.hdg + shortTurn(from.hdg, to.hdg) * k + 360) % 360,
+    });
+    if (k < 1) raf = requestAnimationFrame(stepGlide);
+    else glide = null;
+  }
+
+  // Jump on the first fix (nothing to glide from) and whenever motion is unwanted.
+  function moveChev(to, dur) {
+    if (!drawn || !dur || reduce()) { glide = null; paintChev(to); return; }
+    glide = { from: drawn, to, t0: performance.now(), dur };
+    if (!raf) raf = requestAnimationFrame(stepGlide);
+  }
+
+  function stopGlide() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0; glide = null; drawn = null;
+  }
+
   // Ease the map onto the car (and to the mode's bearing). MapLibre interpolates center + bearing
   // continuously on the GPU, so a linear ease over ~the fix interval gives a smooth glide.
   function followTo(dur = 900) {
     if (!follow || zooming || !lastDisp) return;
     map.easeTo({ center: [lastDisp.lon, lastDisp.lat], bearing: wantBearing(),
       duration: reduce() ? 0 : dur, easing: (t) => t });
+  }
+
+  // How long the next glide/ease should run: the gap we actually just saw between fixes, so the
+  // sim's 500 ms and real GPS's ~1 s both stay in step. Clamped, because one late fix must not
+  // stretch the next glide into a crawl (or a dropped one snap it into a jump).
+  let lastFixAt = 0;
+  function fixDur() {
+    const now = performance.now();
+    const gap = lastFixAt ? now - lastFixAt : 0;
+    lastFixAt = now;
+    return gap ? Math.max(250, Math.min(1600, gap)) : 900;
   }
 
   function setFollow(v) {
@@ -154,14 +234,16 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     lastPos = { lat, lon, hdg };
     lastDisp = displayOf(lastPos);   // raw fix, or its on-route snap during nav
     // Draw the car at the display point. Marker stays screen-upright (rotationAlignment handles
-    // heading); its rotation is the geographic heading so it points the right way in both orientations.
-    chev.setLngLat([lastDisp.lon, lastDisp.lat]).setRotation(hdg);
-    if (!chevAdded) { chev.addTo(map); chevAdded = true; }
+    // heading); its rotation is the geographic heading so it points the right way in both
+    // orientations. One duration drives both the marker glide and the camera ease below, so the
+    // two stay locked together.
+    const dur = fixDur();
+    moveChev({ lat: lastDisp.lat, lon: lastDisp.lon, hdg }, dur);
     // Only chase the camera to fixes inside a covered city. Otherwise a passive open outside our
     // coverage — or a bogus [0,0]/null-island fix (some desktops/webviews report one) — would yank
     // the map onto an empty, dataless area and leave a blank "nothing loaded" screen. This mirrors
     // the boot-time recenter guard (cityAt) in app.js. Nav always follows: you're routing in-city.
-    if (hiAcc || !coverage || coverage(lastPos)) followTo();
+    if (hiAcc || !coverage || coverage(lastPos)) followTo(dur);
     onFix(lastPos);
   }
 
@@ -200,6 +282,7 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     start({ passive = false } = {}) {
       if (active || !geo) return;
       active = true; follow = true; lastPos = null; lastDisp = null; hiAcc = !passive;
+      stopGlide(); lastFixAt = 0;   // first fix of a session jumps into place, it has no origin
       // Instant "blue dot": snap to a cached fix while the live watch warms up.
       geo.getCurrentPosition?.(accept, () => {}, { enableHighAccuracy: false, maximumAge: 600000, timeout: 8000 });
       watchId = geo.watchPosition(accept, () => {}, {
@@ -231,6 +314,7 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
       map.off('dragstart', onDrag);
       map.off('zoomstart', onZoomStart);
       map.off('zoomend', onZoomEnd);
+      stopGlide();
       if (chevAdded) { chev.remove(); chevAdded = false; }
       lock?.release?.(); lock = null;
       onActiveChange(false);

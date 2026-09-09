@@ -3,7 +3,7 @@ import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks,
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
+import { fetchFlags, submitReport, submitSpot, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 
@@ -1699,6 +1699,159 @@ $('rsSubmit').addEventListener('click', async () => {
   }
 });
 
+// ---- add a missing spot (menu → thank-you/permissions pre-screen → full-screen camera) ----
+// Not a report on an existing block — this is for a street full of meters or signs
+// Park Daddy doesn't have at all, so there's no block to attach it to and no reason
+// to ask for one (buildReasons/#rsReasons above don't apply here). Location comes from
+// a fresh GPS fix taken right now, not the boot-time getPosition()/cachedPos above —
+// that can be stale by however long the session's been open and however far you've
+// walked since, and this is tagging where you're STANDING, not where you booted the app.
+let asStream = null, asPos = null, asLabel = null;
+
+function stopAsStream() {
+  if (asStream) { asStream.getTracks().forEach((t) => t.stop()); asStream = null; }
+}
+
+function getFreshPosition() {
+  return new Promise((res) => {
+    if (!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition(
+      (p) => res({ lat: p.coords.latitude, lon: p.coords.longitude }),
+      () => res(null),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  });
+}
+
+// Best-effort street label for the geo pill and for your own review later — never blocks
+// the shutter, which works the instant the camera does regardless of whether this resolves.
+async function reverseLabel(lat, lon) {
+  try {
+    const j = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&lang=en`).then((r) => r.json());
+    const p = (j.features && j.features[0] && j.features[0].properties) || {};
+    const street = p.street || p.name;
+    if (!street) return null;
+    return p.housenumber ? `${p.housenumber} ${street}` : street;
+  } catch { return null; }
+}
+
+// ---- pre-screen: thanks + camera/location permissions, requested SEQUENTIALLY -------
+// Two overlapping native permission prompts is confusing (and some browsers only reliably
+// surface one at a time anyway), so camera is asked first, checked off, THEN location. The
+// already-granted stream and position are handed straight to openAddSpot() below — nothing
+// gets requested twice.
+const ASI_CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+function openAddSpotIntro() {
+  closeMenu();
+  $('asiError').hidden = true;
+  $('asiCamStatus').className = 'asi-status pending'; $('asiCamStatus').innerHTML = '';
+  $('asiLocStatus').className = 'asi-status pending'; $('asiLocStatus').innerHTML = '';
+  $('asiContinue').disabled = false;
+  $('asiContinue').textContent = 'Continue';
+  $('addspotIntro').hidden = false;
+}
+function closeAddSpotIntro() { $('addspotIntro').hidden = true; }
+
+async function runAddSpotOnboarding() {
+  $('asiError').hidden = true;
+  $('asiContinue').disabled = true;
+  $('asiContinue').textContent = 'Requesting access…';
+
+  // camera — required; the live view (openAddSpot) never opens without it, and there's
+  // no "choose a photo instead" fallback anywhere in this flow (see the note on #addspot):
+  // a library photo could be from anywhere, any time, and tagging it with wherever the
+  // reporter is standing right now would misrepresent it.
+  $('asiCamStatus').className = 'asi-status active';
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    $('asiCamStatus').className = 'asi-status pending';
+    $('asiError').hidden = false;
+    $('asiError').textContent = "This browser can't open the camera. Try Safari or Chrome.";
+    $('asiContinue').disabled = false; $('asiContinue').textContent = 'Continue';
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+  } catch (e) {
+    console.warn('[addspot] camera unavailable', e);
+    $('asiCamStatus').className = 'asi-status pending';
+    $('asiError').hidden = false;
+    $('asiError').textContent = e.name === 'NotAllowedError'
+      ? "Camera access is required to add a spot — we tag the photo to exactly where you're standing, so it has to be taken right now. Enable camera access for this site, then try again."
+      : "Couldn't open the camera. Try again.";
+    $('asiContinue').disabled = false; $('asiContinue').textContent = 'Continue';
+    return;
+  }
+  if ($('addspotIntro').hidden) { stream.getTracks().forEach((t) => t.stop()); return; }   // closed mid-prompt
+  $('asiCamStatus').className = 'asi-status done'; $('asiCamStatus').innerHTML = ASI_CHECK_SVG;
+
+  // location — best-effort. A denial doesn't block the flow (the photo still sends), so
+  // this gets a muted "skip" mark instead of the asi-error treatment camera gets above.
+  $('asiLocStatus').className = 'asi-status active';
+  const pos = await getFreshPosition();
+  if ($('addspotIntro').hidden) { stream.getTracks().forEach((t) => t.stop()); return; }
+  if (pos) {
+    $('asiLocStatus').className = 'asi-status done'; $('asiLocStatus').innerHTML = ASI_CHECK_SVG;
+  } else {
+    $('asiLocStatus').className = 'asi-status pending'; $('asiLocStatus').textContent = '—';
+  }
+
+  await new Promise((r) => setTimeout(r, 450));   // let both checks register before the swap
+  closeAddSpotIntro();
+  openAddSpot(stream, pos);
+}
+
+function openAddSpot(stream, pos) {
+  asStream = stream; asPos = pos || null; asLabel = null;
+  $('asSent').hidden = true;
+  $('asShutter').disabled = false;
+  $('asCaption').textContent = "Tap to capture & send — that's it";
+  $('addspot').hidden = false;
+  $('asVideo').srcObject = stream;
+
+  if (!asPos) { $('asGeoText').textContent = "Couldn't get your location — you can still send the photo"; return; }
+  $('asGeoText').textContent = 'Tagging your location…';
+  reverseLabel(asPos.lat, asPos.lon).then((label) => {
+    if ($('addspot').hidden) return;
+    asLabel = label;
+    $('asGeoText').textContent = label ? `Tags ${label} automatically` : `Tags ${asPos.lat.toFixed(5)}, ${asPos.lon.toFixed(5)} automatically`;
+  });
+}
+function closeAddSpot() {
+  stopAsStream();
+  $('addspot').hidden = true;
+  $('asVideo').srcObject = null;
+}
+async function sendSpot(photoFile) {
+  $('asShutter').disabled = true;
+  $('asCaption').textContent = 'Sending…';
+  try {
+    await submitSpot({ lat: asPos && asPos.lat, lon: asPos && asPos.lon, label: asLabel, photoFile });
+    track('spot_submitted', { city: activeCity, hasLocation: !!asPos });
+    stopAsStream();
+    $('asSentSub').textContent = asLabel ? `Tagged automatically at ${asLabel}` : (asPos ? 'Tagged automatically' : 'Sent — location unavailable this time');
+    $('asSent').hidden = false;
+    setTimeout(closeAddSpot, 1800);
+  } catch (e) {
+    console.warn('[addspot] submit failed', e);
+    toast('Could not send — check your connection and try again.');
+    $('asShutter').disabled = false;
+    $('asCaption').textContent = "Tap to capture & send — that's it";
+  }
+}
+$('mnAddSpot').addEventListener('click', openAddSpotIntro);
+$('asiClose').addEventListener('click', closeAddSpotIntro);
+$('asiContinue').addEventListener('click', runAddSpotOnboarding);
+$('asClose').addEventListener('click', closeAddSpot);
+$('asShutter').addEventListener('click', () => {
+  if (!asStream) return;
+  const video = $('asVideo'), canvas = $('asCanvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  canvas.toBlob((blob) => { if (blob) sendSpot(blob); }, 'image/jpeg', 0.9);
+});
+
 // ---- city lists, rendered from the registry -------------------------------------
 // The first-run picker and the menu's "Available cities" grid were both hand-written
 // markup listing the same cities. San Jose shipped in the registry, the menu, the page
@@ -1889,6 +2042,8 @@ $('menubtn').addEventListener('click', () => {
 $('mnClose').addEventListener('click', closeMenu);
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (!$('addspot').hidden) { closeAddSpot(); return; }
+  if (!$('addspotIntro').hidden) { closeAddSpotIntro(); return; }
   if (!$('fbsheet').hidden) { fbBack(); return; }
   if (!$('nasheet').hidden) { closeNaSheet(); return; }
   if ($('privacy').classList.contains('open')) { closeDrilldown('privacy'); return; }

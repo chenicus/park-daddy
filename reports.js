@@ -105,6 +105,46 @@ async function uploadPhoto(key, file) {
   return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
 }
 
+// ---- write: missing-spot submissions (menu → "Add a missing spot") -----------
+// Not tied to an existing block_key like a report — the whole point is there's no block
+// to attach it to yet. Separate table, own bucket; falls back to its own localStorage key
+// the same way everything else here does until Supabase is configured.
+const SPOT_BUCKET = 'spot-photos';
+const SKEY = 'pd_spot_submissions';
+
+async function uploadSpotPhoto(file) {
+  const ext = ((file.type.split('/')[1] || 'jpg')).replace('jpeg', 'jpg');
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const r = await fetch(`${SUPABASE_URL}/storage/v1/object/${SPOT_BUCKET}/${path}`, {
+    method: 'POST', headers: { ...H(), 'Content-Type': file.type || 'image/jpeg' }, body: file,
+  });
+  if (!r.ok) throw new Error('spot photo upload ' + r.status);
+  return `${SUPABASE_URL}/storage/v1/object/public/${SPOT_BUCKET}/${path}`;
+}
+
+export async function submitSpot({ lat, lon, label, photoFile }) {
+  const row = {
+    lat: lat ?? null, lon: lon ?? null, label: label || null,
+    page: location.pathname + location.search,
+  };
+
+  if (!configured) {
+    const a = (() => { try { return JSON.parse(localStorage.getItem(SKEY)) || []; } catch { return []; } })();
+    a.unshift({ ...row, photo_url: photoFile ? '#local' : null, created_at: new Date().toISOString() });
+    try { localStorage.setItem(SKEY, JSON.stringify(a)); } catch {}
+    return;
+  }
+
+  let photo_url = null;
+  if (photoFile) { try { photo_url = await uploadSpotPhoto(photoFile); } catch (e) { console.warn('[reports] spot photo failed, saving without it', e); } }
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/spot_submissions`, {
+    method: 'POST',
+    headers: { ...H(), 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+    body: JSON.stringify({ ...row, photo_url }),
+  });
+  if (!r.ok) throw new Error('spot submission insert ' + r.status);
+}
+
 export async function submitReport({ block, reason, detail, photoFile }) {
   const key = rptKey(block);
   const base = {

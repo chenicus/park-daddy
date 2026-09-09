@@ -965,6 +965,101 @@
   .rs-submit:disabled { background: var(--chip); color: var(--muted); cursor: not-allowed; }
   :root[data-theme="dark"] .sc-flag { background: rgba(250,199,117,.15); color: #f0b74b; }
 
+  /* ---- add a missing spot (menu → #addspotIntro → this) ----
+     Deliberately its own visual language, not another .spotcard/.rlpanel: those are bottom
+     sheets over a map that stays partly visible, and this covers the ENTIRE viewport (a live
+     camera feed has nothing to be partial about). White-on-video text throughout regardless
+     of [data-theme] — it's sitting on a camera preview, not app chrome, so the app's light/
+     dark tokens don't apply here on purpose.
+     No error/denied state lives here on purpose: camera access is requested once, up front,
+     on #addspotIntro, so by the time this screen ever opens the stream already exists — this
+     is the happy path only. */
+  #addspot { position: fixed; inset: 0; z-index: 950; background: #0e0e10; overflow: hidden; }
+  #addspot[hidden] { display: none; }
+  #asVideo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0e0e10; }
+  .as-topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 8;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 0; }
+  .as-close { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.16);
+    display: flex; align-items: center; justify-content: center; color: #fff; }
+  .as-close svg { width: 16px; height: 16px; }
+  .as-guide { position: absolute; top: 84px; left: 22px; right: 22px; bottom: 176px; pointer-events: none; }
+  .as-guide .corner { position: absolute; width: 28px; height: 28px; border: 2.5px solid #fff; opacity: .92; }
+  .as-guide .corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 7px 0 0 0; }
+  .as-guide .corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 7px 0 0; }
+  .as-guide .corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 7px; }
+  .as-guide .corner.br { bottom: 0; right: 0; border-left: none; border-top: none; border-radius: 0 0 7px 0; }
+  .as-hint { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8); text-align: center;
+    letter-spacing: -.1px; max-width: 70%; line-height: 1.4; }
+  .as-bottom { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6;
+    padding: 18px 20px calc(env(safe-area-inset-bottom, 0px) + 22px);
+    background: linear-gradient(180deg, rgba(10,10,12,0), rgba(10,10,12,.55) 45%, rgba(10,10,12,.84));
+    display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .as-geo { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px 7px 10px; border-radius: 100px;
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22); max-width: 90%; }
+  .as-geo svg { width: 14px; height: 14px; color: #fff; flex: none; }
+  .as-geo span { font-size: 12.5px; font-weight: 600; color: #fff; letter-spacing: -.1px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .as-shutter { width: 68px; height: 68px; border-radius: 50%; background: #fff;
+    border: 3.5px solid rgba(255,255,255,.38); box-shadow: 0 2px 12px rgba(0,0,0,.45); }
+  .as-shutter:disabled { opacity: .5; }
+  .as-caption { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.7); text-align: center; letter-spacing: -.05px; }
+  .as-sent { position: absolute; inset: 0; z-index: 7; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px; padding: 0 32px; text-align: center;
+    background: rgba(10,10,12,.94); }
+  .as-sent[hidden] { display: none; }
+  .as-check { width: 58px; height: 58px; border-radius: 50%; background: var(--green);
+    display: flex; align-items: center; justify-content: center; }
+  .as-check svg { width: 27px; height: 27px; color: #06210f; }
+  .as-sent-title { font-size: 19px; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+  .as-sent-sub { font-size: 13.5px; color: rgba(255,255,255,.72); line-height: 1.5; max-width: 27ch; }
+
+  /* ---- add a missing spot: the thank-you + permissions pre-screen -----------
+     Unlike #addspot (a camera preview, so it stays a fixed dark/white palette regardless
+     of theme), this is plain app chrome — no video behind it — so it uses the normal
+     [data-theme] tokens like every other panel. Camera and location are requested
+     SEQUENTIALLY (not in parallel): two overlapping native permission prompts is
+     confusing UX and some browsers only reliably surface one at a time anyway. Camera
+     is a hard gate (see the note on #addspot below); location is best-effort and marked
+     "skip" rather than failed if it's denied or times out — the photo still sends. */
+  #addspotIntro { position: fixed; inset: 0; z-index: 950; background: var(--sheet-solid);
+    display: flex; flex-direction: column; }
+  #addspotIntro[hidden] { display: none; }
+  .asi-topbar { flex: none; display: flex; justify-content: flex-end;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 0; }
+  .asi-body { flex: 1 1 auto; overflow: auto; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 12px 28px; text-align: center; }
+  .asi-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--chip);
+    display: flex; align-items: center; justify-content: center; color: var(--text); margin-bottom: 16px; }
+  .asi-icon svg { width: 26px; height: 26px; }
+  .asi-title { font-size: var(--fs-title); font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+  .asi-sub { font-size: var(--fs-body); color: var(--muted); line-height: 1.5; margin-top: 8px; max-width: 32ch; }
+  .asi-checklist { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; margin-top: 26px; }
+  .asi-row { display: flex; align-items: center; gap: 12px; padding: 13px 15px; border-radius: 14px;
+    border: 1px solid var(--line); background: var(--chip); }
+  .asi-row .asi-ic { flex: none; width: 20px; height: 20px; color: var(--muted-strong); }
+  .asi-row .asi-ic svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.9;
+    stroke-linecap: round; stroke-linejoin: round; }
+  .asi-row .asi-txt { flex: 1; text-align: left; font-size: var(--fs-body); font-weight: 600;
+    color: var(--text); letter-spacing: -.1px; }
+  .asi-status { flex: none; width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--muted); }
+  .asi-status.pending { border: 1.5px solid var(--line-strong); }
+  .asi-status.active { border: 1.5px solid var(--line-strong); border-top-color: var(--text);
+    animation: asiSpin .7s linear infinite; }
+  @keyframes asiSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .asi-status.active { animation: none; } }
+  .asi-status.done { background: var(--green); }
+  .asi-status.done svg { width: 12px; height: 12px; color: #fff; stroke: currentColor; fill: none;
+    stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .asi-error { margin-top: 18px; font-size: 13.5px; color: #ff3b30; line-height: 1.5; max-width: 32ch; }
+  .asi-error[hidden] { display: none; }
+  .asi-footer { flex: none; padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px); }
+  .asi-continue { width: 100%; height: 48px; border: none; border-radius: 14px;
+    background: var(--accent); color: var(--on-accent); font-family: inherit; font-size: var(--fs-headline); font-weight: 700; }
+  .asi-continue:disabled { background: var(--chip); color: var(--muted); }
+
   /* ---- toast ----
      TRANSITIONS, not a keyframe, and the reason is specific to this element: toasts are
      re-fired while one is already up. Routing alone does it twice in a row ("Finding route…"
@@ -1276,6 +1371,69 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="rs-submit" id="rsSubmit" type="button">Submit report</button>
 </div>
 
+<!-- ---- add a missing spot: thank-you + permissions pre-screen ----
+     (menu → "Add a missing spot" → this → #addspot). See app.js "add a missing spot" section. -->
+<div id="addspotIntro" hidden>
+  <div class="asi-topbar">
+    <button class="iconbtn dismiss" id="asiClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  </div>
+  <div class="asi-body">
+    <div class="asi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></div>
+    <div class="asi-title">Thanks for helping fill in the map</div>
+    <div class="asi-sub">Snap a sign or meter we're missing and we'll add it. Just need two quick permissions first.</div>
+    <div class="asi-checklist">
+      <div class="asi-row">
+        <span class="asi-ic"><svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg></span>
+        <span class="asi-txt">Camera access</span>
+        <span class="asi-status pending" id="asiCamStatus"></span>
+      </div>
+      <div class="asi-row">
+        <span class="asi-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.8"/></svg></span>
+        <span class="asi-txt">Location access</span>
+        <span class="asi-status pending" id="asiLocStatus"></span>
+      </div>
+    </div>
+    <p class="asi-error" id="asiError" hidden></p>
+  </div>
+  <div class="asi-footer">
+    <button class="asi-continue" id="asiContinue" type="button">Continue</button>
+  </div>
+</div>
+
+<!-- ---- add a missing spot: full-screen live camera, not tied to any existing block ---- -->
+<div id="addspot" hidden>
+  <video id="asVideo" autoplay playsinline muted></video>
+  <canvas id="asCanvas" hidden></canvas>
+
+  <div class="as-topbar">
+    <button class="as-close" id="asClose" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+
+  <div class="as-guide">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="as-hint">Fit the whole sign in frame</div>
+  </div>
+
+  <div class="as-bottom">
+    <div class="as-geo" id="asGeoPill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.8"/></svg>
+      <span id="asGeoText">Finding your location…</span>
+    </div>
+    <button class="as-shutter" id="asShutter" type="button" aria-label="Capture and send"></button>
+    <div class="as-caption" id="asCaption">Tap to capture &amp; send — that's it</div>
+  </div>
+
+  <div class="as-sent" id="asSent" hidden>
+    <div class="as-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div class="as-sent-title">Spot added</div>
+    <div class="as-sent-sub" id="asSentSub">Tagged automatically</div>
+  </div>
+
+</div>
+
 <div class="rlpanel" id="reportlist">
   <div class="rl-head">
     <button class="iconbtn" id="rlBack" type="button" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
@@ -1294,6 +1452,11 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div class="mn-section-label">Available cities</div>
   <div class="mn-cities" id="mnCities"></div>
   <div class="mn-rows">
+    <button class="mn-row" id="mnAddSpot" type="button">
+      <svg viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+      <span class="mn-txt"><span class="mn-nm">Add a missing spot</span><span class="mn-sub">Snap a sign or meter we don't have yet</span></span>
+      <svg class="mn-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
     <button class="mn-row" id="mnFeedback" type="button">
       <svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       <span class="mn-txt"><span class="mn-nm">Leave feedback</span><span class="mn-sub">Ideas, city requests, bugs and more!</span></span>
@@ -1542,7 +1705,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=117"></script>
+<script type="module" src="app.js?v=121"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -25,6 +25,8 @@
 | 🗺️ **Turn-by-turn to a spot** | Pick a spot, hand off to in-app navigation (Valhalla) or deep-link out to Google Maps. |
 | 🚫 **No-park awareness** | Loading zones, no-stopping and permit-only windows hide the spot while active and show in its schedule. |
 | ⚠️ **Crowd-sourced spot reports** | Drivers flag wrong spots (sign changed, permit-only, etc.); 1 report warns the pill, 3 hide it. |
+| 🎟️ **Ticket history (Vancouver)** | A second lens on the map: every block shaded by how hard it actually gets enforced, from 1.3M real citations. Tap a block for its tickets-per-year and the usual reason. |
+| 🕘 **…and when it bites** | The lens follows your arrival time. The citation feed has no clock and the city doesn't publish enforcement shifts — but a ticket can only be written while its rule is in force, so set arrival to 11pm and the meter-hours blocks drop away, leaving what's enforced round the clock. |
 
 ---
 
@@ -34,6 +36,7 @@
 |---|---|---|
 | **Map** | [MapLibre GL 4.7](https://maplibre.org/) + [CARTO vector styles](https://carto.com/basemaps/) | Rotatable vector map + light/dark styles (CDN). |
 | **Parking data** | Open data from [Vancouver](https://opendata.vancouver.ca/), [Seattle](https://data.seattle.gov/), [San Francisco](https://datasf.org/), San Jose & Kirkland | Meter rates, limits, rush-hours, prohibition zones, geo. |
+| **Ticket history** | Vancouver [parking tickets](https://opendata.vancouver.ca/explore/dataset/parking-tickets-2020-2025/) + [public streets](https://opendata.vancouver.ca/explore/dataset/public-streets/) | Citations per block, joined onto centreline geometry. |
 | **Live sensors** | [Kirkland parking-sensor feed (ArcGIS)](https://services2.arcgis.com/) | Real-time vacant/occupied status per stall, polled live. |
 | **Routing** | [Valhalla](https://valhalla1.openstreetmap.de/) (public OSM server) | Drive-mode route geometry + maneuvers. |
 | **Geocoding** | [Nominatim (OpenStreetMap)](https://nominatim.org/) | Address / place / street search + autocomplete. |
@@ -56,7 +59,7 @@ coverage sentence — is built from.
 
 | City | Data shape | Notes |
 |---|---|---|
-| **Vancouver** 🇨🇦 | Point meters + free blocks | Only city with walk-cost spot suggestions (rich rate feed). |
+| **Vancouver** 🇨🇦 | Point meters + free blocks | Walk-cost spot suggestions, and the only city with a **ticket-history** lens. |
 | **Seattle** 🇺🇸 | Paid blockface lines | Demand-responsive rates. |
 | **San Francisco** 🇺🇸 | Point meters, time-of-day bands | Both metered dots and free-block lines. |
 | **San Jose** 🇺🇸 | Flat-rate point meters | Search-only (compact downtown); not in the pick-a-city list. |

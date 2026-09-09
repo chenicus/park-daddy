@@ -1,4 +1,4 @@
--- Park Daddy — crowd-sourced "this spot is wrong" reports.
+-- Park Daddy — crowd-sourced reports, feedback, and missing-spot submissions.
 -- Run this once (and re-run after any change) in your Supabase project:
 --   SQL Editor → paste → Run.  Then copy Project URL + anon key (Settings → API) into config.js.
 -- Safe to re-run: every statement is idempotent.
@@ -172,3 +172,86 @@ drop trigger if exists feedback_guard_trg on public.feedback;
 create trigger feedback_guard_trg
   before insert on public.feedback
   for each row execute function public.feedback_guard();
+
+-- 5. missing-spot submissions (menu → "Add a missing spot") ------------------
+-- A photo + coordinates for a spot Park Daddy doesn't have yet — not tied to an existing
+-- block_key like `reports`, since the whole point is there's no block to attach it to.
+-- Public insert, no public read (same shape as `feedback`): nothing in the app displays
+-- these, you review photos from the dashboard and fold real ones into the next data build.
+create table if not exists public.spot_submissions (
+  id         bigint generated always as identity primary key,
+  lat        double precision not null,
+  lon        double precision not null,
+  label      text,                     -- best-effort reverse-geocoded street label, for your review
+  photo_url  text,                     -- public URL of the sign/meter photo, nullable
+  page       text,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists spot_submissions_created_at_idx on public.spot_submissions (created_at desc);
+
+alter table public.spot_submissions enable row level security;
+
+drop policy if exists "spot submissions public insert" on public.spot_submissions;
+create policy "spot submissions public insert" on public.spot_submissions
+  for insert with check (true);
+-- (deliberately no select policy — same as feedback, the anon key can write but never read)
+
+create or replace function public.spot_submissions_guard()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare recent int;
+begin
+  if new.lat < -90 or new.lat > 90 then raise exception 'bad lat'; end if;
+  if new.lon < -180 or new.lon > 180 then raise exception 'bad lon'; end if;
+  if length(coalesce(new.label, '')) > 160 then raise exception 'label too long'; end if;
+  if length(coalesce(new.page, '')) > 300 then raise exception 'page too long'; end if;
+
+  select count(*) into recent from public.spot_submissions where created_at > now() - interval '1 minute';
+  if recent >= 20 then raise exception 'rate limited — try again shortly'; end if;
+
+  -- dedup: reject a submission from ~11 m of a recent one within 10 minutes (same shutter
+  -- double-tapped, or a flaky upload retried) — coarser than reports' block_key dedup since
+  -- there's no stable key here yet, just raw coordinates.
+  if exists (
+    select 1 from public.spot_submissions
+    where round(lat::numeric, 4) = round(new.lat::numeric, 4)
+      and round(lon::numeric, 4) = round(new.lon::numeric, 4)
+      and created_at > now() - interval '10 minutes'
+  ) then
+    raise exception 'duplicate submission';
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists spot_submissions_guard_trg on public.spot_submissions;
+create trigger spot_submissions_guard_trg
+  before insert on public.spot_submissions
+  for each row execute function public.spot_submissions_guard();
+
+-- 6. spot-photo storage bucket ------------------------------------------------
+-- Same shape as report-photos: public read, uploads capped and MIME-restricted so the
+-- anon key can't be used to host arbitrary files.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'spot-photos', 'spot-photos', true,
+  5242880,                                                    -- 5 MB cap
+  array['image/jpeg','image/png','image/webp','image/heic','image/heif']
+)
+on conflict (id) do update
+  set public             = excluded.public,
+      file_size_limit    = excluded.file_size_limit,
+      allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "spot photos public read" on storage.objects;
+create policy "spot photos public read" on storage.objects
+  for select using (bucket_id = 'spot-photos');
+
+drop policy if exists "spot photos public upload" on storage.objects;
+create policy "spot photos public upload" on storage.objects
+  for insert with check (bucket_id = 'spot-photos');

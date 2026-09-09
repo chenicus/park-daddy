@@ -1,0 +1,226 @@
+<meta charset="utf-8"><title>Tickets lens — live tuning</title>
+<script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+  :root { --panel:rgba(255,255,255,.92); --line:rgba(0,0,0,.12); --ink:#111; --mut:#6b6b70; }
+  * { box-sizing:border-box; }
+  html,body,#map { margin:0; height:100%; width:100%; font:13px/1.5 -apple-system,system-ui,sans-serif; }
+  #map { position:absolute; inset:0; }
+  .side { position:absolute; top:14px; right:14px; bottom:14px; width:290px; overflow-y:auto;
+    background:var(--panel); backdrop-filter:blur(14px); border-radius:16px; padding:16px 16px 10px;
+    box-shadow:0 8px 30px rgba(0,0,0,.18); color:var(--ink); z-index:5; }
+  h1 { font-size:15px; margin:0 0 3px; }
+  .lede { color:var(--mut); font-size:11.5px; margin:0 0 12px; }
+  fieldset { border:1px solid var(--line); border-radius:11px; margin:0 0 10px; padding:9px 10px 11px; }
+  legend { font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--mut); padding:0 5px; }
+  .seg { display:flex; gap:5px; }
+  .seg button { flex:1; padding:6px 4px; border:1px solid var(--line); background:#fff; border-radius:8px;
+    font:600 11.5px inherit; color:var(--mut); cursor:pointer; }
+  .seg button.on { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .note { font-size:11px; color:var(--mut); margin:7px 0 0; line-height:1.4; }
+  label.rw { display:block; margin:8px 0 0; }
+  label.rw span { display:flex; justify-content:space-between; font-size:11px; color:var(--mut); }
+  label.rw b { color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+  input[type=range] { width:100%; margin:2px 0 0; accent-color:#111; }
+  .swatches { display:flex; gap:3px; margin-top:8px; }
+  .swatches i { flex:1; height:14px; border-radius:3px; }
+  .legend { position:absolute; left:14px; bottom:14px; padding:8px 10px; border-radius:10px;
+    font-size:11px; backdrop-filter:blur(10px); z-index:5; min-width:172px; }
+  .legend .bar { display:flex; gap:2px; margin:5px 0 3px; }
+  .legend .bar i { flex:1; height:7px; border-radius:2px; }
+  .legend .ends { display:flex; justify-content:space-between; gap:12px; font-size:10px; opacity:.75; }
+  .hint { position:absolute; left:14px; top:14px; padding:6px 9px; border-radius:8px; font-size:11px;
+    backdrop-filter:blur(10px); z-index:5; }
+  .z { position:absolute; right:312px; top:14px; padding:6px 9px; border-radius:8px; font-size:11px;
+    backdrop-filter:blur(10px); z-index:5; font-variant-numeric:tabular-nums; }
+  pre { background:rgba(0,0,0,.06); border-radius:9px; padding:8px 9px; font-size:10.5px; overflow-x:auto;
+    margin:0; line-height:1.45; max-height:160px; }
+  .maplibregl-ctrl-attrib { font-size:10px; }
+</style>
+<div id="map"></div>
+<div class="hint" id="hint"></div>
+<div class="z" id="zlabel"></div>
+<div class="legend" id="lg"></div>
+<div class="side">
+  <h1>Tickets lens — live</h1>
+  <p class="lede">Real CARTO basemap, real ticket data, live paint properties. Pan/zoom the map normally.</p>
+
+  <fieldset><legend>Palette</legend>
+    <div class="seg" id="pal"></div>
+    <div class="swatches" id="sw"></div>
+    <p class="note" id="palnote"></p>
+  </fieldset>
+
+  <fieldset><legend>Theme</legend>
+    <div class="seg" id="thm"><button data-v="light" class="on">Light</button><button data-v="dark">Dark</button></div>
+  </fieldset>
+
+  <fieldset><legend>Crossfade (zoom-driven)</legend>
+    <label class="rw"><span>Heat fades out at <b id="z1v"></b></span>
+      <input type="range" id="z1" min="11" max="18" step="0.1" value="15.3"></label>
+    <label class="rw"><span>Ink fully in at <b id="z2v"></b></span>
+      <input type="range" id="z2" min="11" max="18" step="0.1" value="16.4"></label>
+  </fieldset>
+
+  <fieldset><legend>Heat surface</legend>
+    <label class="rw"><span>Lowest band that emits <b id="hbv"></b></span>
+      <input type="range" id="hband" min="0" max="4" step="1" value="3"></label>
+    <label class="rw"><span>Radius on the ground <b id="hrv"></b></span>
+      <input type="range" id="hrad" min="30" max="500" step="5" value="150"></label>
+    <label class="rw"><span>Intensity <b id="hiv"></b></span>
+      <input type="range" id="hint2" min="0.1" max="4" step="0.05" value="1.1"></label>
+    <label class="rw"><span>Max opacity <b id="hov"></b></span>
+      <input type="range" id="hop" min="0.1" max="1" step="0.02" value="0.72"></label>
+  </fieldset>
+
+  <fieldset><legend>Ink strokes</legend>
+    <label class="rw"><span>Lowest band drawn <b id="ibv"></b></span>
+      <input type="range" id="iband" min="0" max="4" step="1" value="3"></label>
+    <label class="rw"><span>Width scale <b id="iwv"></b></span>
+      <input type="range" id="iw" min="0.4" max="3" step="0.05" value="1"></label>
+    <label class="rw"><span>Opacity <b id="iov"></b></span>
+      <input type="range" id="iop" min="0.2" max="1" step="0.02" value="0.9"></label>
+  </fieldset>
+
+  <fieldset><legend>Settings</legend><pre id="out"></pre></fieldset>
+</div>
+<script>
+const RAMPS = {"traffic": {"light": ["#ffe9d5", "#f5ab70", "#d97706", "#ea580c", "#dc2626"], "dark": ["#461a03", "#942500", "#d53b1b", "#ff6a57", "#ffa69c"]}, "plum": {"light": ["#f6e5f7", "#e2b0e5", "#c675cb", "#9a40a1", "#632267"], "dark": ["#2f1c30", "#642f68", "#9f48a5", "#cc7bd1", "#ecbaef"]}, "ember": {"light": ["#fde5de", "#f0b4a1", "#db795b", "#b14420", "#71270e"], "dark": ["#351d16", "#71321e", "#b64c2a", "#e57e5e", "#fdbca8"]}, "ink": {"light": ["#e5eafd", "#b6c2f2", "#8192e2", "#5361c1", "#303981"], "dark": ["#1e2237", "#38427a", "#5968c2", "#8697ef", "#bdcbff"]}}, META = {"traffic": ["Traffic", "Yellow to orange to red &mdash; the danger scale everyone already reads. Default."], "plum": ["Plum", "Reads as depth and ink. Closest to the app&rsquo;s monochrome chrome; least like an alert."], "ember": ["Ember", "The thermal / rain-radar convention. Most instantly legible as &ldquo;intensity&rdquo;, most alarming."], "ink": ["Ink", "Coolest and quietest. Nearly reads as a shadow on the map rather than a data layer."]};
+const STYLE = { light:'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+                dark:'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json' };
+let pal='traffic', theme='light';
+
+const map = new maplibregl.Map({ container:'map', style:STYLE.light,
+  center:[-123.1207,49.2827], zoom:14.5, hash:false, attributionControl:true });
+map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-left');
+
+const V = id => +document.getElementById(id).value;
+
+function rampExpr(){
+  const r = RAMPS[pal][theme];
+  return ['match', ['get','b'], 0, r[0], 1, r[1], 2, r[2], 3, r[3], 4, r[4], '#999'];
+}
+
+function mppExpr(){
+  // metres-per-pixel at each zoom, so a slider value in metres stays a constant GROUND size
+  // rather than a constant screen size (screen-fixed radius is what made the first pass
+  // collapse into one undifferentiated blob at low zoom). Past z1 the blob additionally
+  // SHRINKS toward the crossfade — not just fading — so it visually draws down into the
+  // line it's handing off to, rather than dissolving in place at full size.
+  const lat = map.getCenter().lat, z1=V('z1'), z2=Math.max(V('z2'),V('z1')+0.1);
+  const stops = [];
+  for (const z of [10,12,13,14, z1]){
+    if (z >= z1) continue;
+    const mpp = 156543.03392*Math.cos(lat*Math.PI/180)/Math.pow(2,z);
+    stops.push(z, V('hrad')/mpp);
+  }
+  const mppZ1 = 156543.03392*Math.cos(lat*Math.PI/180)/Math.pow(2,z1);
+  stops.push(z1, V('hrad')/mppZ1);
+  const mppZ2 = 156543.03392*Math.cos(lat*Math.PI/180)/Math.pow(2,z2);
+  stops.push(z2, (V('hrad')*0.12)/mppZ2);   // collapsed to ~12% of ground size by the handoff
+  return ['interpolate',['exponential',1.6],['zoom'], ...stops];
+}
+
+function inkWidthExpr(){
+  // width carries NO signal — every drawn stroke is the same width at a given zoom,
+  // regardless of band. Colour alone carries intensity. Deliberate, not an oversight: a
+  // uniform width is what makes the stroke a predictable click/tap target once it's wired
+  // to open the ticket-history modal — a band-scaled width would make quieter streets
+  // harder to hit exactly when they're the ones a driver most wants to tap to confirm.
+  // Still grows FROM the crossfade start so it reads as one continuous handoff with the
+  // heat blob shrinking into it.
+  const ws = V('iw'), z1=V('z1'), z2=Math.max(V('z2'),V('z1')+0.1);
+  const full = 3.2;
+  const stops = [z1, 0.35*ws, z2, ws*full];
+  if (18 > z2 + 0.05) stops.push(18, ws*full*1.7);
+  return ['interpolate',['linear'],['zoom'], ...stops];
+}
+
+function applyPaint(){
+  const z1=V('z1'), z2=Math.max(V('z2'), V('z1')+0.1);
+  if (map.getLayer('tix-heat')){
+    map.setFilter('tix-heat', ['>=', ['get','b'], V('hband')]);
+    map.setPaintProperty('tix-heat','heatmap-weight',
+      ['interpolate',['linear'],['get','b'], Math.min(V('hband'),3.99), 0.15, 4, 1]);
+    map.setPaintProperty('tix-heat','heatmap-intensity', V('hint2'));
+    map.setPaintProperty('tix-heat','heatmap-radius', mppExpr());
+    map.setPaintProperty('tix-heat','heatmap-opacity',
+      ['interpolate',['linear'],['zoom'], z1, V('hop'), z2, 0]);
+    const r = RAMPS[pal][theme];
+    map.setPaintProperty('tix-heat','heatmap-color', [
+      'interpolate',['linear'],['heatmap-density'],
+      0,'rgba(0,0,0,0)', 0.15,r[1]+'55', 0.4,r[2], 0.7,r[3], 1,r[4]
+    ]);
+  }
+  if (map.getLayer('tix-ink')){
+    map.setFilter('tix-ink', ['>=', ['get','b'], V('iband')]);
+    map.setPaintProperty('tix-ink','line-color', rampExpr());
+    map.setPaintProperty('tix-ink','line-width', inkWidthExpr());
+    map.setPaintProperty('tix-ink','line-opacity',
+      ['interpolate',['linear'],['zoom'], z1, 0, z2, V('iop')]);
+  }
+  paintChrome();
+}
+
+function paintChrome(){
+  const z = map.getZoom(), z1=V('z1'), z2=Math.max(V('z2'),V('z1')+0.1);
+  const k = Math.max(0, Math.min(1, (z-z1)/(z2-z1)));
+  document.getElementById('zlabel').textContent = 'zoom '+z.toFixed(2)+'  ·  heat '+Math.round((1-k)*100)+'% / ink '+Math.round(k*100)+'%';
+  document.getElementById('hint').textContent = k>0.99 ? 'Ink only — block-exact' : k<0.01 ? 'Heat only — area glance' : 'Crossfading';
+  const lo = Math.min(V('hband'), V('iband'));
+  const r = RAMPS[pal][theme], bands = ['Rarely ticketed','Some tickets','Ticketed often','Heavily ticketed','Ticket magnet'];
+  document.getElementById('lg').innerHTML = '<div style="font-weight:600">Parking tickets</div><div class="bar">'+
+    r.map((c,i)=> i<lo?'':'<i style="background:'+c+'"></i>').join('')+
+    '</div><div class="ends"><span>Rare</span><span>Beware</span></div>'+
+    '<div style="opacity:.7;margin-top:4px;font-size:10px">Quieter blocks aren\'t drawn</div>';
+  const g = id => document.getElementById(id);
+  g('z1v').textContent=V('z1').toFixed(1); g('z2v').textContent=V('z2').toFixed(1);
+  g('hbv').textContent=bands[V('hband')]; g('ibv').textContent=bands[V('iband')];
+  g('hrv').textContent=V('hrad')+'m'; g('hiv').textContent=V('hint2').toFixed(2);
+  g('hov').textContent=V('hop').toFixed(2); g('iwv').textContent=V('iw').toFixed(2);
+  g('iov').textContent=V('iop').toFixed(2);
+  g('out').textContent = JSON.stringify({palette:pal, ramp:r, crossfade:[V('z1'),V('z2')],
+    heat:{minBand:V('hband'),radiusM:V('hrad'),intensity:V('hint2'),maxOpacity:V('hop')},
+    ink:{minBand:V('iband'),widthScale:V('iw'),opacity:V('iop')}}, null, 1);
+}
+
+function installLayers(){
+  if (!map.getSource('tickets'))
+    map.addSource('tickets', {type:'geojson', data:'/_tickets.geo.json'});
+  if (!map.getLayer('tix-heat'))
+    map.addLayer({id:'tix-heat', type:'heatmap', source:'tickets',
+      paint:{'heatmap-weight':1,'heatmap-radius':40}});
+  if (!map.getLayer('tix-ink'))
+    map.addLayer({id:'tix-ink', type:'line', source:'tickets',
+      layout:{'line-cap':'round','line-join':'round'},
+      paint:{'line-color':'#999','line-width':1}});
+  applyPaint();
+}
+
+map.on('load', installLayers);
+map.on('move', () => requestAnimationFrame(paintChrome));
+map.on('zoom', () => requestAnimationFrame(applyPaint));
+
+document.querySelectorAll('input[type=range]').forEach(el => el.addEventListener('input', applyPaint));
+document.getElementById('thm').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  theme = b.dataset.v;
+  [...e.currentTarget.children].forEach(c=>c.classList.toggle('on', c===b));
+  map.setStyle(STYLE[theme]);
+  map.once('style.load', installLayers);
+  paintSwatches();
+});
+const palBox = document.getElementById('pal');
+palBox.innerHTML = Object.keys(RAMPS).map((k,i)=>'<button data-v="'+k+'"'+(i===0?' class="on"':'')+'>'+META[k][0]+'</button>').join('');
+palBox.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  pal = b.dataset.v;
+  [...palBox.children].forEach(c=>c.classList.toggle('on', c===b));
+  paintSwatches(); applyPaint();
+});
+function paintSwatches(){
+  document.getElementById('sw').innerHTML = RAMPS[pal][theme].map(c=>'<i style="background:'+c+'"></i>').join('');
+  document.getElementById('palnote').innerHTML = META[pal][1];
+}
+paintSwatches();
+</script>
