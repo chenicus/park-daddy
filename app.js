@@ -1,8 +1,8 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=9';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=11';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=45';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=22';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=23';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
@@ -1478,7 +1478,7 @@ function renderSchedule(b, mins) {
       : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
     const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));
-    const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="Open Street View imagery from ${esc(cost)}">${esc(cost)} ↗</a>` : cost;
+    const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.linkLabel || `Open Street View imagery from ${cost}`)}">${esc(cost)} ↗</a>` : cost;
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +

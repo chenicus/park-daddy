@@ -1,4 +1,4 @@
-import { curbState, curbVisible } from './west-end.js?v=9';
+import { curbState, curbVisible } from './west-end.js?v=11';
 // Block-face clustering + always-visible price labels.
 // Clusters the ~3,758 meters once at load into block-face groups (same rate/limit
 // tuple within 45 m), then renders a zoom-laddered label layer:

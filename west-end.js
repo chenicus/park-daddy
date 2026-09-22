@@ -18,6 +18,19 @@ export function buildWestEndBlocks(data) {
 
 export function curbState(section, mins, dow) {
   if (section.category === 'no-parking') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'PDF shows a no-parking restriction; check posted signs for its exact limits'};
+  if (section.category === 'permit-window') {
+    const s = section.schedule;
+    return s.days?.includes(dow) && mins >= s.start && mins < s.end
+      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit only',status:'Resident permit required during listed hours'}
+      : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed permit hours — restrictions unknown'};
+  }
+  if (section.category === 'paid') {
+    const s = section.schedule;
+    if (mins >= s.start && mins < s.end) return {free:false,rate:null,group:'paid',cls:'p2',color:'#d97706',label:'Paid · verify',status:'PDF shows pay parking; rate and days not specified'};
+    return section.outsideSchedule === 'permit-only'
+      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit only',status:'PDF shows permit-only outside paid hours; days not specified'}
+      : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed paid hours — restrictions unknown'};
+  }
   if (section.accessOverride?.category === 'reserved') return {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Reserved parking',status:section.accessOverride.summary};
   if (section.accessOverride?.category === 'paid') {
     const a = section.accessOverride;
@@ -60,6 +73,8 @@ export function curbSchedule(section) {
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
   const s = section.schedule;
   const days = s.label || (s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
+  if (section.category === 'permit-window') return `Permit required · ${clock(s.start)}–${clock(s.end)} · ${days}`;
+  if (section.category === 'paid') return `Paid parking · ${clock(s.start)}–${clock(s.end)} · ${days} · rate unknown`;
   return `${section.limitMinutes / 60} hour${section.limitMinutes === 60 ? '' : 's'} · ${clock(s.start)}–${clock(s.end)} · ${days}`;
 }
 
@@ -67,7 +82,19 @@ export function curbSchedule(section) {
 // unlisted period must never become an unrestricted/free row.
 export function curbTableSegments(section, dow) {
   const check = section.spotChecks?.findLast(c => c.url && c.imageryDate);
-  const evidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }] : [];
+  const evidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }]
+    : section.streetViewUrl ? [{ label: 'Street View · sign not verified', status: 'Open', url: section.streetViewUrl,
+      linkLabel: 'Open Street View near this curb; sign not verified', rate: null, applies: false }] : [];
+  if (section.category === 'permit-window') return [
+    {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'Permit required',rate:null,applies:section.schedule.days?.includes(dow)},
+    {label:'Other times',status:'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
+  if (section.category === 'paid') return [
+    {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'Paid · rate unknown',rate:null,applies:false},
+    {label:'Other times',status:section.outsideSchedule === 'permit-only' ? 'Permit required' : 'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
   if (section.category === 'no-parking') return [
     {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'No parking',rate:null,applies:section.schedule.days?.includes(dow)},
     {label:'Other times',status:'Check signs',rate:null,applies:false},

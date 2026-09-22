@@ -50,6 +50,14 @@ def curb_line(bar, intersections):
              round(p[1] + north / 111320, 6)] for p in (start, end)]
 
 
+def street_view_url(bar, geometry):
+    """Open the nearest panorama looking toward this side; no sign is verified."""
+    lon = (geometry[0][0] + geometry[-1][0]) / 2
+    lat = (geometry[0][1] + geometry[-1][1]) / 2
+    heading = {'north': 0, 'east': 90, 'south': 180, 'west': 270}[bar['side']]
+    return f'https://www.google.com/maps/@?api=1&map_action=pano&viewpoint={lat:.6f},{lon:.6f}&heading={heading}'
+
+
 def main():
     grid = json.loads(GRID.read_text())
     bars = []
@@ -81,7 +89,8 @@ def main():
             'between': bar['between'], 'category': category, 'limitMinutes': limit,
             'schedule': schedule, 'pdfSchedule': schedule, 'outsideSchedule': 'unknown' if category == 'time-limited' else 'not-applicable',
             'permitException': bar['rule'] not in ('p',), 'verification': 'pdf-guide',
-            'spotChecks': [], 'pdfBar': {'page': 1, 'from': bar['from'], 'to': bar['to'], 'rule': bar['rule']},
+            'spotChecks': [], 'streetViewUrl': street_view_url(bar, geometry) if category == 'time-limited' else None,
+            'pdfBar': {'page': 1, 'from': bar['from'], 'to': bar['to'], 'rule': bar['rule']},
             'geometryStatus': 'approximate-schematic', 'geometry': {'type': 'LineString', 'coordinates': geometry},
             'sourceIds': ['city-kits-north-pdf', 'city-intersections'],
         })

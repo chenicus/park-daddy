@@ -1,0 +1,1250 @@
+{
+  "source": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-south.pdf",
+  "page": 1,
+  "area": "Selected clearly legible curb bars from Vine Street through Burrard Street",
+  "method": "Visual transcription of City PDF printed curb bars at 300 dpi. Fractions are approximate within named blocks, west-to-east for horizontal streets and north-to-south for vertical streets. Ambiguous bars are excluded; purple resident-eligibility shading is ignored.",
+  "ruleLegend": {
+    "p": "Full-time permit parking",
+    "rmf": "Resident permit parking 9am-6pm Mon-Fri",
+    "2ms": "2 hours 9am-6pm Mon-Sat except with permit",
+    "2mf": "2 hours 9am-6pm Mon-Fri except with permit",
+    "2m8": "2 hours 9am-8pm Mon-Sat except with permit"
+  },
+  "bars": [
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.1,
+      "to": 0.44,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.44,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.5,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.5,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.03,
+      "to": 0.6,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.6,
+      "to": 0.69,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.69,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.12,
+      "to": 0.64,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.13,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.13,
+      "to": 0.4,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.4,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.12,
+      "to": 0.5,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.5,
+      "to": 0.9,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.2,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.75,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.02,
+      "to": 0.18,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.18,
+      "to": 0.4,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.6,
+      "to": 0.8,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.1,
+      "to": 0.36,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.36,
+      "to": 0.58,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.55,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.55,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.36,
+      "to": 0.6,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.9,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.58,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.58,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.1,
+      "to": 0.5,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.45,
+      "to": 0.7,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.7,
+      "to": 0.95,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.24,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.63,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.28,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.78,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.5,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2m8",
+      "from": 0.02,
+      "to": 0.22,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.22,
+      "to": 0.47,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2m8",
+      "from": 0.47,
+      "to": 0.69,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.69,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.02,
+      "to": 0.11,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.3,
+      "to": 0.58,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.46,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.2,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.34,
+      "to": 0.66,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2m8",
+      "from": 0.02,
+      "to": 0.22,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.22,
+      "to": 0.47,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2m8",
+      "from": 0.47,
+      "to": 0.69,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.69,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.36,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.36,
+      "to": 0.6,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.48,
+      "to": 0.78,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.47,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.5,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.78,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.28,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.28,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.12,
+      "to": 0.4,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.02,
+      "to": 0.82,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.82,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.2,
+      "to": 0.4,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.4,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.12,
+      "to": 0.24,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.24,
+      "to": 0.48,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.78,
+      "to": 0.88,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.88,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.12,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.12,
+      "to": 0.3,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.3,
+      "to": 0.52,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 10th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.16,
+      "to": 0.5,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 10th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.5,
+      "to": 0.86,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 10th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.71,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 10th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.71,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 11th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.52,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 11th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.52,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 11th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.5,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "W 11th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.5,
+      "to": 0.98,
+      "orientation": "horizontal"
+    },
+    {
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.22,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.22,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.7,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.7,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Maple",
+      "side": "east",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.08,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Cypress",
+      "side": "west",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "time-limited",
+      "rule": "2mf",
+      "from": 0.02,
+      "to": 0.35,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Cypress",
+      "side": "west",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.35,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.75,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "permit",
+      "rule": "rmf",
+      "from": 0.02,
+      "to": 0.6,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.32,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.72,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "permit",
+      "rule": "p",
+      "from": 0.02,
+      "to": 0.48,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.52,
+      "to": 0.98,
+      "orientation": "vertical"
+    },
+    {
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "time-limited",
+      "rule": "2ms",
+      "from": 0.02,
+      "to": 0.98,
+      "orientation": "vertical"
+    }
+  ]
+}

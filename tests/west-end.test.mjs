@@ -13,6 +13,8 @@ const barclay = blocks.find(b => b.curb.street === 'Barclay' && b.curb.limitMinu
 const haro = blocks.find(b => b.curb.street === 'Haro' && b.curb.limitMinutes === 60);
 const bidwell = blocks.find(b => b.curb.id === 'wep-0b108f9e2b1a');
 const kitsNorth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-north.json', import.meta.url)));
+const kitsSouth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-south.json', import.meta.url)));
+const kitsPoint = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-point.json', import.meta.url)));
 
 test('Kits North PDF curb bars use their printed schedules and street sides', () => {
   const sections = kitsNorth.sections;
@@ -24,6 +26,10 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
   const mondaySaturday = sections.find(section => section.pdfBar.rule === '2ms');
   const permitOnly = sections.find(section => section.pdfBar.rule === 'p');
   assert.ok(mondayFriday && mondaySaturday && permitOnly);
+  assert.ok(sections.filter(section => section.category === 'time-limited').every(section =>
+    section.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=')));
+  assert.ok(curbTableSegments(mondayFriday, 1).some(segment => segment.url === mondayFriday.streetViewUrl &&
+    segment.label.includes('sign not verified')));
   assert.equal(curbState(mondayFriday, 600, 1).label, 'Free · 2h');
   assert.equal(curbState(mondayFriday, 600, 6).free, false);
   assert.equal(curbState(mondaySaturday, 600, 6).label, 'Free · 2h');
@@ -32,6 +38,28 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
   assert.equal(curbState(permitOnly, 600, 0).free, false);
   assert.match(curbSchedule(mondayFriday), /Mon–Fri/);
   assert.ok(!JSON.stringify(kitsNorth).includes('Polygon'));
+});
+
+test('South and Point guide curbs retain timed permits and unknown paid rates', () => {
+  assert.equal(kitsSouth.sections.length, 95);
+  assert.equal(kitsPoint.sections.length, 26);
+  for (const guide of [kitsSouth, kitsPoint]) {
+    assert.ok(guide.sections.every(s => s.geometry.type === 'LineString' && s.geometryStatus === 'approximate-schematic'));
+    assert.ok(!JSON.stringify(guide).includes('Polygon'));
+  }
+  const resident = kitsSouth.sections.find(s => s.pdfBar.rule === 'rmf');
+  assert.equal(curbState(resident, 600, 1).label, 'Permit only');
+  assert.equal(curbState(resident, 1200, 1).free, false);
+  const publicTwoHour = kitsSouth.sections.find(s => s.pdfBar.rule === '2m8');
+  assert.equal(curbState(publicTwoHour, 1140, 6).label, 'Free · 2h');
+  assert.ok(curbTableSegments(publicTwoHour, 6).some(s => s.url === publicTwoHour.streetViewUrl));
+  for (const paid of kitsPoint.sections.filter(s => s.category === 'paid')) {
+    assert.equal(curbState(paid, 600, 1).free, false);
+    assert.equal(curbState(paid, 600, 1).rate, null);
+    assert.match(curbState(paid, 600, 1).label, /Paid/);
+  }
+  const split = kitsPoint.sections.find(s => s.pdfBar.rule === 'pay-split');
+  assert.equal(curbState(split, 1200, 1).label, 'Permit only');
 });
 
 test('individual lines retain evidence and never acquire residential-free defaults', () => {
