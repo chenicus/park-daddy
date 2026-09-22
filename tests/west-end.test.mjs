@@ -66,10 +66,11 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
       assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
     }
   }
-  assert.equal(kitsPoint.sections.filter(s => s.verification === 'historical-conflict').length, 2);
-  const ogden = kitsPoint.sections.find(s => s.street === 'Ogden' && s.side === 'south' && s.verification === 'user-reported-conflict');
+  assert.equal(kitsPoint.sections.filter(s => s.verification === 'historical-conflict').length, 3);
+  const ogden = kitsPoint.sections.find(s => s.street === 'Ogden' && s.side === 'south' && s.verification === 'historical-conflict');
   assert.equal(curbState(ogden, 600, 1).label, 'Permit sign · verify');
   assert.equal(curbState(ogden, 600, 1).free, false);
+  assert.match(ogden.spotChecks[0].summary, /west arrow/);
   const split = kitsPoint.sections.find(s => s.pdfBar.rule === 'pay-split');
   assert.equal(curbState(split, 1200, 1).label, 'Permit only');
 });

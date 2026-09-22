@@ -107,20 +107,20 @@
       },
       "outsideSchedule": "unknown",
       "permitException": true,
-      "verification": "user-reported-conflict",
+      "verification": "historical-conflict",
       "spotChecks": [
         {
-          "status": "user-reported-conflict",
+          "status": "historical-conflict",
           "checkedOn": "2026-09-22",
-          "imageryDate": null,
-          "url": null,
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
           "mapLabel": "Permit sign · verify",
-          "summary": "Permit only reported",
-          "finding": "User reports a clearly readable permit-only sign near 1946 Ogden. Our Aug 2024 panorama at this address did not expose a readable sign in the views inspected. Sign arrow direction, hours, and exact curb extent remain unconfirmed; PDF depicts a paid bar on this south curb.",
-          "scope": "Local user report; entire schematic bar cannot yet be classified permit-only."
+          "summary": "No parking except permit · west arrow",
+          "finding": "South-curb sign near 1946 Ogden reads NO PARKING EXCEPT WITH PERMIT and its arrow points west toward Maple. This conflicts with the approximate PDF paid bar at the inspected location. The sign position and full restriction endpoints are not surveyed; east side of the sign is not classified by this check.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
         }
       ],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276935,-123.148638&heading=180",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
       "pdfBar": {
         "page": 1,
         "from": 0.46,
