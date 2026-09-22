@@ -297,6 +297,7 @@
   body.nav .menubtn { display: none; }
   .chips { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 68px);
     left: 16px; display: flex; gap: 8px; }
+  @media (max-width: 759px) { .chips { right: 16px; flex-wrap: wrap; } }
   .chip { height: 32px; padding: 0 11px; border-radius: 12px; border: 1px solid var(--stroke);
     color: var(--text); font-family: inherit; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px;
     display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); cursor: pointer;
@@ -404,6 +405,12 @@
     margin: 0 4px 0 -2px; border-radius: 50%; background: #fff; color: #b45309;
     font-size: var(--fs-micro); font-weight: 700; line-height: 1; vertical-align: 1px; }
   .plabel .plim { opacity: .75; }   /* unit + max-stay (/hr · 2h) recedes via opacity only; keeps the price's 500 weight so it stays legible */
+  .plabel.p-permit { --c: #7c3aed; }
+  .plabel.p-unknown { --c: #a16207; }
+  #spotcard { max-height: 75dvh; overflow-y: auto; overscroll-behavior: contain; }
+  #scrows details > div { margin-top: 10px; }
+  #scrows summary { cursor: pointer; font-weight: 600; }
+  #scrows a { color: inherit; text-decoration: underline; }
   .plabel.p-free { --c: #2563eb; }
   .plabel.p1 { --c: #16a34a; }
   .plabel.p2 { --c: #d97706; }
@@ -446,6 +453,8 @@
   .plabel.out { animation: pillOut 200ms var(--ease-standard) forwards; pointer-events: none; }
   /* dark mode: brighter, more saturated tiers so pills pop against the black map.
      Selected reuses the same tier colour — see the .sel note above. */
+  :root[data-theme="dark"] .plabel.p-permit { --c: #b49aff; }
+  :root[data-theme="dark"] .plabel.p-unknown { --c: #dfb568; }
   :root[data-theme="dark"] .plabel.p-free { --c: #5b91f5; }
   :root[data-theme="dark"] .plabel.p1 { --c: #22c55e; }
   :root[data-theme="dark"] .plabel.p2 { --c: #f59e0b; }
@@ -1183,6 +1192,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 <div class="chips">
   <button class="chip mat on" id="chipFree" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
   <button class="chip mat on" id="chipPaid" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
+  <button class="chip mat on" id="chipRestrictions" type="button" aria-pressed="true" title="Permit-only and unknown schedules">Restrictions</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
@@ -1542,7 +1552,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=117"></script>
+<script type="module" src="app.js?v=118"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

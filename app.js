@@ -1,16 +1,17 @@
+import { buildWestEndBlocks, curbState, curbSchedule } from './west-end.js?v=1';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=36';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=37';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=12';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true };
+const filters = { free: true, paid: true, restrictions: true };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
@@ -120,6 +121,11 @@ const EMPTY_FC = { type: 'FeatureCollection', features: [] };
 // All custom sources/layers live here. setStyle (theme swap) wipes them, so this is re-run on
 // every 'style.load'. HTML markers (pills/pin/car) are NOT part of the style and survive.
 function installLayers() {
+  if (!map.getSource('west-end-curbs')) map.addSource('west-end-curbs', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('west-end-curbs')) map.addLayer({
+    id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 14.5,
+    paint: { 'line-color': ['get', 'color'], 'line-width': 6, 'line-opacity': 0.8, 'line-dasharray': [2, 1] },
+  });
   if (!map.getSource('blockface-lines')) map.addSource('blockface-lines', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('blockface-lines')) map.addLayer({
     id: 'blockface-lines', type: 'line', source: 'blockface-lines', layout: { 'line-cap': 'round' },
@@ -326,6 +332,7 @@ async function loadCity(key) {
       const data = feeds[i] || [];
       if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
       else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(data); pushBlocks(freeBlocks); }
+      else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
       else if (d.kind === 'sf') { pushBlocks(buildSFBlocks(data)); }
@@ -424,7 +431,7 @@ async function pollKirkLive() {
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
-    const b = blocks.find((x) => x.id === parseInt(rawSpot, 10));
+    const b = blocks.find((x) => String(x.id) === rawSpot);
     if (b) {
       showSpotCard(b);
       // Below 760px the card is a full-width sheet pinned to the bottom (see the .spotcard
@@ -949,6 +956,7 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
+$('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
   filters.paid = !filters.paid;
@@ -1503,6 +1511,36 @@ function showSpotCard(b) {
   b._label = blockLabel(b);
   renderFlag(b);
 
+  $('scprice').classList.remove('free');
+  if (b.curb) {
+    const state = curbState(b.curb, mins, dowNow());
+    $('scprice').textContent = state.label;
+    $('scprice').classList.toggle('free', state.free);
+    $('scsched').hidden = true;
+    const row = (text) => { const div = document.createElement('div'); div.textContent = text; return div; };
+    const rows = [b.hblock, curbSchedule(b.curb), state.status,
+      'Approximate location and extent. Check posted signs for exact boundaries and other restrictions.',
+      b.curb.spotChecks.length ? 'Historical spot-check only — current signs unverified.' : 'PDF only — not sign-verified.'];
+    $('scrows').replaceChildren(...rows.map(row));
+    const details = document.createElement('details'), summary = document.createElement('summary');
+    summary.textContent = 'Sources & verification'; details.append(summary);
+    if (b.curb.category !== 'permit') details.append(row('Restrictions outside the listed schedule are unknown.'));
+    for (const check of b.curb.spotChecks) details.append(row(`User-reported Street View, ${check.imageryDate}: ${check.location}. ${check.finding} ${check.scope} No panorama link supplied.`));
+    details.append(row(b.geometryNote), row(b.restrictionNote));
+    for (const source of b.sources) {
+      const div = document.createElement('div'), a = document.createElement('a');
+      a.textContent = source.title; a.href = source.url; a.target = '_blank'; a.rel = 'noopener';
+      div.append(a); details.append(div);
+    }
+    $('scrows').append(details);
+    $('scmaps').href = navUrl(b);
+    track('spot_opened', { city: activeCity, free: state.free, spot_type: b.curb.category, from_search: !!lastLoc });
+    if (wasOpen) flashSpotContent();
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
+
   // Rate is resolved before the isFree early-return below so the one analytics call
   // covers both card shapes — free-residential blocks return early and would otherwise
   // never be counted, which is exactly the population we most want to measure.
@@ -1591,6 +1629,13 @@ function closeSpotCard() {
 }
 $('scclose').addEventListener('click', closeSpotCard);
 // tapping the already-selected pill again closes the card instead of re-opening it
+map.on('click', 'west-end-curbs', (e) => {
+  const b = blocks.find((block) => block.id === e.features?.[0]?.properties.id);
+  if (b) tapBlock(b);
+});
+map.on('mouseenter', 'west-end-curbs', () => { map.getCanvas().style.cursor = 'pointer'; });
+map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''; });
+
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
   showSpotCard(b);

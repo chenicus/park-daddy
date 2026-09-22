@@ -1,3 +1,4 @@
+import { curbState, curbVisible } from './west-end.js?v=1';
 // Block-face clustering + always-visible price labels.
 // Clusters the ~3,758 meters once at load into block-face groups (same rate/limit
 // tuple within 45 m), then renders a zoom-laddered label layer:
@@ -105,6 +106,7 @@ export function buildSeattleFreeBlocks(records, idBase = 3e6) {
 // Current rate for a block, dispatching on shape: Seattle blockfaces carry `bands`,
 // Vancouver meters/free carry rate1/rate2.
 function rateFor(bl, mins, dow) {
+  if (bl.curb) return curbState(bl.curb, mins, dow);
   return bl.bands ? bandRateNow(bl.bands, mins, dow) : rateNow(bl.rate1, bl.rate2, mins);
 }
 function limitFor(bl, mins, dow, wknd) {
@@ -199,7 +201,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
-  let filter = { free: true, paid: true };
+  let filter = { free: true, paid: true, restrictions: true };
   // Set for the single refresh a Free/Paid toggle triggers: pills animate in/out instead of
   // popping, so the filter reads as pins leaving rather than the map silently changing.
   let morph = false;
@@ -213,6 +215,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   // push FeatureCollections into them; setData is cheap even for thousands of features.
   const EMPTY_LABEL_FC = { type: 'FeatureCollection', features: [] };
   const setDotData = (fc) => { const s = map.getSource('meter-dots'); if (s) s.setData(fc); };
+  const setCurbData = (fc) => { const s = map.getSource('west-end-curbs'); if (s) s.setData(fc); };
   const setLineData = (fc) => { const s = map.getSource('blockface-lines'); if (s) s.setData(fc); };
   const DOT_COLOR = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' };
   const zoomInt = () => Math.round(map.getZoom());   // MapLibre zoom is fractional; the ladders want an int
@@ -259,6 +262,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       // everywhere — instead the chip is "$0" only where free dominates, else cheapest paid.
       const cells = new Map();
       for (const bl of vis) {
+        if (bl.curb) continue; // approximate / restricted sections never set an area price minimum
         const ck = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
         const r = rateFor(bl, mins, dow);
         if (!keep(r.free)) continue;
@@ -299,6 +303,11 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
 
     const items = vis.filter((bl) => !bl.noPill).map((bl) => {   // free streets: line only, no pill
       const r = rateFor(bl, mins, dow);
+      if (bl.curb) return {
+        sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
+        text: '≈ ' + r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
+        flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
+      };
       const lim = z >= 16 ? limitFor(bl, mins, dow, wknd) : null;
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
       // Kirkland pills append a live "· N free" count, so a plain "Free" price would read
@@ -317,7 +326,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         cls: bucket(r.rate, r.free), block: bl, rate: r.rate, flagged,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
-    }).filter((it) => keep(it.free));
+    }).filter((it) => it.block.curb ? curbVisible(it.block.curb, mins, dow, filter) : keep(it.free));
     items.sort(z === 15 ? (a, b) => a.rate - b.rate || a.d - b.d : (a, b) => a.d - b.d);
 
     const kept = [], keptPx = [];
@@ -326,10 +335,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const px = project(it.lat, it.lon);
       let clash = false;
       for (const k of keptPx) {
-        if (Math.abs(k.x - px.x) < 56 && Math.abs(k.y - px.y) < 26) { clash = true; break; }
+        if (Math.abs(k.x - px.x) < (k.width + Math.max(56, it.text.length * 6 + 18)) / 2 && Math.abs(k.y - px.y) < 30) { clash = true; break; }
       }
       if (clash) continue;
-      kept.push(it); keptPx.push(px);
+      kept.push(it); keptPx.push({ ...px, width: Math.max(56, it.text.length * 6 + 18) });
     }
     return kept;
   }
@@ -338,10 +347,17 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   // interpolated paint expressions in app.js's layer defs, so here we only decide WHICH features
   // show (in view, active, passing the free/paid filter) and their color.
   function refreshDots(z, mins, dow) {
-    if (z < 11) { setDotData(EMPTY_LABEL_FC); setLineData(EMPTY_LABEL_FC); return; }
-    const dots = [], lines = [];
+    if (z < 11) { setDotData(EMPTY_LABEL_FC); setLineData(EMPTY_LABEL_FC); setCurbData(EMPTY_LABEL_FC); return; }
+    const dots = [], lines = [], curbs = [];
     for (const bl of visibleActive(mins, dow)) {
       const r = rateFor(bl, mins, dow);
+      if (bl.curb) {
+        if (z >= 15 && curbVisible(bl.curb, mins, dow, filter)) curbs.push({
+          type: 'Feature', properties: { id: bl.id, color: r.color },
+          geometry: { type: 'LineString', coordinates: bl.curb.geometry.coordinates },
+        });
+        continue;
+      }
       if (!keep(r.free)) continue;
       const col = DOT_COLOR[bucket(r.rate, r.free)];
       if (bl.kirk && bl.stalls) {   // Kirkland — one dot per stall, coloured by LIVE occupancy
@@ -361,6 +377,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     }
     setDotData({ type: 'FeatureCollection', features: dots });
     setLineData({ type: 'FeatureCollection', features: lines });
+    setCurbData({ type: 'FeatureCollection', features: curbs });
   }
 
   function refresh() {

@@ -31,6 +31,7 @@ const H = () => ({ apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABAS
 // lat/lon rounded to ~11 m. A report thus re-attaches to the same block face after a
 // weekly refresh even though the block's numeric id changed.
 export function rptKey(b) {
+  if (b.curb) return 'curb:' + b.curb.id;
   if (b.hblock) return 'h:' + String(b.hblock).trim().toUpperCase();
   return 'g:' + b.lat.toFixed(4) + ',' + b.lon.toFixed(4);
 }

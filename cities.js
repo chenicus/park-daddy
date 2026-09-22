@@ -25,6 +25,7 @@ export const CITIES = {
     data: [
       { url: 'data/meters.json', kind: 'meters' },
       { url: 'data/free.json', kind: 'free' },
+      { url: 'data/west-end-plateau.json?v=1', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)
