@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # Derive free-parking blocks from enforcement data (no free-parking dataset exists).
 # Bylaw 2849: unsigned residential/commercial streets are FREE with a 3h limit (8am-6pm).
-# A "MORE THAN 3 HRS" ticket is ground-truth proof a block is free-3h (you can't get one
-# on a metered or permit-only street). We join those blocks to street geometry and drop
-# any block that also shows permit-zone tickets. Output: data/free.json.
+# Historical tickets are only block-level evidence, not verified curb rules.
+# Exclude permit-ticket blocks and manually reviewed unreliable estimates.
+# Output: data/free.json.
 import json, urllib.parse, urllib.request, collections
+from pathlib import Path
 
 BASE = "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets"
 UA = {"User-Agent": "van-parking/1.0 (hey.cchen@gmail.com)"}
@@ -60,9 +61,12 @@ for t in export(TICKETS, "block,street", where='infractiontext like "FAIL TO DIS
         permit.add(norm(t["block"], t["street"]))
 print(f"     {len(permit)} permit blocks excluded")
 
+excluded = {canon(r['h']) for r in json.loads((Path(__file__).parent /
+    'data/sources/inferred-free-exclusions.json').read_text())['records']}
+
 out, unmatched = [], 0
 for hb, n in freec.items():
-    if hb in permit:
+    if hb in permit or hb in excluded:
         continue
     g = geo.get(hb)
     if not g:
