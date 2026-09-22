@@ -1,0 +1,40 @@
+{
+  "reviewed": "2026-09-22",
+  "scope": "High-count side-less enforcement-derived review points in East Kitsilano between Burrard and Arbutus, north of W 16th",
+  "method": "July/August 2024 Street View panoramas were panned along each street and local signs were zoomed. No whole block is classified from parked cars or the absence of a visible sign.",
+  "findings": [
+    {
+      "candidate": "1800 W 15Th Av",
+      "tickets": 23,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=siPlrwNe8fhg1VGKpWMP4A&heading=270&pitch=0&fov=50",
+      "imageryDate": "2024-07",
+      "result": "unresolved",
+      "observation": "Eastward and westward views show parked cars on both sides but no readable parking sign and directional extent."
+    },
+    {
+      "candidate": "2900 Cypress St",
+      "tickets": 22,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=TrGjDHchfP9wl6Bf3dkKjw&heading=17&pitch=0&fov=15",
+      "imageryDate": "2024-07",
+      "result": "local-no-parking-sign-unresolved-extent",
+      "observation": "A no-parking symbol with a small arrow is visible on the east side near W 13th. Its exact directional coverage and end point cannot be reliably placed from this single sign, and it does not classify the opposite west curb or the whole 2900 block."
+    },
+    {
+      "candidate": "2600 Maple St",
+      "tickets": 19,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=do7xM2sSiPtPbJsnBlvTCw&heading=0&pitch=0&fov=50",
+      "imageryDate": "2024-08",
+      "result": "unresolved",
+      "observation": "Intersection no-parking signs are visible ahead near W 10th, but the candidate block has no readable sign establishing both curb faces and sign-arrow endpoints. City meter records over 40 m away are near a different intersection and cannot classify this point."
+    },
+    {
+      "candidate": "1900 W 14Th Av",
+      "tickets": 13,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=97jzkRw9RaRFxVEo1BNlOQ&heading=270&pitch=0&fov=50",
+      "imageryDate": "2024-07",
+      "result": "unresolved",
+      "observation": "Eastward and westward views show parked cars, but no readable curb rule or arrow extent on either side."
+    }
+  ],
+  "classificationChanges": 0
+}

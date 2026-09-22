@@ -1236,9 +1236,20 @@
       },
       "outsideSchedule": "permit-only",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.274408,-123.148352&heading=180",
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
+          "mapLabel": "No parking sign · verify",
+          "summary": "No parking · west arrow",
+          "finding": "At about 1911 Creelman, the south-curb sign shows the red No Parking symbol and an arrow pointing west toward Walnut. This locally conflicts with the PDF pay-parking bar. The arrow does not establish the precise western endpoint or classify the curb east of the sign.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
       "pdfBar": {
         "page": 1,
         "from": 0.06,
@@ -1408,9 +1419,20 @@
       },
       "outsideSchedule": "permit-only",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273219,-123.150259&heading=270",
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
+          "mapLabel": "Permit sign · verify",
+          "summary": "No parking except permit · south arrow",
+          "finding": "At about 1415 Maple, a west-curb sign reads NO PARKING EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid/permit split bar. The exact southern endpoint and rule north of the sign are not established.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
       "pdfBar": {
         "page": 1,
         "from": 0.3,
@@ -1512,9 +1534,20 @@
       },
       "outsideSchedule": "unknown",
       "permitException": false,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273200,-123.149044&heading=270",
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
+          "mapLabel": "2h sign · verify",
+          "summary": "2h · 9am–6pm · Mon–Fri · south arrow",
+          "finding": "At about 1419 Walnut, a west-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid bar. The exact southern endpoint and rule north of the sign are not established.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
       "pdfBar": {
         "page": 1,
         "from": 0.3,

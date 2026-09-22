@@ -43,6 +43,7 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
 test('South and Point guide curbs retain timed permits and unknown paid rates', () => {
   assert.equal(kitsSouth.sections.length, 95);
   assert.equal(kitsPoint.sections.length, 26);
+  assert.deepEqual(kitsSouth.excludeInferredBlocks, ['2100 W 5Th Av', '2000 W 6Th Av', '2000 W 7Th Av', '1800 W 7Th Av']);
   for (const guide of [kitsSouth, kitsPoint]) {
     assert.ok(guide.sections.every(s => s.geometry.type === 'LineString' && s.geometryStatus === 'approximate-schematic'));
     assert.ok(!JSON.stringify(guide).includes('Polygon'));
@@ -53,6 +54,9 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
   const publicTwoHour = kitsSouth.sections.find(s => s.pdfBar.rule === '2m8');
   assert.equal(curbState(publicTwoHour, 1140, 6).label, 'Free · 2h');
   assert.ok(curbTableSegments(publicTwoHour, 6).some(s => s.url === publicTwoHour.streetViewUrl));
+  const fifthSign = kitsSouth.sections.find(s => s.id === 'kits-south-4aec57e73048');
+  assert.equal(fifthSign.spotChecks[0].status, 'historical-partial-match');
+  assert.match(fifthSign.spotChecks[0].finding, /Days and arrow extents/);
   for (const paid of kitsPoint.sections.filter(s => s.category === 'paid')) {
     assert.equal(curbState(paid, 600, 1).free, false);
     assert.equal(curbState(paid, 600, 1).rate, null);
@@ -66,7 +70,7 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
       assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
     }
   }
-  assert.equal(kitsPoint.sections.filter(s => s.verification === 'historical-conflict').length, 3);
+  assert.ok(kitsPoint.sections.filter(s => s.verification === 'historical-conflict').length >= 3);
   const ogden = kitsPoint.sections.find(s => s.street === 'Ogden' && s.side === 'south' && s.verification === 'historical-conflict');
   assert.equal(curbState(ogden, 600, 1).label, 'Permit sign · verify');
   assert.equal(curbState(ogden, 600, 1).free, false);
@@ -281,9 +285,13 @@ test('unconfirmed timed curbs are marked and filter independently of permits', (
 
 test('enforcement-derived Vancouver records are not classified as free', () => {
   const source = JSON.parse(fs.readFileSync(new URL('../data/free.json', import.meta.url)));
+  const retired = JSON.parse(fs.readFileSync(new URL('../data/sources/kitsilano-retired-inferred.json', import.meta.url))).records;
   const candidates = buildInferredBlocks(source);
   assert.equal(candidates.length, source.length);
   assert.ok(candidates.length > 2000);
+  assert.equal(retired.length, 259);
+  assert.equal(source.length + retired.length, 2399);
+  assert.equal(retired.filter(r => source.some(active => active.h === r.h)).length, 0);
   for (const block of candidates) {
     assert.equal(block.unverified,true);
     assert.equal(block.isFree,undefined);

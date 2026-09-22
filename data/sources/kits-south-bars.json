@@ -204,7 +204,16 @@
       "rule": "2ms",
       "from": 0.5,
       "to": 0.9,
-      "orientation": "horizontal"
+      "orientation": "horizontal",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
+        "finding": "South-curb sign near 2154 W 5th reads 2h 9AM–6PM EXCEPT WITH PERMIT. Days and arrow extents were not independently readable; Mon–Sat remains from PDF only.",
+        "scope": "Historical local observation; mapped endpoints and current rule unverified."
+      }]
     },
     {
       "street": "W 5th",

@@ -83,6 +83,9 @@ def build(area, path):
         })
     output = {
         'version': 1,
+        # Replace only side-less legacy markers where the South guide provides
+        # curb bars on both faces of the same named block.
+        **({'excludeInferredBlocks': ['2100 W 5Th Av', '2000 W 6Th Av', '2000 W 7Th Av', '1800 W 7Th Av']} if area == 'south' else {}),
         'sources': {
             'city-pdf': {'url': document['source'], 'title': f'City of Vancouver Kitsilano {area.title()} Residential Permit Zone guide', 'retrieved': '2026-09-22'},
             'city-intersections': {'url': GRID['source'], 'title': 'City of Vancouver street intersections (location reference only)', 'retrieved': GRID['retrieved']},

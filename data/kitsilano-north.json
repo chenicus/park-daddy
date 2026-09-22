@@ -1,5 +1,9 @@
 {
   "version": 1,
+  "excludeInferredBlocks": [
+    "2100 W 2Nd Av",
+    "2000 W 2Nd Av"
+  ],
   "sources": {
     "city-kits-north-pdf": {
       "url": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-north.pdf",

@@ -97,6 +97,10 @@ def main():
 
     result = {
         'version': 1,
+        # Both curb faces at these legacy block-centre points are represented by
+        # separate PDF bars. Keep the old side-less enforcement estimate off the
+        # map so it cannot obscure the side-specific rules.
+        'excludeInferredBlocks': ['2100 W 2Nd Av', '2000 W 2Nd Av'],
         'sources': {
             'city-kits-north-pdf': {'url': SOURCE, 'title': 'City of Vancouver Kitsilano North Residential Permit Zone guide', 'retrieved': '2026-09-22'},
             'city-intersections': {'url': grid['source'], 'title': 'City of Vancouver street intersections (location reference only)', 'retrieved': grid['retrieved']},

@@ -1,5 +1,11 @@
 {
   "version": 1,
+  "excludeInferredBlocks": [
+    "2100 W 5Th Av",
+    "2000 W 6Th Av",
+    "2000 W 7Th Av",
+    "1800 W 7Th Av"
+  ],
   "sources": {
     "city-pdf": {
       "url": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-south.pdf",
@@ -988,8 +994,17 @@
       "outsideSchedule": "unknown",
       "permitException": true,
       "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267231,-123.153511&heading=180",
+      "spotChecks": [
+        {
+          "status": "historical-partial-match",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
+          "finding": "South-curb sign near 2154 W 5th reads 2h 9AM–6PM EXCEPT WITH PERMIT. Days and arrow extents were not independently readable; Mon–Sat remains from PDF only.",
+          "scope": "Historical local observation; mapped endpoints and current rule unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
       "pdfBar": {
         "page": 1,
         "from": 0.5,
