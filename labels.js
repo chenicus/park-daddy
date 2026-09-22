@@ -305,7 +305,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const r = rateFor(bl, mins, dow);
       if (bl.curb) return {
         sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
-        text: '≈ ' + r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
+        text: r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
         flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
       const lim = z >= 16 ? limitFor(bl, mins, dow, wknd) : null;
