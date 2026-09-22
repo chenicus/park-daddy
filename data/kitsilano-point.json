@@ -107,8 +107,19 @@
       },
       "outsideSchedule": "unknown",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
+      "verification": "user-reported-conflict",
+      "spotChecks": [
+        {
+          "status": "user-reported-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": null,
+          "url": null,
+          "mapLabel": "Permit sign · verify",
+          "summary": "Permit only reported",
+          "finding": "User reports a clearly readable permit-only sign near 1946 Ogden. Our Aug 2024 panorama at this address did not expose a readable sign in the views inspected. Sign arrow direction, hours, and exact curb extent remain unconfirmed; PDF depicts a paid bar on this south curb.",
+          "scope": "Local user report; entire schematic bar cannot yet be classified permit-only."
+        }
+      ],
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276935,-123.148638&heading=180",
       "pdfBar": {
         "page": 1,
@@ -347,9 +358,20 @@
       },
       "outsideSchedule": "unknown",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276283,-123.148404&heading=0",
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
+          "mapLabel": "2h sign · verify",
+          "summary": "2h · 9am–6pm",
+          "finding": "Near 1925 McNicoll, north-curb sign reads 2h, 9AM–6PM, EXCEPT WITH PERMIT. Day line and full arrow extents not reliably readable. Local sign conflicts with PDF paid bar.",
+          "scope": "Local historical observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
       "pdfBar": {
         "page": 1,
         "from": 0.42,
@@ -775,9 +797,20 @@
       },
       "outsideSchedule": "unknown",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.275371,-123.146614&heading=0",
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
+          "mapLabel": "2h sign · verify",
+          "summary": "2h · 9am–6pm · Mon–Fri",
+          "finding": "At 1838 Whyte, north-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT, arrows both directions. Local sign conflicts with PDF paid bar; arrows do not establish full schematic endpoints.",
+          "scope": "Local historical observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
       "pdfBar": {
         "page": 1,
         "from": 0.54,

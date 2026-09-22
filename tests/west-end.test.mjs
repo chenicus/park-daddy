@@ -56,10 +56,20 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
   for (const paid of kitsPoint.sections.filter(s => s.category === 'paid')) {
     assert.equal(curbState(paid, 600, 1).free, false);
     assert.equal(curbState(paid, 600, 1).rate, null);
-    assert.match(curbState(paid, 600, 1).label, /Paid/);
-    assert.ok(paid.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='));
-    assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
+    if (['historical-conflict','user-reported-conflict'].includes(paid.verification)) {
+      assert.equal(curbState(paid, 600, 1).group, 'unverified');
+      assert.match(curbState(paid, 600, 1).label, /sign · verify/);
+      assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl));
+    } else {
+      assert.match(curbState(paid, 600, 1).label, /Paid/);
+      assert.ok(paid.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='));
+      assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
+    }
   }
+  assert.equal(kitsPoint.sections.filter(s => s.verification === 'historical-conflict').length, 2);
+  const ogden = kitsPoint.sections.find(s => s.street === 'Ogden' && s.side === 'south' && s.verification === 'user-reported-conflict');
+  assert.equal(curbState(ogden, 600, 1).label, 'Permit sign · verify');
+  assert.equal(curbState(ogden, 600, 1).free, false);
   const split = kitsPoint.sections.find(s => s.pdfBar.rule === 'pay-split');
   assert.equal(curbState(split, 1200, 1).label, 'Permit only');
 });

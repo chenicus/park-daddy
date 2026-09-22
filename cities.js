@@ -31,7 +31,7 @@ export const CITIES = {
       { url: 'data/robson-north.json?v=2', kind: 'west-end' },
       { url: 'data/kitsilano-north.json?v=2', kind: 'west-end' },
       { url: 'data/kitsilano-south.json?v=1', kind: 'west-end' },
-      { url: 'data/kitsilano-point.json?v=2', kind: 'west-end' },
+      { url: 'data/kitsilano-point.json?v=3', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)
