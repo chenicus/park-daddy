@@ -11,8 +11,11 @@ def apply_audit(sections):
             continue
         section['verification'] = audit['status']
         section['spotChecks'].extend({
-            'status': audit['status'], 'checkedOn': audit['checkedOn'],
+            'status': observation.get('status', audit['status']),
+            'checkedOn': observation.get('checkedOn', audit['checkedOn']),
             'imageryDate': observation['imageryDate'], 'url': observation['url'],
             'finding': observation['text'],
+            **({'restrictions': observation['restrictions']} if observation.get('restrictions') else {}),
+            **({'readableSchedule': observation['readableSchedule']} if observation.get('readableSchedule') else {}),
             'scope': 'Historical local observation only; current rules and complete curb boundaries unverified.',
         } for observation in audit['observations'])

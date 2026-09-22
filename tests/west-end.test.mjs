@@ -6,6 +6,7 @@ import { createLabelLayer, buildSeattleFreeBlocks } from '../labels.js';
 import { rptKey } from '../reports.js';
 
 const data = JSON.parse(fs.readFileSync(new URL('../data/west-end-plateau.json', import.meta.url)));
+const audit = JSON.parse(fs.readFileSync(new URL('../data/sources/pdf-street-view-audit.json', import.meta.url)));
 const blocks = buildWestEndBlocks(data);
 const permit = blocks.find(b => b.curb.category === 'permit');
 const barclay = blocks.find(b => b.curb.street === 'Barclay' && b.curb.limitMinutes === 60);
@@ -151,12 +152,15 @@ test('Pacific two-hour schedule ends at 3pm without inferring free evenings or S
   const early = additions[0].sections.find(s => s.schedule.end === 900);
   assert.ok(early);
   assert.equal(curbState(early,539,1).free,false);
-  assert.equal(curbState(early,540,1).free,false);
-  assert.equal(curbState(early,899,6).free,false);
+  assert.equal(curbState(early,540,1).free,true);
+  assert.equal(curbState(early,899,6).free,true);
   assert.equal(curbState(early,900,6).free,false);
   assert.equal(curbState(early,600,0).free,false);
   assert.equal(early.pdfSchedule.end,900);
-  assert.ok(curbTableSegments(early,1).every(row => row.rate === null));
+  assert.ok(curbTableSegments(early,1).some(row => row.rate === 0 && row.to === 900));
+  assert.ok(early.spotChecks.at(-1).restrictions.some(r => r.kind === 'no-stopping' && r.start === 900 && r.end === 1080));
+  assert.equal(early.spotChecks[0].status,'unresolved');
+  assert.equal(early.spotChecks.at(-1).status,'historical-sign-match');
 });
 
 test('loaded curb guides supersede only named inferred free blocks', async () => {
@@ -172,6 +176,10 @@ test('all timed curbs retain historical evidence and conflicting sections never 
   assert.equal(timed.length, 42);
   assert.ok(timed.every(s => s.spotChecks.some(c => c.url?.startsWith('https://www.google.com/maps/'))));
   for (const section of timed) {
+    const source = audit.find(row => row.id === section.id);
+    assert.equal(section.verification, source.status);
+    const latest = source.observations.at(-1);
+    assert.ok(section.spotChecks.some(check => check.url === latest.url && check.finding === latest.text && check.status === source.status));
     const evidence = curbTableSegments(section,1).find(row => row.url);
     assert.ok(evidence);
     assert.equal(evidence.applies,false);
@@ -179,7 +187,7 @@ test('all timed curbs retain historical evidence and conflicting sections never 
     assert.ok(section.spotChecks.some(check => check.url === evidence.url && check.imageryDate === evidence.status));
   }
   const conflicts = timed.filter(s => s.verification === 'historical-conflict');
-  assert.equal(conflicts.length, 9);
+  assert.equal(conflicts.length, audit.filter(r => r.status === 'historical-conflict').length);
   for (const section of conflicts) {
     assert.ok(section.pdfSchedule);
     assert.equal(section.geometryStatus, 'approximate-schematic');
@@ -195,7 +203,7 @@ test('all timed curbs retain historical evidence and conflicting sections never 
 test('unconfirmed timed curbs are marked and filter independently of permits', () => {
   const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
   const unconfirmed = timed.filter(s => s.verification !== 'historical-sign-match');
-  assert.equal(unconfirmed.length,32);
+  assert.equal(unconfirmed.length, audit.filter(r => r.status !== 'historical-sign-match').length);
   for (const section of unconfirmed) {
     assert.equal(curbState(section,600,1).free,false);
     assert.equal(curbState(section,600,1).label,'Check signs');
@@ -203,6 +211,8 @@ test('unconfirmed timed curbs are marked and filter independently of permits', (
     assert.equal(curbVisible(section,600,1,{restrictions:true,unverified:false}),false);
     assert.ok(curbTableSegments(section,1).every(s => s.rate === null));
   }
+  const bikeDock = timed.find(s => s.id === 'wep-b7bd3d236123');
+  assert.equal(curbState(bikeDock,600,1).free,false, 'adjacent public sign does not make the mapped bike docks free');
   assert.equal(curbVisible(permit.curb,600,1,{restrictions:false,unverified:true}),false);
 });
 
