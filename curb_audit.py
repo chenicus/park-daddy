@@ -10,6 +10,8 @@ def apply_audit(sections):
         if not audit:
             continue
         section['verification'] = audit['status']
+        if audit.get('accessOverride'):
+            section['accessOverride'] = audit['accessOverride']
         section['spotChecks'].extend({
             'status': observation.get('status', audit['status']),
             'checkedOn': observation.get('checkedOn', audit['checkedOn']),

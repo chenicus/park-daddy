@@ -179,7 +179,7 @@ test('all timed curbs retain historical evidence and conflicting sections never 
     const source = audit.find(row => row.id === section.id);
     assert.equal(section.verification, source.status);
     const latest = source.observations.at(-1);
-    assert.ok(section.spotChecks.some(check => check.url === latest.url && check.finding === latest.text && check.status === source.status));
+    assert.ok(section.spotChecks.some(check => check.url === latest.url && check.finding === latest.text && check.status === latest.status));
     const evidence = curbTableSegments(section,1).find(row => row.url);
     assert.ok(evidence);
     assert.equal(evidence.applies,false);
@@ -202,8 +202,8 @@ test('all timed curbs retain historical evidence and conflicting sections never 
 
 test('unconfirmed timed curbs are marked and filter independently of permits', () => {
   const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
-  const unconfirmed = timed.filter(s => s.verification !== 'historical-sign-match');
-  assert.equal(unconfirmed.length, audit.filter(r => r.status !== 'historical-sign-match').length);
+  const unconfirmed = timed.filter(s => s.verification !== 'historical-sign-match' && !s.accessOverride);
+  assert.equal(unconfirmed.length, audit.filter(r => r.status !== 'historical-sign-match' && !r.accessOverride).length);
   for (const section of unconfirmed) {
     assert.equal(curbState(section,600,1).free,false);
     assert.equal(curbState(section,600,1).label,'Check signs');
@@ -226,4 +226,46 @@ test('enforcement-derived Vancouver records are not classified as free', () => {
     assert.equal(block.unverified,true);
     assert.equal(block.isFree,undefined);
   }
+});
+
+ test('user checked permit spot stays nonpublic without inventing its hours', () => {
+ const s=data.sections.find(s=>s.id==='wep-e9554463e621');
+ assert.equal(curbState(s,600,1).label,'Permit only');
+ assert.equal(curbState(s,600,1).free,false);
+ assert.equal(curbState(s,600,1).group,'restrictions');
+ assert.ok(curbTableSegments(s,1).some(r=>r.label==='Hours not confirmed'));
+ assert.equal(s.pdfSchedule.end,1200);
+ });
+
+test('user off-hours assumption stays explicit and does not invent Sunday daytime access', () => {
+ const s=additions[0].sections.find(s=>s.id==='davie-beach-c2b83be3a9f7');
+ assert.equal(curbState(s,539,1).label,'Free · assumed');
+ assert.equal(curbState(s,540,1).label,'Free · 2h');
+ assert.equal(curbState(s,1199,1).label,'Free · 2h');
+ assert.equal(curbState(s,1200,1).label,'Free · assumed');
+ assert.equal(curbState(s,600,0).free,false);
+ assert.equal(s.accessOverride.daysConfirmed,false);
+});
+
+test('confirmed no-stopping record cannot appear in normal parking results', () => {
+ const s=data.sections.find(s=>s.id==='wep-92bae635df9b');
+ for(let day=0;day<7;day++) for(const mins of [0,600,1200,1439]) {
+ assert.equal(curbState(s,mins,day).free,false);
+ assert.equal(curbState(s,mins,day).label,'No parking');
+ assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:true,unverified:true}),false);
+ }
+ assert.ok(curbTableSegments(s,1).some(r=>r.status==='No parking'));
+});
+
+test('side-specific City meter data makes the Davie records paid', () => {
+  const south = additions[0].sections.find(s => s.id === 'davie-beach-40086bd95ae3');
+  const north = data.sections.find(s => s.id === 'wep-7767aa67d4a8');
+  for (const section of [south, north]) {
+    assert.equal(curbState(section, 600, 1).rate, 2);
+    assert.equal(curbState(section, 600, 1).group, 'paid');
+    assert.equal(curbState(section, 1140, 1).label, '$2 /hr · 4h');
+    assert.equal(section.accessOverride.paymentLocation.startsWith('PayByPhone'), true);
+  }
+  assert.equal(south.accessOverride.paymentLocation, 'PayByPhone 65523');
+  assert.equal(north.accessOverride.paymentLocation, 'PayByPhone 67822');
 });

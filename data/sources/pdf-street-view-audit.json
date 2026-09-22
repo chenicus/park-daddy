@@ -107,7 +107,19 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "city-meter-confirmed",
+    "accessOverride": {
+      "category": "paid",
+      "source": "City of Vancouver parking-meters dataset; nearby south-curb meter 161314",
+      "checkedOn": "2026-09-22",
+      "paymentLocation": "PayByPhone 65523",
+      "rate": 2,
+      "start": 540,
+      "end": 1320,
+      "dayLimitMinutes": 120,
+      "eveningLimitMinutes": 240,
+      "sideConfirmed": "south"
+    },
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -383,7 +395,7 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-partial-match",
+    "status": "user-confirmed-hours",
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -433,11 +445,28 @@
             "imageryDate": "2024-08"
           }
         ]
+      },
+      {
+        "status": "user-confirmed-hours",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=--n-lofNyxCjCWJ62Qyxng&heading=12&pitch=2&fov=15",
+        "text": "Manual review #2: centered sign visibly confirms green P, 2h, 9AM–8PM on the public panel, with a faint right arrow. Adjacent no-stopping EXCEPT modo panel points left. Day text remains too faded to confirm independently. Following user instruction that #2 is the same as #3, free parking outside 9AM–8PM is recorded as a user assumption, not a posted-rule confirmation. Excludes the adjacent Modo reservation; precise endpoints remain approximate."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-conflict",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "accessOverride": {
+      "category": "public",
+      "source": "user-sign-check",
+      "checkedOn": "2026-09-22",
+      "start": 540,
+      "end": 1200,
+      "limitMinutes": 120,
+      "daysConfirmed": false,
+      "outsideHours": "assumed-free"
+    }
   },
   {
     "id": "davie-beach-c2b83be3a9f7",
@@ -464,7 +493,7 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-partial-match",
+    "status": "user-confirmed-hours",
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -514,11 +543,28 @@
             "imageryDate": "2024-08"
           }
         ]
+      },
+      {
+        "status": "user-confirmed-hours",
+        "checkedOn": "2026-09-22",
+        "imageryDate": null,
+        "url": null,
+        "text": "User checked review #3 and confirms two-hour public parking 9AM–8PM. User explicitly requests assuming free public parking outside those hours. Off-hours freedom is a user assumption, not a verified posted rule. Days were not supplied; PDF Mon–Sat remains source information, not independently confirmed."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-conflict",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "accessOverride": {
+      "category": "public",
+      "source": "user-sign-check",
+      "checkedOn": "2026-09-22",
+      "start": 540,
+      "end": 1200,
+      "limitMinutes": 120,
+      "daysConfirmed": false,
+      "outsideHours": "assumed-free"
+    }
   },
   {
     "id": "davie-beach-de49f2e92115",
@@ -1466,7 +1512,14 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "historical-prohibited",
+    "accessOverride": {
+      "category": "prohibited",
+      "restriction": "no-parking",
+      "arrows": "both",
+      "source": "Centered Street View sign at the approximate south-curb marker",
+      "checkedOn": "2026-09-22"
+    },
     "observations": [
       {
         "imageryDate": "2023-04",
@@ -1521,7 +1574,14 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "historical-prohibited",
+    "accessOverride": {
+      "category": "prohibited",
+      "restriction": "no-stopping left / no-parking right",
+      "arrows": "split directions",
+      "source": "Centered Street View sign at the approximate south-curb marker",
+      "checkedOn": "2026-09-22"
+    },
     "observations": [
       {
         "imageryDate": "2022-02",
@@ -1613,7 +1673,14 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "historical-reserved",
+    "accessOverride": {
+      "category": "reserved",
+      "summary": "Passenger zone left · permit parking right",
+      "directions": "Passenger zone arrow left; no parking except with permit arrow right",
+      "source": "Centered Street View sign at the approximate south-curb marker",
+      "checkedOn": "2026-09-22"
+    },
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -2004,7 +2071,19 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "city-meter-confirmed",
+    "accessOverride": {
+      "category": "paid",
+      "source": "City of Vancouver parking-meters dataset; nearby north-curb meter 161325",
+      "checkedOn": "2026-09-22",
+      "paymentLocation": "PayByPhone 67822",
+      "rate": 2,
+      "start": 540,
+      "end": 1320,
+      "dayLimitMinutes": 120,
+      "eveningLimitMinutes": 240,
+      "sideConfirmed": "north"
+    },
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -2087,7 +2166,7 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-partial-match",
+    "status": "user-confirmed-hours",
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -2130,11 +2209,28 @@
             "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=GOrfenkwGBMnDKJMtsgILA&heading=260&pitch=0&fov=15"
           }
         ]
+      },
+      {
+        "status": "user-confirmed-hours",
+        "checkedOn": "2026-09-22",
+        "imageryDate": null,
+        "url": null,
+        "text": "User manually confirms review #12 as free public parking with a two-hour limit 9AM–8PM and explicitly instructs that all hours outside this window be treated as free. Off-hours eligibility is recorded as a user assumption. The earlier uncertainty concerned the faded day line, not the readable duration/hours. Mon–Sat remains PDF-sourced; no new day wording or exact endpoints were supplied."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-partial-match",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "accessOverride": {
+      "category": "public",
+      "source": "user-sign-check",
+      "checkedOn": "2026-09-22",
+      "start": 540,
+      "end": 1200,
+      "limitMinutes": 120,
+      "daysConfirmed": false,
+      "outsideHours": "assumed-free"
+    }
   },
   {
     "id": "wep-1ebfe2854c01",
@@ -2286,7 +2382,7 @@
       "start": 540,
       "end": 1200
     },
-    "status": "historical-conflict",
+    "status": "user-confirmed-prohibited",
     "observations": [
       {
         "imageryDate": "2024-07",
@@ -2310,11 +2406,25 @@
             "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=9UgNl4plkOvrn-cMrYJ5bQ&heading=274&pitch=0&fov=20"
           }
         ]
+      },
+      {
+        "status": "user-confirmed-prohibited",
+        "checkedOn": "2026-09-22",
+        "imageryDate": null,
+        "url": null,
+        "text": "User confirms review #13 is not available for parking, with restriction arrows in both directions. Prior July 2024 imagery identifies the symbol as no stopping, without a time or exception panel. Mark this record as prohibited parking and exclude it from normal parking results. Exact extent beyond the inspected sign remains unmeasured."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-conflict",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "accessOverride": {
+      "category": "prohibited",
+      "restriction": "no-stopping",
+      "arrows": "both",
+      "source": "user-sign-check-and-historical-imagery",
+      "checkedOn": "2026-09-22"
+    }
   },
   {
     "id": "wep-c734a5e70fd6",
@@ -2416,7 +2526,7 @@
       "start": 540,
       "end": 1200
     },
-    "status": "unresolved",
+    "status": "user-confirmed-permit",
     "observations": [
       {
         "imageryDate": "2024-08",
@@ -2447,11 +2557,24 @@
             "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=PFBqwFDTREPvs0YWNuycWQ&heading=265&pitch=-2&fov=15"
           }
         ]
+      },
+      {
+        "status": "user-confirmed-permit",
+        "checkedOn": "2026-09-22",
+        "imageryDate": null,
+        "url": null,
+        "text": "User manually checked review spot #14 and reports permit-only parking. Hours, days, imagery date, and precise sign boundaries were not supplied. Permit required; do not classify as free public parking."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "unresolved",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "accessOverride": {
+      "category": "permit",
+      "scheduleConfirmed": false,
+      "source": "user-sign-check",
+      "checkedOn": "2026-09-22"
+    }
   },
   {
     "id": "wep-b7bd3d236123",

@@ -1,5 +1,6 @@
 // Manual review overlays identify evidence problems, never parking eligibility.
 export const REVIEW_GROUPS = {
+  resolved: { label: 'Verified / updated', color: '#15803d' },
   conflict: { label: 'Conflicting restriction', color: '#dc2626' },
   schedule: { label: 'Incomplete schedule', color: '#d97706' },
   boundary: { label: 'Uncertain boundary', color: '#7c3aed' },
@@ -7,6 +8,11 @@ export const REVIEW_GROUPS = {
 };
 const boundaries = new Set(['davie-beach-99cd6fc2597d', 'denman-west-8a345fd5d337', 'wep-b7bd3d236123']);
 export function reviewGroup(row) {
+  if (row.status === 'city-meter-confirmed') return 'resolved';
+  if (row.status === 'historical-prohibited' || row.status === 'historical-reserved') return 'resolved';
+  if (row.status === 'user-confirmed-prohibited') return 'resolved';
+  if (row.status === 'user-confirmed-hours') return 'resolved';
+  if (row.status === 'user-confirmed-permit') return 'resolved';
   if (row.status === 'historical-sign-match') return null;
   if (row.status === 'historical-conflict') return 'conflict';
   if (row.status === 'unresolved') return 'unmatched';
@@ -27,7 +33,7 @@ export async function initReview(map, blocks, onTap) {
   const panel = document.createElement('section'); panel.className = 'review-legend mat'; panel.setAttribute('aria-label','Manual parking review');
   panel.textContent = 'Loading review locations…'; document.body.append(panel);
   try {
-    const response = await fetch('data/sources/pdf-street-view-audit.json?v=2');
+    const response = await fetch('data/sources/pdf-street-view-audit.json?v=8');
     if (!response.ok) throw new Error('Review data unavailable');
     const rows = (await response.json()).filter(row => reviewGroup(row));
     const entries = rows.map(row => ({row, block: blocks.find(b => b.id === row.id)})).filter(e => e.block);

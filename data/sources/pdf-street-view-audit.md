@@ -251,3 +251,21 @@ west-end-plateau — Bute, east side, Comox–Pendrell. **historical-partial-mat
 
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20): East curb near 1086 Bute: permanent green sign reads 2h 9am–8pm arrow right; days too blurred. Adjacent no-parking exception unreadable. Construction, cones and temporary no-parking sign occupied curb in this imagery; temporary dates unreadable and not assumed current.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20): Second pass: Rechecked original at maximum zoom and moved toward Comox to inspect back/side of pole. Permanent panel confirms 2h 9AM–8PM arrow right, but day letters still not independently readable. Adjacent no-stopping EXCEPT panel shows modo logo and left arrow. Temporary no-stopping notice below points right; dates remain unreadable. Construction materials and cones occupy local curb in August 2024. Partial match retained; exact public/Modo boundary extents and temporary dates unverified.
+
+## Manual review correction
+
+2026-09-22: the user checked review #14 (Jervis west, Comox–Pendrell) and confirmed permit-only access. The app now shows Permit only; hours and days are not supplied and remain unconfirmed. Original PDF and historical observations are retained. Current totals: 26 historical local matches, 8 partial, 6 conflicts, 1 unresolved, 1 user-confirmed permit restriction. Review numbering remains stable; #14 is green/resolved in review mode.
+
+2026-09-22: review #3 was user-confirmed as 2h public parking 9AM–8PM; #2 was visually rechecked and the same hours are readable. Both use the user-requested assumption of free access outside those hours, labeled Free · assumed. Daytime Mon–Sat remains PDF-sourced; Sunday daytime access remains unknown. The adjacent Modo reservation at #2 is excluded. Current totals: 26 historical matches, 6 partial, 6 conflicts, 1 unresolved, 1 user-confirmed permit, 2 user-confirmed hours with assumed off-hours.
+
+2026-09-22: user confirms review #13 is prohibited parking, arrows both ways. Retain prior no-stopping symbol transcription. Excluded from normal parking results; green/resolved in manual review, numbering unchanged.
+
+2026-09-22: review #12 user-confirmed as free public parking, 2h 9AM–8PM. Outside those hours is user-assumed free, explicitly labeled. Original PDF day information and observations remain preserved.
+
+## Side-aware follow-up
+
+The review now treats Davie south (PayByPhone 65523) and Davie north (PayByPhone 67822) as separate City-meter-confirmed paid sections: $2/hour, 9am–10pm, with a 2-hour daytime and 4-hour evening limit. The sign and meter records support those sides separately.
+
+Three south-curb records have been removed from normal parking results because their observed sign directions establish no public parking at the approximate marker: Haro Jervis–Bute is no parking both ways; Haro Bute–Thurlow is no stopping to the left and no parking to the right; Barclay Bute–Thurlow is a passenger zone to the left and permit parking to the right.
+
+Six records remain in manual review because the street side is known but the public/accessible/Mobi/Modo boundary or complete schedule is not. They are Bidwell west Burnaby–Beach, Comox south Gilford–Denman, Pendrell north Gilford–Denman, Haro south Denman–Bidwell, Bute west Haro–Barclay, and Bute east Comox–Pendrell. They stay out of normal free results until the posted arrows can be mapped to a supported curb extent.
