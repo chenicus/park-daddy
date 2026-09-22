@@ -12,6 +12,27 @@ const permit = blocks.find(b => b.curb.category === 'permit');
 const barclay = blocks.find(b => b.curb.street === 'Barclay' && b.curb.limitMinutes === 60);
 const haro = blocks.find(b => b.curb.street === 'Haro' && b.curb.limitMinutes === 60);
 const bidwell = blocks.find(b => b.curb.id === 'wep-0b108f9e2b1a');
+const kitsNorth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-north.json', import.meta.url)));
+
+test('Kits North PDF curb bars use their printed schedules and street sides', () => {
+  const sections = kitsNorth.sections;
+  assert.ok(sections.length >= 60);
+  assert.equal(new Set(sections.map(section => section.id)).size, sections.length);
+  assert.ok(sections.every(section => section.geometry.type === 'LineString' && section.geometryStatus === 'approximate-schematic'));
+  assert.ok(sections.every(section => section.sourceIds.includes('city-kits-north-pdf')));
+  const mondayFriday = sections.find(section => section.pdfBar.rule === '2mf');
+  const mondaySaturday = sections.find(section => section.pdfBar.rule === '2ms');
+  const permitOnly = sections.find(section => section.pdfBar.rule === 'p');
+  assert.ok(mondayFriday && mondaySaturday && permitOnly);
+  assert.equal(curbState(mondayFriday, 600, 1).label, 'Free · 2h');
+  assert.equal(curbState(mondayFriday, 600, 6).free, false);
+  assert.equal(curbState(mondaySaturday, 600, 6).label, 'Free · 2h');
+  assert.equal(curbState(mondaySaturday, 1080, 6).free, false);
+  assert.equal(curbState(permitOnly, 600, 1).label, 'Permit only');
+  assert.equal(curbState(permitOnly, 600, 0).free, false);
+  assert.match(curbSchedule(mondayFriday), /Mon–Fri/);
+  assert.ok(!JSON.stringify(kitsNorth).includes('Polygon'));
+});
 
 test('individual lines retain evidence and never acquire residential-free defaults', () => {
   assert.equal(blocks.length, 174);

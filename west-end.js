@@ -17,6 +17,7 @@ export function buildWestEndBlocks(data) {
 }
 
 export function curbState(section, mins, dow) {
+  if (section.category === 'no-parking') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'PDF shows a no-parking restriction; check posted signs for its exact limits'};
   if (section.accessOverride?.category === 'reserved') return {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Reserved parking',status:section.accessOverride.summary};
   if (section.accessOverride?.category === 'paid') {
     const a = section.accessOverride;
@@ -35,7 +36,7 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Daytime rules for this day not confirmed'};
   }
   if (section.accessOverride?.category === 'permit') return { free:false, rate:null, group:'restrictions', cls:'p-permit', color:'#7c3aed', label:'Permit only', status:'Permit required; hours not confirmed' };
-  if (section.category !== 'permit' && section.verification !== 'historical-sign-match') {
+  if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) {
     return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
   }
   if (section.category === 'permit') {
@@ -50,7 +51,7 @@ export function curbState(section, mins, dow) {
 }
 
 export function curbVisible(section, mins, dow, filters) {
-  if (section.accessOverride?.category === 'prohibited') return false;
+  if (section.accessOverride?.category === 'prohibited' || section.category === 'no-parking') return false;
   return filters[curbState(section, mins, dow).group] !== false;
 }
 
@@ -58,7 +59,7 @@ const clock = (m) => `${Math.floor(m / 60) % 12 || 12}${m % 60 ? ':' + String(m 
 export function curbSchedule(section) {
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
   const s = section.schedule;
-  const days = s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : 'Every day';
+  const days = s.label || (s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
   return `${section.limitMinutes / 60} hour${section.limitMinutes === 60 ? '' : 's'} · ${clock(s.start)}–${clock(s.end)} · ${days}`;
 }
 
@@ -67,6 +68,11 @@ export function curbSchedule(section) {
 export function curbTableSegments(section, dow) {
   const check = section.spotChecks?.findLast(c => c.url && c.imageryDate);
   const evidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }] : [];
+  if (section.category === 'no-parking') return [
+    {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'No parking',rate:null,applies:section.schedule.days?.includes(dow)},
+    {label:'Other times',status:'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
   if (section.accessOverride?.category === 'reserved') return [
     {from:0,to:1440,label:section.accessOverride.summary,status:'Reserved',rate:null},
     {label:'Verified sign directions',status:section.accessOverride.directions,rate:null,applies:false},
@@ -92,11 +98,11 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.accessOverride?.category === 'permit') return [{ label:'Hours not confirmed', status:'Permit required', rate:null, applies:false }, { label:'User sign check', status:section.accessOverride.checkedOn, rate:null, applies:false }, ...evidence];
-  if (section.category !== 'permit' && section.verification !== 'historical-sign-match') return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
+  if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
   if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
   const s = section.schedule;
   const applies = s.days?.includes(dow) === true;
-  const days = s.days == null ? 'Days unknown' : 'Mon–Sat';
+  const days = s.label || (s.days == null ? 'Days unknown' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Mon–Sat');
   return [
     { from: s.start, to: s.end, days, limit: section.limitMinutes,
       rate: s.days == null ? null : 0, status: s.days == null ? 'Check signs' : 'Free', applies },

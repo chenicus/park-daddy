@@ -1,0 +1,30 @@
+{
+  "source": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-north.pdf",
+  "page": 1,
+  "area": "Trafalgar Street through Vine Street",
+  "method": "Visual transcription of printed curb bars. Fractions are approximate positions within each named block, west to east for horizontal streets and north to south for vertical streets. Purple shading is ignored.",
+  "bars": [
+    {"street":"Larch","side":"west","between":["Cornwall","York"],"category":"time-limited","rule":"2ms","from":0.16,"to":0.48,"orientation":"vertical"},
+    {"street":"Larch","side":"west","between":["Cornwall","York"],"category":"permit","rule":"p","from":0.52,"to":0.98,"orientation":"vertical"},
+    {"street":"Larch","side":"west","between":["York","W 1st"],"category":"permit","rule":"p","from":0.02,"to":0.48,"orientation":"vertical"},
+    {"street":"Larch","side":"west","between":["York","W 1st"],"category":"time-limited","rule":"2ms","from":0.54,"to":0.98,"orientation":"vertical"},
+    {"street":"Balsam","side":"east","between":["Cornwall","York"],"category":"permit","rule":"p","from":0.02,"to":0.47,"orientation":"vertical"},
+    {"street":"Balsam","side":"east","between":["Cornwall","York"],"category":"time-limited","rule":"2mf","from":0.52,"to":0.98,"orientation":"vertical"},
+    {"street":"Cornwall","side":"south","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.31,"to":0.60,"orientation":"horizontal"},
+    {"street":"York","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.10,"to":0.29,"orientation":"horizontal"},
+    {"street":"York","side":"north","between":["Balsam","Vine"],"category":"time-limited","rule":"2mf","from":0.64,"to":0.89,"orientation":"horizontal"},
+    {"street":"York","side":"south","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.29,"to":0.60,"orientation":"horizontal"},
+    {"street":"W 1st","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.20,"to":0.45,"orientation":"horizontal"},
+    {"street":"W 1st","side":"north","between":["Balsam","Vine"],"category":"time-limited","rule":"2mf","from":0.52,"to":0.85,"orientation":"horizontal"},
+    {"street":"W 1st","side":"south","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.29,"to":0.51,"orientation":"horizontal"},
+    {"street":"W 2nd","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.10,"to":0.30,"orientation":"horizontal"},
+    {"street":"W 2nd","side":"north","between":["Balsam","Vine"],"category":"time-limited","rule":"2mf","from":0.30,"to":0.49,"orientation":"horizontal"},
+    {"street":"W 2nd","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.49,"to":0.69,"orientation":"horizontal"},
+    {"street":"Vine","side":"west","between":["W 1st","W 2nd"],"category":"permit","rule":"p","from":0.54,"to":0.98,"orientation":"vertical"},
+    {"street":"Vine","side":"west","between":["W 2nd","W 3rd"],"category":"permit","rule":"p","from":0.54,"to":0.98,"orientation":"vertical"},
+    {"street":"W 3rd","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.10,"to":0.40,"orientation":"horizontal"},
+    {"street":"W 3rd","side":"north","between":["Balsam","Vine"],"category":"permit","rule":"p","from":0.70,"to":0.99,"orientation":"horizontal"},
+    {"street":"W 3rd","side":"south","between":["Balsam","Vine"],"category":"time-limited","rule":"2mf","from":0.40,"to":0.70,"orientation":"horizontal"},
+    {"street":"Balsam","side":"east","between":["W 3rd","W 4th"],"category":"permit","rule":"p","from":0.02,"to":0.48,"orientation":"vertical"}
+  ]
+}

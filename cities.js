@@ -29,6 +29,7 @@ export const CITIES = {
       { url: 'data/davie-beach.json?v=5', kind: 'west-end' },
       { url: 'data/denman-west.json?v=3', kind: 'west-end' },
       { url: 'data/robson-north.json?v=2', kind: 'west-end' },
+      { url: 'data/kitsilano-north.json?v=1', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)
