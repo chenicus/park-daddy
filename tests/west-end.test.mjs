@@ -122,8 +122,10 @@ test('additional guides retain evidence, unique curb identities and unresolved o
   assert.equal(new Set([...blocks, ...added].map(b => b.id)).size, 367);
   for (const b of added) {
     assert.equal(b.curb.geometry.type, 'LineString');
-    assert.equal(b.curb.verification, 'pdf-only');
-    assert.deepEqual(b.curb.spotChecks, []);
+    if (b.curb.category === 'permit') {
+      assert.equal(b.curb.verification, 'pdf-only');
+      assert.deepEqual(b.curb.spotChecks, []);
+    } else assert.ok(b.curb.spotChecks.length > 0);
     assert.equal(b.curb.geometryStatus, 'approximate-schematic');
     assert.ok(b.sources.every(s => s.url.startsWith('https://')));
     for (const [lon, lat] of b.curb.geometry.coordinates)
@@ -157,4 +159,22 @@ test('loaded curb guides supersede only named inferred free blocks', async () =>
   const records = [{h:'1100 Burnaby St'},{h:'1300 Broughton St'},{h:'4300 Hudson St'}];
   assert.deepEqual(filterInferredFree(records, additions),[records[2]]);
   assert.deepEqual(filterInferredFree(records, [[],data]),records);
+});
+
+
+test('all timed curbs retain historical evidence and conflicting sections never advertise free', () => {
+  const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
+  assert.equal(timed.length, 42);
+  assert.ok(timed.every(s => s.spotChecks.some(c => c.url?.startsWith('https://www.google.com/maps/'))));
+  const conflicts = timed.filter(s => s.verification === 'historical-conflict');
+  assert.equal(conflicts.length, 9);
+  for (const section of conflicts) {
+    assert.ok(section.pdfSchedule);
+    assert.equal(section.geometryStatus, 'approximate-schematic');
+    for (let day = 0; day < 7; day++) for (const mins of [0,540,600,900,1199,1439]) {
+      assert.equal(curbState(section, mins, day).free, false);
+      assert.equal(curbVisible(section, mins, day, {free:true, restrictions:false}), false);
+      assert.ok(curbTableSegments(section, day).every(row => row.rate === null));
+    }
+  }
 });

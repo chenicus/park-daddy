@@ -218,6 +218,8 @@ def build(key,config):
     except ValueError as e:
      row['geometry']=None;row['geometryStatus']='unresolved';row['unresolvedReason']=str(e);unmapped.append(row)
  output={'version':1,'area':key,'sources':{key:{'url':config['url'],'title':key.replace('-',' ').title()+' City parking guide','publicationDate':None,'retrieved':'2026-09-22','sha256':config['sha256'],'traceImageSize':config['size'],'traceRotationDegrees':config['rotation']},'city-streets':{'url':SNAPSHOT['source'],'title':'City of Vancouver public streets (location reference only)','retrieved':SNAPSHOT['retrieved']}},'geometryNote':'Schematic extents and symbolic curb offsets are approximate, not surveyed sign boundaries. Lane centre positions are interpolated. Check posted signs.','restrictionNote':'PDF guide only; no current sign verification. Unlisted periods, exemptions and other restrictions remain unknown.','excludeInferredBlocks':config.get('excludeInferredBlocks',[]),'sections':sections,'unmappedSections':unmapped}
+ from curb_audit import apply_audit
+ apply_audit(sections)
  header=json.dumps({k:v for k,v in output.items() if k not in ('sections','unmappedSections')},indent=2)[:-2]
  text=header+',\n  "sections": [\n'+',\n'.join('    '+json.dumps(s,separators=(',',':')) for s in sections)+'\n  ],\n  "unmappedSections": [\n'+',\n'.join('    '+json.dumps(s,separators=(',',':')) for s in unmapped)+'\n  ]\n}\n'
  (ROOT/f'data/{key}.json').write_text(text)

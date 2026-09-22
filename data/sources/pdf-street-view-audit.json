@@ -1,0 +1,1458 @@
+[
+  {
+    "id": "davie-beach-d2d0b5d49943",
+    "area": "davie-beach",
+    "street": "Davie",
+    "side": "south",
+    "between": [
+      "Cardero",
+      "Nicola"
+    ],
+    "coordinates": [
+      -123.138211,
+      49.284848
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=T0JmWRkYNrcPmt1a8Bp9xw&heading=177&pitch=0&fov=20",
+        "text": "Green P, 2h and 9am–8pm appear consistent. Small day text not sufficiently clear to independently confirm. Exact endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-50fdc9f9901f",
+    "area": "davie-beach",
+    "street": "Davie",
+    "side": "south",
+    "between": [
+      "Nicola",
+      "Broughton"
+    ],
+    "coordinates": [
+      -123.137028,
+      49.284083
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=3sFekt6Ng3uPOF7czRyuJg&heading=198&pitch=3&fov=49",
+        "text": "South-side sign: green P, 2h, 9am–8pm, Mon–Sat, arrows both directions. Matches schedule; exact section endpoints not verified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-40086bd95ae3",
+    "area": "davie-beach",
+    "street": "Davie",
+    "side": "south",
+    "between": [
+      "Broughton",
+      "Jervis"
+    ],
+    "coordinates": [
+      -123.135685,
+      49.283213
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=x7-1ZHjvyFsRUWdISoLOtg&heading=215&pitch=0&fov=90",
+        "text": "Parking meters visible along the south curb outside the storefronts. Free classification conflicts at inspected location; rates, hours and exact meter extents not read."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-aca0706b6d1f",
+    "area": "davie-beach",
+    "street": "Burnaby",
+    "side": "north",
+    "between": [
+      "Jervis",
+      "Bute"
+    ],
+    "coordinates": [
+      -123.135471,
+      49.28184
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Vmrzo78WbHOf7jvcVAxVng&heading=35&pitch=0&fov=90",
+        "text": "North curb inspected near 1265 Burnaby; parked vehicles but no readable curb restriction sign in the inspected view. Cannot verify schedule or endpoints."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-afef33a62eb8",
+    "area": "davie-beach",
+    "street": "Burnaby",
+    "side": "north",
+    "between": [
+      "Thurlow",
+      "Burrard"
+    ],
+    "coordinates": [
+      -123.131791,
+      49.279452
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=eHdnjvbn_QZLHP_cNBr4LQ&heading=7&pitch=0&fov=20",
+        "text": "Green P, 2h, 9am–8pm visible. Day text obscured by glare; exact boundaries unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-b2e41cf02c87",
+    "area": "davie-beach",
+    "street": "Burnaby",
+    "side": "north",
+    "between": [
+      "Thurlow",
+      "Burrard"
+    ],
+    "coordinates": [
+      -123.130868,
+      49.278855
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=BTgw5vXChabxbaYrTLKOnQ&heading=18&pitch=0&fov=20",
+        "text": "Sign cluster at 1021 Burnaby: 2h 9am–8pm Mon–Sat arrow right; permit-only arrow left. Schedule matches to the right only; symbolic section boundaries not verified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-c04987207d94",
+    "area": "davie-beach",
+    "street": "Harwood",
+    "side": "north",
+    "between": [
+      "Cardero",
+      "Nicola"
+    ],
+    "coordinates": [
+      -123.140002,
+      49.283375
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=r2VyFZAoG7vifx4HN-iLNg&heading=43&pitch=0&fov=20",
+        "text": "North-curb sign cluster shows no stopping arrow left, and no stopping except Modo arrow right. Inspected location is not general public two-hour parking; precise extents unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-c2b83be3a9f7",
+    "area": "davie-beach",
+    "street": "Harwood",
+    "side": "north",
+    "between": [
+      "Jervis",
+      "Bute"
+    ],
+    "coordinates": [
+      -123.136608,
+      49.281175
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=KcS1UQYKwh1np0_T7s6A6w&heading=345&pitch=0&fov=40",
+        "text": "North-curb sign near 1285 Harwood shows no stopping arrow left and no stopping except Modo arrow right. Conflict with general public two-hour claim at this location; extents remain approximate."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-de49f2e92115",
+    "area": "davie-beach",
+    "street": "Pacific",
+    "side": "north",
+    "between": [
+      "Jervis",
+      "Bute"
+    ],
+    "coordinates": [
+      -123.137333,
+      49.280256
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 900
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=QFcEo8siTy74qVPF6_7bmQ&heading=90&pitch=0&fov=20",
+        "text": "Inspected north curb toward Bute from PDF midpoint. A temporary no-parking notice is visible, but no readable permanent two-hour schedule was found in inspected views. Temporary notice does not establish current restrictions or disprove the historical PDF schedule."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-99cd6fc2597d",
+    "area": "davie-beach",
+    "street": "Bidwell",
+    "side": "west",
+    "between": [
+      "Burnaby",
+      "Beach"
+    ],
+    "coordinates": [
+      -123.141774,
+      49.285297
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=jG_twXMXvgd-U9vMaj2Kag&heading=305&pitch=0&fov=90",
+        "text": "At the approximate west-curb section midpoint, imagery shows a bike-share docking station rather than a public car-parking curb. Does not establish rules for remaining curb portions."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "davie-beach-605be445f641",
+    "area": "davie-beach",
+    "street": "Cardero",
+    "side": "west",
+    "between": [
+      "Burnaby",
+      "Harwood"
+    ],
+    "coordinates": [
+      -123.140568,
+      49.284036
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=SERO0kZWyjloNfVv0R8vSg&heading=277&pitch=0&fov=20",
+        "text": "West-side sign reads 2h, 9AM–8PM, MON–SAT, arrow right; adjacent restriction sign is partly obscured by foliage. Confirms the timed sign locally, not the complete curb boundaries."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-07d969bc7df2",
+    "area": "denman-west",
+    "street": "Haro",
+    "side": "north",
+    "between": [
+      "Chilco",
+      "Gilford"
+    ],
+    "coordinates": [
+      -123.138407,
+      49.292085
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1cdE9SKC64ywjiVpk36haQ&heading=330&pitch=0&fov=65",
+        "text": "North curb inspected near 1915–1906 Haro from multiple positions. No readable timed-parking sign obtained; vehicles alone do not verify free parking."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-a572b5310f24",
+    "area": "denman-west",
+    "street": "Barclay",
+    "side": "south",
+    "between": [
+      "Gilford",
+      "Denman"
+    ],
+    "coordinates": [
+      -123.138591,
+      49.290661
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=4_tzvoqxOXNxmI9FVMx8uA&heading=164&pitch=0&fov=20",
+        "text": "South-side sign reads green P, 2h, 9AM–8PM, arrow right; small day text not fully legible. Adjacent sign is permit-only arrow left. Match is local and directional; precise boundary unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-b672f507d5a2",
+    "area": "denman-west",
+    "street": "Comox",
+    "side": "south",
+    "between": [
+      "Gilford",
+      "Denman"
+    ],
+    "coordinates": [
+      -123.140713,
+      49.289252
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=cRzQYxtdiRseYESitHFI2Q&heading=151&pitch=0&fov=20",
+        "text": "South curb has temporary equipment, tape and a storage container in imagery. Nearby no-parking signs visible but exception text not confidently legible. No readable two-hour sign obtained; current rules and section endpoints remain unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-8a345fd5d337",
+    "area": "denman-west",
+    "street": "Pendrell",
+    "side": "north",
+    "between": [
+      "Gilford",
+      "Denman"
+    ],
+    "coordinates": [
+      -123.141733,
+      49.288672
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=vh6y1QihHsZuOVXzbxsn2g&heading=35&pitch=0&fov=90",
+        "text": "Switched from driveway imagery to actual Pendrell road; inspected north curb near 1847–1822. No readable municipal timed-parking sign obtained. Private property sign is not curb evidence; schedule and endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-3ce39b4255e2",
+    "area": "denman-west",
+    "street": "Chilco",
+    "side": "east",
+    "between": [
+      "Alberni",
+      "Robson"
+    ],
+    "coordinates": [
+      -123.137536,
+      49.29387
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=gHxS9X4uuk7OU55tPSYafg&heading=80&pitch=0&fov=20",
+        "text": "East-curb green P sign shows 2h and 9AM–8PM. Small day text not confidently legible; nearby no-parking sign and directional arrows limit the applicable section. Exact endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-4c3450cc86bc",
+    "area": "denman-west",
+    "street": "Chilco",
+    "side": "east",
+    "between": [
+      "Robson",
+      "Haro"
+    ],
+    "coordinates": [
+      -123.138609,
+      49.293165
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=fPEVtF6YDRAtDTMR9-_4Jg&heading=125&pitch=0&fov=20",
+        "text": "East-curb sign clearly reads 2h 9AM–8PM MON–SAT arrow right. Left is no stopping except Mobi bike share. Timed parking exists locally to the right, but bike-share section must not be generalized as car parking; exact endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-7b286fa76dd3",
+    "area": "denman-west",
+    "street": "Chilco",
+    "side": "west",
+    "between": [
+      "Haro",
+      "Barclay"
+    ],
+    "coordinates": [
+      -123.139783,
+      49.292534
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=pQj2P7kJefWGL-KUR4uYcA&heading=249&pitch=0&fov=20",
+        "text": "West-curb sign by Stovold Lane reads 2h 9AM–8PM MON–SAT, arrow right. Confirms local schedule; complete section endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-c257846981fe",
+    "area": "denman-west",
+    "street": "Chilco",
+    "side": "west",
+    "between": [
+      "Barclay",
+      "Nelson"
+    ],
+    "coordinates": [
+      -123.140927,
+      49.291775
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zzU4vqexkTzdbWvff7VNsA&heading=263&pitch=0&fov=20",
+        "text": "West-curb green P sign reads 2h 9AM–8PM. Day text blurred; exact section endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "denman-west-c0735dc2a877",
+    "area": "denman-west",
+    "street": "Gilford",
+    "side": "east",
+    "between": [
+      "Alberni",
+      "Robson"
+    ],
+    "coordinates": [
+      -123.13616,
+      49.292979
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=MR4ESZhkDM4WD7GRGRBBvw&heading=209&pitch=0&fov=75",
+        "text": "East curb inspected from midpoint toward lane. Available signs were edge-on or unreadable; no readable two-hour schedule obtained. Does not verify free parking or precise extents."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-17d8d42a59a6",
+    "area": "west-end-plateau",
+    "street": "Haro",
+    "side": "south",
+    "between": [
+      "Denman",
+      "Bidwell"
+    ],
+    "coordinates": [
+      -123.135412,
+      49.289996
+    ],
+    "pdfSchedule": {
+      "days": null,
+      "start": 540,
+      "end": 1080
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ybE6elSF4YHmlN_EekKJ6A&heading=183&pitch=0&fov=20",
+        "text": "South-side sign at ice rink reads 1h 9AM–6PM arrow right. No days printed on visible sign; does not independently establish an explicit day schedule. PDF midpoint initially landed on park path; actual road viewpoint used. Endpoints remain approximate."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-519348bc0ef3",
+    "area": "west-end-plateau",
+    "street": "Haro",
+    "side": "south",
+    "between": [
+      "Cardero",
+      "Nicola"
+    ],
+    "coordinates": [
+      -123.1330805,
+      49.288487
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=V8UgoHUMXlHM_19I5B78kw&heading=167&pitch=0&fov=20",
+        "text": "South-curb sign cluster shows permit-only arrow left and green P 2h 9AM–8PM arrow right. Small day text not confidently legible. Local timed parking supported; exact bounds unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-bf4d72f5cee4",
+    "area": "west-end-plateau",
+    "street": "Haro",
+    "side": "south",
+    "between": [
+      "Jervis",
+      "Bute"
+    ],
+    "coordinates": [
+      -123.128431,
+      49.2854765
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2023-04",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=28WsQRecxfRj8xZjUElS-g&heading=178&pitch=0&fov=20",
+        "text": "South-side sign near 1233 Haro shows no parking with arrows both ways at inspected location. Conflicts locally with a free two-hour classification; exact extent and current restriction unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-3feb1174f366",
+    "area": "west-end-plateau",
+    "street": "Haro",
+    "side": "south",
+    "between": [
+      "Bute",
+      "Thurlow"
+    ],
+    "coordinates": [
+      -123.12650450000001,
+      49.28423
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2022-02",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=atR5aC6u9Cx0-oa2CHeC2Q&heading=275&pitch=0&fov=50",
+        "text": "South-side sign shows no stopping arrow left and no parking arrow right, with another no-parking sign farther along curb. Conflicts with mapped free two-hour claim at inspected location. Historical imagery; current rules and exact bounds unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-90022b9c5df5",
+    "area": "west-end-plateau",
+    "street": "Barclay",
+    "side": "south",
+    "between": [
+      "Denman",
+      "Bidwell"
+    ],
+    "coordinates": [
+      -123.137363,
+      49.289867
+    ],
+    "pdfSchedule": {
+      "days": null,
+      "start": 540,
+      "end": 1080
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=T7x6TleNFstIAhiPJId9hQ&heading=198&pitch=0&fov=20",
+        "text": "South-side sign just east of Denman clearly reads 1h 9AM–6PM MON–SAT arrow right, confirming the user spot-check and days omitted by PDF. Adjacent permit sign farther east; exact section endpoints remain unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-37dbf82432f9",
+    "area": "west-end-plateau",
+    "street": "Barclay",
+    "side": "south",
+    "between": [
+      "Bute",
+      "Thurlow"
+    ],
+    "coordinates": [
+      -123.127568,
+      49.283526499999994
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=RQKyl2FllnsnNvT2ySawrg&heading=196&pitch=0&fov=20",
+        "text": "South-curb signs show passenger zone arrow left and no parking except with permit arrow right. Inspected location is not general public two-hour parking. Exact affected extents unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-4972cbcff8f4",
+    "area": "west-end-plateau",
+    "street": "Comox",
+    "side": "north",
+    "between": [
+      "Nicola",
+      "Broughton"
+    ],
+    "coordinates": [
+      -123.134985,
+      49.2856955
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=hcohlv7a7ho88wf8xQXvrg&heading=344&pitch=0&fov=55",
+        "text": "Inspected north curb near 1448–1440 Comox from multiple views. Sign obscured by foliage or edge-on; no readable two-hour schedule obtained. Parked vehicles not treated as verification."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-0e79e7d6a629",
+    "area": "west-end-plateau",
+    "street": "Pendrell",
+    "side": "north",
+    "between": [
+      "Jervis",
+      "Bute"
+    ],
+    "coordinates": [
+      -123.1327155,
+      49.2828335
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=oNVUvEOx7fzmWewmPo4vng&heading=18&pitch=0&fov=20",
+        "text": "North-side sign reads 2h 9AM–8PM MON–SAT, arrow left. Matches local timed schedule; exact section endpoints unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-68a422dee9de",
+    "area": "west-end-plateau",
+    "street": "Pendrell",
+    "side": "south",
+    "between": [
+      "Broughton",
+      "Jervis"
+    ],
+    "coordinates": [
+      -123.134387,
+      49.283764
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=uqgez6C1dxDEsIX0MisgvA&heading=176&pitch=0&fov=35",
+        "text": "South-curb sign reads 2h 9AM–8PM MON–SAT arrow right; no stopping arrow left protects driveway. Confirms local schedule only, not entire drawn section."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-0cce376f9a7d",
+    "area": "west-end-plateau",
+    "street": "Pendrell",
+    "side": "south",
+    "between": [
+      "Bute",
+      "Thurlow"
+    ],
+    "coordinates": [
+      -123.131606,
+      49.2819645
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=vmp6Zq0jCePw22yudCLREw&heading=208&pitch=0&fov=20",
+        "text": "South-curb green P sign shows MON–SAT and 8PM end, arrow left. Leaves obscure duration and start hour, so complete schedule not independently confirmed. Temporary no-stopping notice for August 8, 8am–5pm is also visible; not treated as a permanent rule."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-0a85aa3b70b1",
+    "area": "west-end-plateau",
+    "street": "Davie",
+    "side": "north",
+    "between": [
+      "Cardero",
+      "Nicola"
+    ],
+    "coordinates": [
+      -123.1379975,
+      49.2848615
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=T0JmWRkYNrcPmt1a8Bp9xw&heading=346&pitch=0&fov=20",
+        "text": "North-curb green P reads 2h 9AM–8PM with arrows both ways. Small day text not confidently legible. Supports local timed parking; complete bounds unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-9fbe67183740",
+    "area": "west-end-plateau",
+    "street": "Davie",
+    "side": "north",
+    "between": [
+      "Nicola",
+      "Broughton"
+    ],
+    "coordinates": [
+      -123.136814,
+      49.2840955
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=q83HOR0f3_N8RtK9WaQDbQ&heading=336&pitch=0&fov=20",
+        "text": "North-side green parking sign reads 2h, 9am–8pm with arrows both ways. Days are not legible reliably. Local sign only; complete section boundaries not verified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-7767aa67d4a8",
+    "area": "west-end-plateau",
+    "street": "Davie",
+    "side": "north",
+    "between": [
+      "Broughton",
+      "Jervis"
+    ],
+    "coordinates": [
+      -123.135561,
+      49.2832845
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=uOL3WhOXBdYuapAYLA-PCg&heading=325&pitch=0&fov=20",
+        "text": "North-side sign near 1345 Davie is obscured by foliage. Multiple viewpoints inspected; duration, days, and exceptions cannot be read reliably. No verification of the complete PDF section."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-0b108f9e2b1a",
+    "area": "west-end-plateau",
+    "street": "Bidwell",
+    "side": "west",
+    "between": [
+      "Robson",
+      "Haro"
+    ],
+    "coordinates": [
+      -123.134235,
+      49.290288000000004
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2022-02",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=c0vZUZrXk3hS-jpAnvlvfw&heading=267&pitch=0&fov=20",
+        "text": "West curb outside Aria Market: 2h 9am–8pm Mon–Sat, arrow right; adjacent no-stopping arrow left. Historical local sign match only, not full section boundaries."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-33024f4a233e",
+    "area": "west-end-plateau",
+    "street": "Bidwell",
+    "side": "west",
+    "between": [
+      "Barclay",
+      "Nelson"
+    ],
+    "coordinates": [
+      -123.1368385,
+      49.288565
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=GOrfenkwGBMnDKJMtsgILA&heading=260&pitch=0&fov=20",
+        "text": "West curb north of Nelson: green 2h 9am–8pm sign points right, no-stopping sign points left. Days too blurred to independently confirm in this view; user previously reported Mon–Sat from August 2024 imagery. Exact extent not verified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-1ebfe2854c01",
+    "area": "west-end-plateau",
+    "street": "Bidwell",
+    "side": "west",
+    "between": [
+      "Nelson",
+      "Comox"
+    ],
+    "coordinates": [
+      -123.1378385,
+      49.287902
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Y5FEVwCsWLGA---IkslkkQ&heading=335&pitch=0&fov=20",
+        "text": "West curb near 1050 Bidwell: 2h and 9am–8pm visible on oblique sign; day line and arrow cannot be read confidently. Adjacent no-parking sign has wheelchair symbol. Do not extend public parking into reserved space; boundaries unresolved."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-484439ac940b",
+    "area": "west-end-plateau",
+    "street": "Nicola",
+    "side": "west",
+    "between": [
+      "Barclay",
+      "Nelson"
+    ],
+    "coordinates": [
+      -123.13349149999999,
+      49.2871745
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-sign-match",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=XWaNhPLyCvR4O-ZFDG3Nqw&heading=269&pitch=0&fov=20",
+        "text": "West curb near 957 Nicola: 2h 9am–8pm Mon–Sat arrow right; permit-only arrow left. Local sign match; exact endpoints of PDF section not verified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-92bae635df9b",
+    "area": "west-end-plateau",
+    "street": "Nicola",
+    "side": "west",
+    "between": [
+      "Barclay",
+      "Nelson"
+    ],
+    "coordinates": [
+      -123.13413249999999,
+      49.286750999999995
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=9UgNl4plkOvrn-cMrYJ5bQ&heading=274&pitch=0&fov=20",
+        "text": "West curb near Nelson, at the approximate PDF section location, has no-stopping sign with arrows both ways. Conflicts with treating the mapped section as confirmed public two-hour parking; exact restriction extent unresolved."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-c734a5e70fd6",
+    "area": "west-end-plateau",
+    "street": "Nicola",
+    "side": "west",
+    "between": [
+      "Comox",
+      "Pendrell"
+    ],
+    "coordinates": [
+      -123.1361905,
+      49.285389
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=obS2mekNH_FoIG8MhGpDiQ&heading=260&pitch=0&fov=20",
+        "text": "West curb near 1101 Nicola: green 2h 9am–8pm sign, but leaves and blur obscure days and arrow. Adjacent no-parking sign has an unreadable exception. Local partial match only; reserved area and section endpoints unresolved."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-e9554463e621",
+    "area": "west-end-plateau",
+    "street": "Jervis",
+    "side": "west",
+    "between": [
+      "Comox",
+      "Pendrell"
+    ],
+    "coordinates": [
+      -123.133138,
+      49.284065999999996
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "unresolved",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VHfu2-9dZMWpWnJQPiioUw&heading=22&pitch=0&fov=75",
+        "text": "Inspected west curb near 1090–1095 Jervis from multiple headings and adjacent panorama. Signs are edge-on or facing away and no complete schedule was readable. Parked vehicles are not evidence of free parking; full section remains unverified."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-b7bd3d236123",
+    "area": "west-end-plateau",
+    "street": "Bute",
+    "side": "west",
+    "between": [
+      "Haro",
+      "Barclay"
+    ],
+    "coordinates": [
+      -123.128873,
+      49.284829
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-conflict",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=4EVAJ1jxYAbUF1PkO6B-fg&heading=263&pitch=0&fov=20",
+        "text": "Bike-share docks occupy west curb at approximate PDF midpoint. Boundary sign reads 2h 9am–8pm Mon–Sat to the left and no stopping except Mobi bike share to the right. Some public parking exists nearby, but complete mapped line cannot be treated as free without resolving bike-share boundary."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  },
+  {
+    "id": "wep-c104b0d51182",
+    "area": "west-end-plateau",
+    "street": "Bute",
+    "side": "east",
+    "between": [
+      "Comox",
+      "Pendrell"
+    ],
+    "coordinates": [
+      -123.1314555,
+      49.282966
+    ],
+    "pdfSchedule": {
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1200
+    },
+    "status": "historical-partial-match",
+    "observations": [
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20",
+        "text": "East curb near 1086 Bute: permanent green sign reads 2h 9am–8pm arrow right; days too blurred. Adjacent no-parking exception unreadable. Construction, cones and temporary no-parking sign occupied curb in this imagery; temporary dates unreadable and not assumed current."
+      }
+    ],
+    "checkedOn": "2026-09-22"
+  }
+]

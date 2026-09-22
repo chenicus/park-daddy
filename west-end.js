@@ -17,6 +17,9 @@ export function buildWestEndBlocks(data) {
 }
 
 export function curbState(section, mins, dow) {
+  if (section.verification === 'historical-conflict') {
+    return { free: false, rate: null, group: 'restrictions', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: 'Street View conflicts with PDF; curb restrictions unresolved' };
+  }
   if (section.category === 'permit') {
     return { free: false, rate: null, group: 'restrictions', cls: 'p-permit', color: '#7c3aed', label: 'Permit only', status: 'Permit required at all times' };
   }
@@ -43,6 +46,7 @@ export function curbSchedule(section) {
 // Weekly rule rows reuse the same schedule table as meters. A missing day or an
 // unlisted period must never become an unrestricted/free row.
 export function curbTableSegments(section, dow) {
+  if (section.verification === 'historical-conflict') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Check signs', rate: null }];
   if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
   const s = section.schedule;
   const applies = s.days?.includes(dow) === true;
