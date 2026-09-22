@@ -4,7 +4,7 @@ Checked 2026-09-22. All 42 PDF-derived timed curb sections were inspected. Image
 
 Results: 10 readable local sign matches; 14 partial matches; 9 conflicts; 9 unresolved.
 
-Conflicting sections are withheld from free results and displayed as Check signs. Their PDF schedules and approximate geometry remain preserved. Partial matches and unresolved records retain their PDF classification, without being promoted to verified. A matching sign applies only in its indicated direction; no missing restrictions or precise endpoints were inferred.
+All 32 partial matches, conflicts, and unresolved sections are withheld from Free results and displayed as Check signs. Their PDF schedules and approximate geometry remain preserved. The 10 readable local sign matches retain timed parking eligibility only during their documented schedules; the imagery date and link are displayed in the table. These historical spot-checks do not establish current rules or exact boundaries. A matching sign applies only in its indicated direction; no missing restrictions or precise endpoints were inferred.
 
 ## Evidence
 

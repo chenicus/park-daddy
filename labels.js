@@ -1,4 +1,4 @@
-import { curbState, curbVisible } from './west-end.js?v=4';
+import { curbState, curbVisible } from './west-end.js?v=5';
 // Block-face clustering + always-visible price labels.
 // Clusters the ~3,758 meters once at load into block-face groups (same rate/limit
 // tuple within 45 m), then renders a zoom-laddered label layer:
@@ -106,6 +106,7 @@ export function buildSeattleFreeBlocks(records, idBase = 3e6) {
 // Current rate for a block, dispatching on shape: Seattle blockfaces carry `bands`,
 // Vancouver meters/free carry rate1/rate2.
 function rateFor(bl, mins, dow) {
+  if (bl.unverified) return { free: false, rate: null, label: 'Check signs', cls: 'p-unknown', color: '#a16207' };
   if (bl.curb) return curbState(bl.curb, mins, dow);
   return bl.bands ? bandRateNow(bl.bands, mins, dow) : rateNow(bl.rate1, bl.rate2, mins);
 }
@@ -201,7 +202,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
-  let filter = { free: true, paid: true, restrictions: true };
+  let filter = { free: true, paid: true, restrictions: true, unverified: true };
   // Set for the single refresh a Free/Paid toggle triggers: pills animate in/out instead of
   // popping, so the filter reads as pins leaving rather than the map silently changing.
   let morph = false;
@@ -262,7 +263,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       // everywhere — instead the chip is "$0" only where free dominates, else cheapest paid.
       const cells = new Map();
       for (const bl of vis) {
-        if (bl.curb) continue; // approximate / restricted sections never set an area price minimum
+        if (bl.curb || bl.unverified) continue; // approximate / restricted sections never set an area price minimum
         const ck = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
         const r = rateFor(bl, mins, dow);
         if (!keep(r.free)) continue;
@@ -303,7 +304,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
 
     const items = vis.filter((bl) => !bl.noPill).map((bl) => {   // free streets: line only, no pill
       const r = rateFor(bl, mins, dow);
-      if (bl.curb) return {
+      if (bl.curb || bl.unverified) return {
         sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
         text: r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
         flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
@@ -326,7 +327,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         cls: bucket(r.rate, r.free), block: bl, rate: r.rate, flagged,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
-    }).filter((it) => it.block.curb ? curbVisible(it.block.curb, mins, dow, filter) : keep(it.free));
+    }).filter((it) => it.block.unverified ? filter.unverified !== false : it.block.curb ? curbVisible(it.block.curb, mins, dow, filter) : keep(it.free));
     items.sort(z === 15 ? (a, b) => a.rate - b.rate || a.d - b.d : (a, b) => a.d - b.d);
 
     const kept = [], keptPx = [];
@@ -358,8 +359,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         });
         continue;
       }
-      if (!keep(r.free)) continue;
-      const col = DOT_COLOR[bucket(r.rate, r.free)];
+      if (bl.unverified ? filter.unverified === false : !keep(r.free)) continue;
+      const col = bl.unverified ? r.color : DOT_COLOR[bucket(r.rate, r.free)];
       if (bl.kirk && bl.stalls) {   // Kirkland — one dot per stall, coloured by LIVE occupancy
         for (const st of bl.stalls) {
           const c = st.s === 'vacant' ? '#16a34a' : st.s === 'occupied' ? '#9ca3af' : col;   // unknown → price color

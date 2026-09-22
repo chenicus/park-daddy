@@ -17,8 +17,8 @@ export function buildWestEndBlocks(data) {
 }
 
 export function curbState(section, mins, dow) {
-  if (section.verification === 'historical-conflict') {
-    return { free: false, rate: null, group: 'restrictions', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: 'Street View conflicts with PDF; curb restrictions unresolved' };
+  if (section.category !== 'permit' && section.verification !== 'historical-sign-match') {
+    return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
   }
   if (section.category === 'permit') {
     return { free: false, rate: null, group: 'restrictions', cls: 'p-permit', color: '#7c3aed', label: 'Permit only', status: 'Permit required at all times' };
@@ -28,7 +28,7 @@ export function curbState(section, mins, dow) {
   const hours = section.limitMinutes / 60;
   return active
     ? { free: true, rate: 0, group: 'free', cls: 'p-free', color: '#2563eb', label: `Free · ${hours}h`, status: `${hours}h public parking during listed hours; check signs` }
-    : { free: false, rate: null, group: 'restrictions', cls: 'p-unknown', color: '#a16207', label: `${hours}h · Verify`, status: s.days == null ? 'Days not specified — check signs' : 'Outside listed hours — restrictions unknown' };
+    : { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: `${hours}h · Verify`, status: s.days == null ? 'Days not specified — check signs' : 'Outside listed hours — restrictions unknown' };
 }
 
 export function curbVisible(section, mins, dow, filters) {
@@ -46,7 +46,9 @@ export function curbSchedule(section) {
 // Weekly rule rows reuse the same schedule table as meters. A missing day or an
 // unlisted period must never become an unrestricted/free row.
 export function curbTableSegments(section, dow) {
-  if (section.verification === 'historical-conflict') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Check signs', rate: null }];
+  const check = section.spotChecks?.findLast(c => c.url && c.imageryDate);
+  const evidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }] : [];
+  if (section.category !== 'permit' && section.verification !== 'historical-sign-match') return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
   if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
   const s = section.schedule;
   const applies = s.days?.includes(dow) === true;
@@ -56,6 +58,7 @@ export function curbTableSegments(section, dow) {
       rate: s.days == null ? null : 0, status: s.days == null ? 'Check signs' : 'Free', applies },
     { from: 0, to: 1440, label: 'Other times', status: 'Check signs', rate: null,
       activeOutside: applies ? [s.start, s.end] : [] },
+    ...evidence,
   ];
 }
 
@@ -64,4 +67,15 @@ export function filterInferredFree(records, feeds) {
   const excluded = new Set(feeds.flatMap(feed => feed?.excludeInferredBlocks || [])
     .map(name => name.trim().toLowerCase()));
   return records.filter(record => !excluded.has(record.h.trim().toLowerCase()));
+}
+
+
+// Enforcement counts locate a candidate block; they do not prove public parking.
+export function buildInferredBlocks(arr) {
+  return arr.map((f, i) => ({
+    id: 1e6 + i, lat: f.lat, lon: f.lon, unverified: true, hblock: f.h, tickets: f.n,
+    rate1: null, rate2: null, flat: null,
+    limits: { day: null, eve: null, wkndDay: null, wkndEve: null },
+    rushes: [], pts: [], count: 0, spaces: 0, card: false,
+  }));
 }

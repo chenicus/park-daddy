@@ -1,6 +1,6 @@
-import { buildWestEndBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=4';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=5';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=41';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=42';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=15';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -11,7 +11,7 @@ import { track } from './analytics.js?v=3';
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true, restrictions: true };
+const filters = { free: true, paid: true, restrictions: true, unverified: true };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
@@ -263,16 +263,9 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
 });
 
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
-// that ride the same pill/filter/card machinery as meters, but always read as FREE.
+// remain unverified until supported by readable curb signage.
 let freeBlocks = [];
-function buildFreeBlocks(arr) {
-  return arr.map((f, i) => ({
-    id: 1e6 + i, lat: f.lat, lon: f.lon, isFree: true, hblock: f.h, tickets: f.n,
-    rate1: null, rate2: null, flat: null,
-    limits: { day: 180, eve: null, wkndDay: 180, wkndEve: null },
-    rushes: [], pts: [], count: 0, spaces: 0, card: false,
-  }));
-}
+
 
 // Multi-city: the current city is whichever CITIES bounds contain the map center. We
 // lazy-load a city's feeds the first time you're there (on open via geolocation, or on
@@ -331,7 +324,7 @@ async function loadCity(key) {
     c.data.forEach((d, i) => {
       const data = feeds[i] || [];
       if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
-      else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
+      else if (d.kind === 'free') { freeBlocks = buildInferredBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
       else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
@@ -956,11 +949,13 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
+$('chipUnverified').addEventListener('click', () => { filters.unverified = !filters.unverified; $('chipUnverified').classList.toggle('on', filters.unverified); $('chipUnverified').setAttribute('aria-pressed', String(filters.unverified)); applyFilters(); });
 $('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
-$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
+$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
   filters.paid = !filters.paid;
   $('chipPaid').classList.toggle('on', filters.paid);
+  $('chipPaid').setAttribute('aria-pressed', String(filters.paid));
   applyFilters();
   // First time someone hides paid to look at free-only, warn that free data is thin.
   if (!filters.paid && !store.get('freeWarnSeen')) {
@@ -1468,7 +1463,7 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.curb ? curbTableSegments(b.curb, dowNow())
+  const segs = b.unverified ? [{ from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null }] : b.curb ? curbTableSegments(b.curb, dowNow())
     : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
     : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
@@ -1476,10 +1471,11 @@ function renderSchedule(b, mins) {
       : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
     const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));
+    const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="Open Street View imagery from ${esc(cost)}">${esc(cost)} ↗</a>` : cost;
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
-      `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${cost}</span></div>`;
+      `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${costText}</span></div>`;
   }).join('');
   el.hidden = false;
 }
@@ -1515,6 +1511,15 @@ function showSpotCard(b) {
   renderFlag(b);
 
   $('scprice').classList.remove('free');
+  if (b.unverified) {
+    $('scprice').textContent = 'Check signs';
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
+    $('scmaps').href = navUrl(b);
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
   if (b.curb) {
     const state = curbState(b.curb, mins, dowNow());
     $('scprice').textContent = state.label;
@@ -1564,7 +1569,9 @@ function showSpotCard(b) {
 
   // just "Free" — the schedule below lists the paid windows, so "right now" was
   // spelling out something the reader can already see
-  $('scprice').innerHTML = r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
+  const pNow = prohibitionNow(b, mins, dowNow());
+  const rushNow = (b.rushes || []).some(([start, end]) => mins >= start && mins < end);
+  $('scprice').innerHTML = pNow || rushNow ? 'No parking now' : r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
 
   // full-day price breakdown so a currently-free spot still shows its paid window
   renderSchedule(b, mins);
@@ -1580,7 +1587,6 @@ function showSpotCard(b) {
   const fmtWin = (a, z) => { const s = short(a), e = short(z); return (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap; };
   // A prohibition active right now — rare via a pill tap (those are hidden while active) but
   // reachable by search; call it out plainly.
-  const pNow = prohibitionNow(b, mins, dow);
   if (pNow) rows.push(`<span class="warn">${IC.alert} No parking now · ${zoneLabel(pNow)}</span>`);
   // Upcoming no-park within the ~2h stay: a rush tow-away OR a prohibition zone. The full-day
   // schedule already lists every window; this is the urgency nudge you can't scroll past.

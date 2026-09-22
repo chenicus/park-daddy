@@ -302,12 +302,16 @@
     color: var(--text); font-family: inherit; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px;
     display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); cursor: pointer;
     transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-press) var(--ease-press); }
+  .seg .cost a { color: inherit; text-underline-offset: 3px; }
   .chip:active { transform: scale(.965); }
   .chip.on { background: var(--chip-sel); color: var(--text); border-color: var(--stroke); box-shadow: var(--shadow); }
   .chip.on::before { display: none; }
+  .chip:not(.on):not(.trip) { opacity: .65; box-shadow: none; }
+  .chip:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .chip svg { width: 1.1em; height: 1.1em; }
-  .chip .chk { width: 1em; height: 1em; margin-left: -2px; display: none; }
-  .chip.on .chk { display: block; }
+  .chip .chk { width: 1em; height: 1em; margin-left: -2px; visibility: hidden; }
+  .chip.on .chk { visibility: visible; }
+  @media (max-width: 759px) { .chip { min-height: 40px; } }
 
   /* ---- trip pill (arrival) ---- */
   .chip.trip { gap: 5px; }
@@ -715,12 +719,12 @@
   #scsub { line-height: 1.25; min-height: 1.25em; }
   .sc-sched { margin-top: 14px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .sc-sched[hidden] { display: none; }
-  .sc-sched .seg { display: flex; justify-content: space-between; align-items: center;
+  .sc-sched .seg { display: flex; justify-content: space-between; align-items: center; gap: 12px;
     padding: 14px; font-size: var(--fs-body); letter-spacing: -.2px; border-top: 1px solid var(--line); }
   .sc-sched .seg:first-child { border-top: none; }
   /* baseline, not center: .lim is a smaller size and centering floats it off the text's feet */
   .sc-sched .seg .when { color: var(--muted-strong); display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
-  .sc-sched .seg .cost { font-weight: 600; color: var(--text); }
+  .sc-sched .seg .cost { flex-shrink: 0; text-align: right; font-weight: 600; color: var(--text); }
   .sc-sched .seg.free .cost { color: var(--free); }
   .sc-sched .seg.tow .cost { color: #ff3b30; }
   .sc-sched .seg.active { background: var(--chip); }
@@ -732,6 +736,10 @@
      equidistant from both labels. A flex `gap` can't do this — it pads only the dot's
      leading side and leaves the narrower word-space after it. */
   .dot-sep::before { content: '·'; margin: 0 6px; }
+  @media (max-width: 400px) {
+    .sc-sched .seg .lim { flex-basis: 100%; }
+    .sc-sched .seg .lim.dot-sep::before { display: none; }
+  }
   .sc-rows { margin-top: 14px; font-size: var(--fs-body); line-height: 1.45; letter-spacing: -.2px; color: var(--text); }
   .sc-rows > div { padding: 4px 0; }
   .sc-rows svg.ic { stroke: var(--muted); margin-right: .35em; }
@@ -1190,9 +1198,10 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="iconbtn" id="here" type="button" aria-label="Use my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
 </form>
 <div class="chips">
-  <button class="chip mat on" id="chipFree" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
-  <button class="chip mat on" id="chipPaid" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
-  <button class="chip mat on" id="chipRestrictions" type="button" aria-pressed="true" title="Permit-only and unknown schedules">Restrictions</button>
+  <button class="chip mat on" id="chipFree" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
+  <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
+  <button class="chip mat on" id="chipRestrictions" type="button" aria-pressed="true" title="Show permit-only parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit only</button>
+  <button class="chip mat on" id="chipUnverified" type="button" aria-pressed="true" title="Show parking that needs verification"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Check signs</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
@@ -1552,7 +1561,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=123"></script>
+<script type="module" src="app.js?v=124"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

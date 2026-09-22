@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildWestEndBlocks, curbState, curbVisible, curbSchedule, curbTableSegments } from '../west-end.js';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbVisible, curbSchedule, curbTableSegments } from '../west-end.js';
 import { createLabelLayer, buildSeattleFreeBlocks } from '../labels.js';
 import { rptKey } from '../reports.js';
 
@@ -10,7 +10,7 @@ const blocks = buildWestEndBlocks(data);
 const permit = blocks.find(b => b.curb.category === 'permit');
 const barclay = blocks.find(b => b.curb.street === 'Barclay' && b.curb.limitMinutes === 60);
 const haro = blocks.find(b => b.curb.street === 'Haro' && b.curb.limitMinutes === 60);
-const bidwell = blocks.find(b => b.curb.spotChecks.some(c => c.status === 'user-reported-tentative-match'));
+const bidwell = blocks.find(b => b.curb.id === 'wep-0b108f9e2b1a');
 
 test('individual lines retain evidence and never acquire residential-free defaults', () => {
   assert.equal(blocks.length, 174);
@@ -33,7 +33,7 @@ test('full-time permits are never public/free on any day or hour', () => {
     assert.equal(s.free, false);
     assert.equal(s.rate, null);
     assert.equal(s.label, 'Permit only');
-    assert.equal(curbVisible(permit.curb, mins, day, { free:true, paid:false, restrictions:false }), false);
+    assert.equal(curbVisible(permit.curb, mins, day, { free:true, paid:false, restrictions:false,unverified:false }), false);
   }
 });
 
@@ -52,15 +52,15 @@ test('Barclay correction is scoped, historical and retains PDF omission', () => 
   assert.equal(curbState(barclay.curb,600,0).free,false);
 });
 
-test('Bidwell tentative check and 2-hour boundaries preserve unknown off-hours', () => {
+test('Bidwell historical check and 2-hour boundaries preserve unknown off-hours', () => {
   assert.equal(bidwell.curb.limitMinutes,120);
-  assert.equal(bidwell.curb.spotChecks[0].status,'user-reported-tentative-match');
+  assert.equal(bidwell.curb.spotChecks[0].status,'historical-sign-match');
   assert.equal(curbState(bidwell.curb,540,1).free,true);
   assert.equal(curbState(bidwell.curb,1199,6).free,true);
   assert.equal(curbState(bidwell.curb,1200,6).free,false);
   assert.equal(curbState(bidwell.curb,600,0).free,false);
   assert.equal(bidwell.curb.outsideSchedule,'unknown');
-  assert.equal(curbVisible(bidwell.curb,600,1,{free:false,paid:true,restrictions:true}),false);
+  assert.equal(curbVisible(bidwell.curb,600,1,{free:false,paid:true,restrictions:true,unverified:true}),false);
 });
 
 test('map rendering, filter, low-zoom and style recreation keep restricted curbs separate', () => {
@@ -75,18 +75,23 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
   globalThis.document={createElement:()=>({firstElementChild:{classList:{add(){},remove(){}},style:{},addEventListener(){}},style:{},addEventListener(){}})};
   globalThis.maplibregl={Marker:class {constructor({element}){this.el=element;}setLngLat(){return this;}addTo(){return this;}remove(){}getElement(){return this.el;}}};
   const legacy=buildSeattleFreeBlocks([{mid:[-123.13,49.285],line:[[-123.131,49.285],[-123.13,49.285]],cat:'tl',limit:180}]);
-  const layer=createLabelLayer(map,[permit,barclay,haro,bidwell,...legacy],{nowMins:()=>600,isWeekend:()=>false,dow:()=>day,onTap(){}});
+  const inferred=buildInferredBlocks([{lat:49.28,lon:-123.14,h:'Unverified candidate',n:1}]);
+  const layer=createLabelLayer(map,[permit,barclay,haro,bidwell,...legacy,...inferred],{nowMins:()=>600,isWeekend:()=>false,dow:()=>day,onTap(){}});
   try {
     layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,4);
     assert.equal(sources.get('blockface-lines').data.features.length,1);
-    layer.setFilter({free:true,paid:false,restrictions:false});
+    assert.equal(sources.get('meter-dots').data.features.length,1);
+    assert.equal(sources.get('meter-dots').data.features[0].properties.color,'#a16207');
+    layer.setFilter({free:true,paid:false,restrictions:false,unverified:false});
     assert.equal(sources.get('west-end-curbs').data.features.length,2);
+    assert.equal(sources.get('meter-dots').data.features.length,0);
     day=0; layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,0);
-    layer.setFilter({free:false,paid:false,restrictions:true});
+    layer.setFilter({free:false,paid:false,restrictions:true,unverified:true});
     assert.equal(sources.get('west-end-curbs').data.features.length,4);
     assert.equal(sources.get('blockface-lines').data.features.length,0);
+    assert.equal(sources.get('meter-dots').data.features.length,1);
     sources.set('west-end-curbs',{setData(d){this.data=d;}}); layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,4);
     zoom=14; layer.refresh();
@@ -146,12 +151,12 @@ test('Pacific two-hour schedule ends at 3pm without inferring free evenings or S
   const early = additions[0].sections.find(s => s.schedule.end === 900);
   assert.ok(early);
   assert.equal(curbState(early,539,1).free,false);
-  assert.equal(curbState(early,540,1).free,true);
-  assert.equal(curbState(early,899,6).free,true);
+  assert.equal(curbState(early,540,1).free,false);
+  assert.equal(curbState(early,899,6).free,false);
   assert.equal(curbState(early,900,6).free,false);
   assert.equal(curbState(early,600,0).free,false);
-  assert.equal(curbTableSegments(early,1)[0].to,900);
-  assert.equal(curbTableSegments(early,1)[1].rate,null);
+  assert.equal(early.pdfSchedule.end,900);
+  assert.ok(curbTableSegments(early,1).every(row => row.rate === null));
 });
 
 test('loaded curb guides supersede only named inferred free blocks', async () => {
@@ -166,6 +171,13 @@ test('all timed curbs retain historical evidence and conflicting sections never 
   const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
   assert.equal(timed.length, 42);
   assert.ok(timed.every(s => s.spotChecks.some(c => c.url?.startsWith('https://www.google.com/maps/'))));
+  for (const section of timed) {
+    const evidence = curbTableSegments(section,1).find(row => row.url);
+    assert.ok(evidence);
+    assert.equal(evidence.applies,false);
+    assert.equal(evidence.rate,null);
+    assert.ok(section.spotChecks.some(check => check.url === evidence.url && check.imageryDate === evidence.status));
+  }
   const conflicts = timed.filter(s => s.verification === 'historical-conflict');
   assert.equal(conflicts.length, 9);
   for (const section of conflicts) {
@@ -173,8 +185,35 @@ test('all timed curbs retain historical evidence and conflicting sections never 
     assert.equal(section.geometryStatus, 'approximate-schematic');
     for (let day = 0; day < 7; day++) for (const mins of [0,540,600,900,1199,1439]) {
       assert.equal(curbState(section, mins, day).free, false);
-      assert.equal(curbVisible(section, mins, day, {free:true, restrictions:false}), false);
+      assert.equal(curbVisible(section, mins, day, {free:true, restrictions:false,unverified:false}), false);
       assert.ok(curbTableSegments(section, day).every(row => row.rate === null));
     }
+  }
+});
+
+
+test('unconfirmed timed curbs are marked and filter independently of permits', () => {
+  const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
+  const unconfirmed = timed.filter(s => s.verification !== 'historical-sign-match');
+  assert.equal(unconfirmed.length,32);
+  for (const section of unconfirmed) {
+    assert.equal(curbState(section,600,1).free,false);
+    assert.equal(curbState(section,600,1).label,'Check signs');
+    assert.equal(curbVisible(section,600,1,{restrictions:false,unverified:true}),true);
+    assert.equal(curbVisible(section,600,1,{restrictions:true,unverified:false}),false);
+    assert.ok(curbTableSegments(section,1).every(s => s.rate === null));
+  }
+  assert.equal(curbVisible(permit.curb,600,1,{restrictions:false,unverified:true}),false);
+});
+
+
+test('enforcement-derived Vancouver records are not classified as free', () => {
+  const source = JSON.parse(fs.readFileSync(new URL('../data/free.json', import.meta.url)));
+  const candidates = buildInferredBlocks(source);
+  assert.equal(candidates.length, source.length);
+  assert.ok(candidates.length > 2000);
+  for (const block of candidates) {
+    assert.equal(block.unverified,true);
+    assert.equal(block.isFree,undefined);
   }
 });
