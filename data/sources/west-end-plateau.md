@@ -26,7 +26,7 @@ No panorama URLs were supplied; `url: null` preserves that absence rather than i
 - Dashed curb lines and plain labels; tap a line even when its pill is decluttered.
 - Purple “Permit only” always requires a permit. Blue “Free · 1h/2h” appears only during a known listed day/time; amber “1h/2h · Verify” means days or off-hours access are unknown.
 - The Restrictions chip controls permit/unknown sections separately from Free/Paid. Approximate curbs appear at street zoom and never determine zoomed-out “Free” minima or meter-ranking suggestions.
-- Timed-parking cards preserve source links, schedules, historical spot checks, and uncertainty. Permit cards show only “Permit required at all times, every day, all hours.”; their full source and verification metadata remains in the data feed. Reports use a stable section ID rather than applying one report to every curb with the same street name.
+- All parking cards use the same schedule-table renderer. Curb cards omit street names and descriptive paragraphs; weekly days, limits and unknown off-hours appear in the table. Full source links, geometry uncertainty and historical verification metadata remain in the data feed. Reports use stable section IDs.
 - The generated feed is separate from `free.json`, so refresh scripts cannot overwrite it with an inferred 3-hour residential rule. No current inferred free blocks overlap this footprint.
 
 Validation: `node --test tests/west-end.test.mjs` (Node 22+), plus local browser smoke testing.

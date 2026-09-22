@@ -39,3 +39,18 @@ export function curbSchedule(section) {
   const days = s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : 'Every day';
   return `${section.limitMinutes / 60} hour${section.limitMinutes === 60 ? '' : 's'} · ${clock(s.start)}–${clock(s.end)} · ${days}`;
 }
+
+// Weekly rule rows reuse the same schedule table as meters. A missing day or an
+// unlisted period must never become an unrestricted/free row.
+export function curbTableSegments(section, dow) {
+  if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
+  const s = section.schedule;
+  const applies = s.days?.includes(dow) === true;
+  const days = s.days == null ? 'Days unknown' : 'Mon–Sat';
+  return [
+    { from: s.start, to: s.end, days, limit: section.limitMinutes,
+      rate: s.days == null ? null : 0, status: s.days == null ? 'Check signs' : 'Free', applies },
+    { from: 0, to: 1440, label: 'Other times', status: 'Check signs', rate: null,
+      activeOutside: applies ? [s.start, s.end] : [] },
+  ];
+}

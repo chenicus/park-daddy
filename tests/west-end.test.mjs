@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildWestEndBlocks, curbState, curbVisible, curbSchedule } from '../west-end.js';
+import { buildWestEndBlocks, curbState, curbVisible, curbSchedule, curbTableSegments } from '../west-end.js';
 import { createLabelLayer, buildSeattleFreeBlocks } from '../labels.js';
 import { rptKey } from '../reports.js';
 
@@ -92,4 +92,23 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     zoom=14; layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,0);
   } finally {layer.destroy();}
+});
+
+
+test('shared table preserves weekly limits and unknown periods', () => {
+  const monday = curbTableSegments(bidwell.curb, 1);
+  assert.equal(monday[0].days, 'Mon–Sat');
+  assert.equal(monday[0].limit, 120);
+  assert.equal(monday[0].rate, 0);
+  assert.equal(monday[0].applies, true);
+  assert.equal(monday[1].rate, null);
+  assert.deepEqual(monday[1].activeOutside, [540, 1200]);
+  const sunday = curbTableSegments(bidwell.curb, 0);
+  assert.equal(sunday[0].applies, false);
+  assert.deepEqual(sunday[1].activeOutside, []);
+  assert.equal(curbTableSegments(haro.curb, 1)[0].rate, null);
+  const permitRows = curbTableSegments(permit.curb, 1);
+  assert.equal(permitRows.length, 1);
+  assert.equal(permitRows[0].status, 'Permit required');
+  assert.equal(permitRows[0].rate, null);
 });

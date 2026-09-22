@@ -1,6 +1,6 @@
-import { buildWestEndBlocks, curbState, curbSchedule } from './west-end.js?v=1';
+import { buildWestEndBlocks, curbState, curbTableSegments } from './west-end.js?v=2';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=38';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=39';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=12';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -1468,15 +1468,18 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
+  const segs = b.curb ? curbTableSegments(b.curb, dowNow())
+    : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
+    : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
-    const active = mins >= s.from && mins < s.to;
+    const active = s.activeOutside ? !(mins >= s.activeOutside[0] && mins < s.activeOutside[1])
+      : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
-    const cost = s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`);
+    const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
-      `<span class="when">${segLabel(s)}${lim}</span><span class="cost">${cost}</span></div>`;
+      `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${cost}</span></div>`;
   }).join('');
   el.hidden = false;
 }
@@ -1516,27 +1519,8 @@ function showSpotCard(b) {
     const state = curbState(b.curb, mins, dowNow());
     $('scprice').textContent = state.label;
     $('scprice').classList.toggle('free', state.free);
-    $('scsched').hidden = true;
-    const row = (text) => { const div = document.createElement('div'); div.textContent = text; return div; };
-    const rows = b.curb.category === 'permit'
-      ? ['Permit required at all times, every day, all hours.']
-      : [b.hblock, curbSchedule(b.curb), state.status,
-      'Approximate location and extent. Check posted signs for exact boundaries and other restrictions.',
-      b.curb.spotChecks.length ? 'Historical spot-check only — current signs unverified.' : 'PDF only — not sign-verified.'];
-    $('scrows').replaceChildren(...rows.map(row));
-    if (b.curb.category !== 'permit') {
-      const details = document.createElement('details'), summary = document.createElement('summary');
-      summary.textContent = 'Sources & verification'; details.append(summary);
-      if (b.curb.category !== 'permit') details.append(row('Restrictions outside the listed schedule are unknown.'));
-      for (const check of b.curb.spotChecks) details.append(row(`User-reported Street View, ${check.imageryDate}: ${check.location}. ${check.finding} ${check.scope} No panorama link supplied.`));
-      details.append(row(b.geometryNote), row(b.restrictionNote));
-      for (const source of b.sources) {
-        const div = document.createElement('div'), a = document.createElement('a');
-        a.textContent = source.title; a.href = source.url; a.target = '_blank'; a.rel = 'noopener';
-        div.append(a); details.append(div);
-      }
-      $('scrows').append(details);
-    }
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
     $('scmaps').href = navUrl(b);
     track('spot_opened', { city: activeCity, free: state.free, spot_type: b.curb.category, from_search: !!lastLoc });
     if (wasOpen) flashSpotContent();
@@ -1567,13 +1551,10 @@ function showSpotCard(b) {
 
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
-    $('scsched').hidden = true;
+    renderSchedule(b, mins);
     $('scprice').textContent = 'Free';
     $('scprice').classList.add('free');
-    $('scrows').innerHTML = [
-      `${IC.clock} Max stay <b>3h</b> · 8am–6pm`,
-      `${IC.info} Residential street — no meter. Check posted signs.`,
-    ].map((h) => `<div>${h}</div>`).join('');
+    $('scrows').replaceChildren();
     $('scmaps').href = navUrl(b);
     if (wasOpen) flashSpotContent();
     $('spotcard').hidden = false;
