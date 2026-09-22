@@ -80,3 +80,7 @@ sections transcribed from the City's West End Plateau PDF. No residential-zone
 polygon is shown. Dashed sections carry source links and verification notes;
 unlisted hours/days stay unknown. See [the transcription and limitations](data/sources/west-end-plateau.md)
 for the geometry method, the two historical Street View observations, and rebuild/test commands.
+
+Davie–Beach, Denman West and Robson North add 193 approximate curb sections using
+the same map layer and schedule tables. Fourteen unresolved markings stay off the map.
+See [additional map sources and limitations](data/sources/west-end-expansion.md).

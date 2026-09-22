@@ -26,6 +26,9 @@ export const CITIES = {
       { url: 'data/meters.json', kind: 'meters' },
       { url: 'data/free.json', kind: 'free' },
       { url: 'data/west-end-plateau.json?v=1', kind: 'west-end' },
+      { url: 'data/davie-beach.json?v=1', kind: 'west-end' },
+      { url: 'data/denman-west.json?v=1', kind: 'west-end' },
+      { url: 'data/robson-north.json?v=1', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)

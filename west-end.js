@@ -54,3 +54,10 @@ export function curbTableSegments(section, dow) {
       activeOutside: applies ? [s.start, s.end] : [] },
   ];
 }
+
+// More specific curb guides supersede broad inferred free-parking estimates.
+export function filterInferredFree(records, feeds) {
+  const excluded = new Set(feeds.flatMap(feed => feed?.excludeInferredBlocks || [])
+    .map(name => name.trim().toLowerCase()));
+  return records.filter(record => !excluded.has(record.h.trim().toLowerCase()));
+}

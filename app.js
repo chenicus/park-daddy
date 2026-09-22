@@ -1,7 +1,7 @@
-import { buildWestEndBlocks, curbState, curbTableSegments } from './west-end.js?v=2';
+import { buildWestEndBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=3';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=39';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=12';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=40';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=13';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
@@ -331,7 +331,7 @@ async function loadCity(key) {
     c.data.forEach((d, i) => {
       const data = feeds[i] || [];
       if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
-      else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(data); pushBlocks(freeBlocks); }
+      else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
       else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }

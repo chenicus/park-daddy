@@ -112,3 +112,49 @@ test('shared table preserves weekly limits and unknown periods', () => {
   assert.equal(permitRows[0].status, 'Permit required');
   assert.equal(permitRows[0].rate, null);
 });
+
+const additions = ['davie-beach', 'denman-west', 'robson-north'].map(name =>
+  JSON.parse(fs.readFileSync(new URL(`../data/${name}.json`, import.meta.url))));
+
+test('additional guides retain evidence, unique curb identities and unresolved omissions', () => {
+  const added = additions.flatMap(buildWestEndBlocks);
+  assert.equal(added.length, 193);
+  assert.equal(new Set([...blocks, ...added].map(b => b.id)).size, 367);
+  for (const b of added) {
+    assert.equal(b.curb.geometry.type, 'LineString');
+    assert.equal(b.curb.verification, 'pdf-only');
+    assert.deepEqual(b.curb.spotChecks, []);
+    assert.equal(b.curb.geometryStatus, 'approximate-schematic');
+    assert.ok(b.sources.every(s => s.url.startsWith('https://')));
+    for (const [lon, lat] of b.curb.geometry.coordinates)
+      assert.ok(lon > -123.151 && lon < -123.11 && lat > 49.269 && lat < 49.303);
+    if (b.curb.category === 'permit') for (let day=0; day<7; day++)
+      assert.equal(curbState(b.curb,600,day).free, false);
+  }
+  const unresolved = additions.flatMap(d => d.unmappedSections);
+  assert.equal(unresolved.length,14);
+  for (const s of unresolved) {
+    assert.equal(s.geometry,null);
+    assert.ok(s.unresolvedReason);
+    assert.ok(s.schematicTrace);
+  }
+});
+
+test('Pacific two-hour schedule ends at 3pm without inferring free evenings or Sundays', () => {
+  const early = additions[0].sections.find(s => s.schedule.end === 900);
+  assert.ok(early);
+  assert.equal(curbState(early,539,1).free,false);
+  assert.equal(curbState(early,540,1).free,true);
+  assert.equal(curbState(early,899,6).free,true);
+  assert.equal(curbState(early,900,6).free,false);
+  assert.equal(curbState(early,600,0).free,false);
+  assert.equal(curbTableSegments(early,1)[0].to,900);
+  assert.equal(curbTableSegments(early,1)[1].rate,null);
+});
+
+test('loaded curb guides supersede only named inferred free blocks', async () => {
+  const { filterInferredFree } = await import('../west-end.js');
+  const records = [{h:'1100 Burnaby St'},{h:'1300 Broughton St'},{h:'4300 Hudson St'}];
+  assert.deepEqual(filterInferredFree(records, additions),[records[2]]);
+  assert.deepEqual(filterInferredFree(records, [[],data]),records);
+});
