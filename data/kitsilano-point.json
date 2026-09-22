@@ -109,7 +109,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276935,-123.148638&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.46,
@@ -161,7 +161,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276750,-123.147246&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.06,
@@ -349,7 +349,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276283,-123.148404&heading=0",
       "pdfBar": {
         "page": 1,
         "from": 0.42,
@@ -401,7 +401,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276258,-123.146939&heading=0",
       "pdfBar": {
         "page": 1,
         "from": 0.04,
@@ -453,7 +453,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276190,-123.149391&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.02,
@@ -777,7 +777,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.275371,-123.146614&heading=0",
       "pdfBar": {
         "page": 1,
         "from": 0.54,
@@ -829,7 +829,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.275309,-123.149507&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.02,
@@ -1153,7 +1153,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.274429,-123.149674&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.02,
@@ -1205,7 +1205,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.274408,-123.148352&heading=180",
       "pdfBar": {
         "page": 1,
         "from": 0.06,
@@ -1325,7 +1325,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273258,-123.151473&heading=270",
       "pdfBar": {
         "page": 1,
         "from": 0.28,
@@ -1377,7 +1377,7 @@
       "permitException": true,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273219,-123.150259&heading=270",
       "pdfBar": {
         "page": 1,
         "from": 0.3,
@@ -1429,7 +1429,7 @@
       "permitException": false,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273217,-123.150094&heading=90",
       "pdfBar": {
         "page": 1,
         "from": 0.3,
@@ -1481,7 +1481,7 @@
       "permitException": false,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273200,-123.149044&heading=270",
       "pdfBar": {
         "page": 1,
         "from": 0.3,
@@ -1533,7 +1533,7 @@
       "permitException": false,
       "verification": "pdf-guide",
       "spotChecks": [],
-      "streetViewUrl": null,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273197,-123.148879&heading=90",
       "pdfBar": {
         "page": 1,
         "from": 0.3,

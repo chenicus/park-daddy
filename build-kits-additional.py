@@ -76,7 +76,7 @@ def build(area, path):
             'outsideSchedule': 'permit-only' if bar['rule'] == 'pay-split' else 'unknown' if category != 'permit' else 'not-applicable',
             'permitException': bar['rule'] in ('2ms', '2mf', '2m8', 'pay-split', 'pay-exempt'),
             'verification': 'pdf-guide', 'spotChecks': [],
-            'streetViewUrl': street_view_url(bar, line) if category == 'time-limited' else None,
+            'streetViewUrl': street_view_url(bar, line) if category in ('time-limited', 'paid') else None,
             'pdfBar': {'page': 1, 'from': bar['from'], 'to': bar['to'], 'rule': bar['rule']},
             'geometryStatus': 'approximate-schematic', 'geometry': {'type': 'LineString', 'coordinates': line},
             'sourceIds': ['city-pdf', 'city-intersections'],

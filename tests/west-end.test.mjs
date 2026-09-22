@@ -57,6 +57,8 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
     assert.equal(curbState(paid, 600, 1).free, false);
     assert.equal(curbState(paid, 600, 1).rate, null);
     assert.match(curbState(paid, 600, 1).label, /Paid/);
+    assert.ok(paid.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='));
+    assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
   }
   const split = kitsPoint.sections.find(s => s.pdfBar.rule === 'pay-split');
   assert.equal(curbState(split, 1200, 1).label, 'Permit only');
