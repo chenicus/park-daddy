@@ -1,3 +1,4 @@
+import { initReview, renderReviewDetail } from './review.js?v=1';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=5';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=42';
@@ -15,6 +16,12 @@ const filters = { free: true, paid: true, restrictions: true, unverified: true }
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
+const reviewLink = $('reviewToggle');
+const reviewURL = new URL(location.href);
+if (params.get('review') === '1') { reviewURL.searchParams.delete('review'); reviewLink.textContent = 'Exit review'; }
+else reviewURL.searchParams.set('review','1');
+reviewURL.searchParams.delete('spot');
+reviewLink.href = reviewURL.pathname + reviewURL.search;
 if (params.get('dest')) $('dest').value = params.get('dest');
 // ---- trip: when you'll arrive + how long you'll stay -------------------------
 // clockMins() is the real wall clock (or the ?t= mock). The trip's ARRIVAL can
@@ -1477,6 +1484,7 @@ function renderSchedule(b, mins) {
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
       `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${costText}</span></div>`;
   }).join('');
+  renderReviewDetail(b, el);
   el.hidden = false;
 }
 
@@ -2138,6 +2146,8 @@ function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
   labelLayer.refresh();
+  if (params.get('review') === '1') labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
+  initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {
     const ctr = map.getCenter();

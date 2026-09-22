@@ -1037,6 +1037,17 @@
     .spotcard::before, .rlpanel::before { content: none; }
     .tripcard { right: auto; width: 340px; top: calc(env(safe-area-inset-top, 0px) + 68px); }
   }
+
+.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
+#reviewToggle { text-decoration:none; color:inherit; }
+.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
+.review-legend p { margin:5px 0; }
+.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
+.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
+.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
+.review-detail p { margin:5px 0; }
 </style>
 <style id="pdSplashStyle">
 #pdSplash{position:fixed;inset:0;z-index:9999;display:none;align-items:center;
@@ -1116,6 +1127,17 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   /* the fade-in above is animation-driven, so restore the end state directly */
   #pdSplash.pd-stalled #pdSplashMsg{opacity:1}
 }
+
+.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
+#reviewToggle { text-decoration:none; color:inherit; }
+.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
+.review-legend p { margin:5px 0; }
+.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
+.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
+.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
+.review-detail p { margin:5px 0; }
 </style>
 </head>
 <body>
@@ -1201,6 +1223,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="chip mat on" id="chipFree" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
   <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
   <button class="chip mat on" id="chipRestrictions" type="button" aria-pressed="true" title="Show permit-only parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit only</button>
+  <a class="chip mat" id="reviewToggle" href="?review=1">Review 16</a>
   <button class="chip mat on" id="chipUnverified" type="button" aria-pressed="true" title="Show parking that needs verification"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Check signs</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -1452,6 +1475,17 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
        app.js, which no CSS rule can reach. It checks the same media query itself and swaps
        instantly — see the themetoggle handler. */
   }
+
+.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
+#reviewToggle { text-decoration:none; color:inherit; }
+.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
+.review-legend p { margin:5px 0; }
+.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
+.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
+.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
+.review-detail p { margin:5px 0; }
 </style>
 
 <!-- ---- Start-nav disclaimer (one-time) ---- -->
@@ -1481,6 +1515,17 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   .nw-primary:active { filter: brightness(.96); }
   .nw-secondary { background: var(--chip); color: var(--text); }
   .nw-secondary:active { filter: brightness(.96); }
+
+.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
+#reviewToggle { text-decoration:none; color:inherit; }
+.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
+.review-legend p { margin:5px 0; }
+.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
+.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
+.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
+.review-detail p { margin:5px 0; }
 </style>
 <div id="navwarn" role="dialog" aria-modal="true" aria-labelledby="nwTitle">
   <div class="wc-card">
@@ -1550,6 +1595,17 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   .wc-chev svg { width: 18px; height: 18px; }
   .wc-note { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted);
     margin-top: 20px; }
+
+.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
+#reviewToggle { text-decoration:none; color:inherit; }
+.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
+.review-legend p { margin:5px 0; }
+.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
+.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
+.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
+.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
+.review-detail p { margin:5px 0; }
 </style>
 <div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wc-sheet">
@@ -1561,7 +1617,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=125"></script>
+<script type="module" src="app.js?v=126"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
