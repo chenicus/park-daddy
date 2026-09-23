@@ -1,6 +1,6 @@
 # Kitsilano Point curb sign audit — 2026-09-22
 
-The City [Kitsilano Point permit guide](https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-point.pdf) shows schematic curb bars. The table below records local Google Street View observations for its 14 transcribed paid bars. Imagery is historical and an arrow establishes a direction from a sign, not the exact endpoint of a block restriction. Where a readable sign conflicts with a PDF bar, the app retains both sources and shows a verify label rather than claiming the whole bar is paid or free.
+The City [Kitsilano Point permit guide](https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-point.pdf) shows schematic curb bars. The table below records local Google Street View observations for its 14 transcribed paid bars. Imagery is historical and an arrow establishes a direction from a sign, not the exact endpoint of a block restriction. For the six readable conflicting signs, the app now names the best local reading (permit, two-hour, or no parking) while retaining the PDF and marking the full bar unverified. This avoids treating an arrow pointing one way as proof about the opposite side of the sign.
 
 | PDF paid bar | Result | Street View evidence |
 | --- | --- | --- |

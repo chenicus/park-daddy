@@ -25,7 +25,7 @@ export function curbState(section, mins, dow) {
       : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed permit hours — restrictions unknown'};
   }
   if (section.category === 'paid') {
-    if (['historical-conflict','user-reported-conflict'].includes(section.verification)) return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.spotChecks?.at(-1)?.mapLabel || 'Sign conflict · verify',status:'A local sign report conflicts with the PDF paid bar. Exact limits and current rule need checking'};
+    if (['historical-conflict','user-reported-conflict'].includes(section.verification)) return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment?.label || section.spotChecks?.at(-1)?.mapLabel || 'Sign conflict · verify',status:section.bestJudgment ? `${section.bestJudgment.summary} near the photographed sign; extent and current rule unverified` : 'A local sign report conflicts with the PDF paid bar. Exact limits and current rule need checking'};
     const s = section.schedule;
     if (mins >= s.start && mins < s.end) return {free:false,rate:null,group:'paid',cls:'p2',color:'#d97706',label:'Paid · verify',status:'PDF shows pay parking; rate and days not specified'};
     return section.outsideSchedule === 'permit-only'
@@ -92,9 +92,9 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.category === 'paid' && ['historical-conflict','user-reported-conflict'].includes(section.verification)) return [
-    {label:'Street View sign',status:section.spotChecks?.at(-1)?.summary || '2h seen',rate:null,applies:false},
+    {label:'Best local reading',status:section.bestJudgment?.summary || section.spotChecks?.at(-1)?.summary || 'Sign seen',rate:null,applies:false},
     {label:'PDF guide',status:'Paid shown · conflicts',rate:null,applies:false},
-    {label:'Current curb rule',status:'Check signs',rate:null,applies:false},
+    {label:'Extent / current rule',status:'Check signs',rate:null,applies:false},
     ...evidence,
   ];
   if (section.category === 'paid') return [

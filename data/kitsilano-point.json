@@ -114,12 +114,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
-          "mapLabel": "Permit sign · verify",
+          "mapLabel": "Permit near sign",
           "summary": "No parking except permit · west arrow",
           "finding": "South-curb sign near 1946 Ogden reads NO PARKING EXCEPT WITH PERMIT and its arrow points west toward Maple. This conflicts with the approximate PDF paid bar at the inspected location. The sign position and full restriction endpoints are not surveyed; east side of the sign is not classified by this check.",
           "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "Permit near sign",
+        "summary": "No parking except permit, arrow toward Maple",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
       "pdfBar": {
         "page": 1,
@@ -365,12 +370,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
-          "mapLabel": "2h sign · verify",
+          "mapLabel": "2h near sign",
           "summary": "2h · 9am–6pm",
           "finding": "Near 1925 McNicoll, north-curb sign reads 2h, 9AM–6PM, EXCEPT WITH PERMIT. Day line and full arrow extents not reliably readable. Local sign conflicts with PDF paid bar.",
           "scope": "Local historical observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm, except with permit; day line unclear",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
       "pdfBar": {
         "page": 1,
@@ -804,12 +814,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
-          "mapLabel": "2h sign · verify",
+          "mapLabel": "2h near sign",
           "summary": "2h · 9am–6pm · Mon–Fri",
           "finding": "At 1838 Whyte, north-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT, arrows both directions. Local sign conflicts with PDF paid bar; arrows do not establish full schematic endpoints.",
           "scope": "Local historical observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm Mon–Fri, except with permit; arrows both ways",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
       "pdfBar": {
         "page": 1,
@@ -1243,12 +1258,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
-          "mapLabel": "No parking sign · verify",
+          "mapLabel": "No parking near sign",
           "summary": "No parking · west arrow",
           "finding": "At about 1911 Creelman, the south-curb sign shows the red No Parking symbol and an arrow pointing west toward Walnut. This locally conflicts with the PDF pay-parking bar. The arrow does not establish the precise western endpoint or classify the curb east of the sign.",
           "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "No parking near sign",
+        "summary": "No parking, arrow toward Walnut",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
       "pdfBar": {
         "page": 1,
@@ -1426,12 +1446,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
-          "mapLabel": "Permit sign · verify",
+          "mapLabel": "Permit near sign",
           "summary": "No parking except permit · south arrow",
           "finding": "At about 1415 Maple, a west-curb sign reads NO PARKING EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid/permit split bar. The exact southern endpoint and rule north of the sign are not established.",
           "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "Permit near sign",
+        "summary": "No parking except permit, arrow toward Cornwall",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
       "pdfBar": {
         "page": 1,
@@ -1541,12 +1566,17 @@
           "checkedOn": "2026-09-22",
           "imageryDate": "2024-08",
           "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
-          "mapLabel": "2h sign · verify",
+          "mapLabel": "2h near sign",
           "summary": "2h · 9am–6pm · Mon–Fri · south arrow",
           "finding": "At about 1419 Walnut, a west-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid bar. The exact southern endpoint and rule north of the sign are not established.",
           "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
         }
       ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm Mon–Fri, except with permit; arrow toward Cornwall",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
       "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
       "pdfBar": {
         "page": 1,
