@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "area": "downtown-beach-pacific",
+  "sources": {
+    "city-streets": {
+      "url": "https://opendata.vancouver.ca/explore/dataset/public-streets/",
+      "title": "City of Vancouver public street centrelines (location reference only)",
+      "retrieved": "2026-09-22"
+    },
+    "street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=QsQV-NPExm6k2OJzG2EVwA&heading=204&pitch=0&fov=15",
+      "title": "Google Street View, August 2024; Beach sign images supplied by user",
+      "checkedOn": "2026-09-22"
+    }
+  },
+  "geometryNote": "Short sign-adjacent curb estimates based on historical imagery and City street centrelines; endpoints are not surveyed.",
+  "restrictionNote": "Public 2-hour signs are visible, but their day text and full extent are not legible. Check current signs; no unrestricted off-hours parking is asserted.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "beach-crescent-583-north-2h",
+      "area": "downtown-beach-pacific",
+      "street": "Beach Crescent",
+      "side": "north",
+      "between": ["583 Beach", "593 Beach"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "The 583 sign points both ways, but neighbouring curb boundaries were not established; only a short nearby portion is drawn.",
+      "sourceIds": ["city-streets", "street-view"],
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=2FVk-5KQH_XLAlqHV4B8vw&heading=300&pitch=0&fov=45",
+        "finding": "User-provided August 2024 Street View screenshots at 583 and 593 Beach Ave show public P 2h, 9AM–6PM signs on the building-side/north curb. The 583 sign has arrows both ways; a nearby sign also marks a no-parking direction. The linked road panorama is nearby and may require moving to the photographed signs.",
+        "scope": "Days and the start/end of each signed portion are unresolved; this short line is approximate."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.12905, 49.273335], [-123.12950, 49.273405]]}
+    },
+    {
+      "id": "beach-crescent-638-south-2h",
+      "area": "downtown-beach-pacific",
+      "street": "Beach Crescent",
+      "side": "south",
+      "between": ["638 Beach", "nearby curb"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "Only a short piece by the photographed sign is shown; arrows and endpoints need another check.",
+      "sourceIds": ["city-streets", "street-view"],
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.27354,-123.13008&heading=200&pitch=0&fov=35",
+        "finding": "User-provided August 2024 Street View screenshot labelled 606 Beach Ave shows a P 2h, 9AM–6PM sign beside the 638 Beach Crescent building on the south curb. No paid plate is shown.",
+        "scope": "Day text and exact arrow/curb limits cannot be read confidently. The viewpoint link may choose different nearby imagery."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.12996, 49.27346], [-123.13025, 49.27363]]}
+    },
+    {
+      "id": "pacific-550-south-2h",
+      "area": "downtown-beach-pacific",
+      "street": "Pacific Street",
+      "side": "south",
+      "between": ["550 Pacific", "nearby curb"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "The public sign points toward the southeast; the adjacent no-parking sign points the other way. The short line is an estimate only.",
+      "sourceIds": ["city-streets", "street-view"],
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=QsQV-NPExm6k2OJzG2EVwA&heading=204&pitch=0&fov=15",
+        "finding": "At 550 Pacific Street, the south-side sign shows P 2h, 9AM–6PM with an arrow toward the southeast. An adjacent no-parking sign points in the opposite direction. The tiny day text is unreadable.",
+        "scope": "Only the sign-adjacent public direction is mapped. Exact endpoints and current restrictions need field verification."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.12806, 49.27411], [-123.12831, 49.27428]]}
+    }
+  ]
+}

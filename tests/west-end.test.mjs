@@ -17,6 +17,19 @@ const kitsSouth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-south.js
 const kitsPoint = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-point.json', import.meta.url)));
 const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downtown-report-reviews.json', import.meta.url)));
 const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
+const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
+
+test('Beach and Pacific public signs show free two-hour parking without guessing days or off-hours', () => {
+  assert.equal(beachPacific.sections.length, 3);
+  assert.deepEqual(new Set(beachPacific.sections.map(s => s.side)), new Set(['north', 'south']));
+  for (const section of beachPacific.sections) {
+    assert.equal(section.schedule.days, null);
+    assert.equal(curbState(section, 600, 1).group, 'free');
+    assert.match(curbState(section, 600, 1).label, /verify/);
+    assert.equal(curbState(section, 1200, 1).group, 'unverified');
+    assert.ok(curbTableSegments(section, 1).some(row => row.url === section.spotChecks[0].url));
+  }
+});
 
 test('West 11th sign separates permit and public portions without asserting unreadable days', () => {
   const [publicPart, permitPart] = mountPleasant.sections;

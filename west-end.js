@@ -63,6 +63,12 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Daytime rules for this day not confirmed'};
   }
   if (section.accessOverride?.category === 'permit') return { free:false, rate:null, group:'restrictions', cls:'p-permit', color:'#7c3aed', label:'Permit only', status:'Permit required; hours not confirmed' };
+  if (section.publicSign && section.schedule.days == null) {
+    const inHours = mins >= section.schedule.start && mins < section.schedule.end;
+    return inHours
+      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${section.limitMinutes / 60}h · verify`,status:'A public parking sign shows this time limit; days and exact curb limits need checking'}
+      : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside observed sign hours; rules unconfirmed'};
+  }
   if (section.bestJudgment && section.verification !== 'historical-sign-match') return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment.label,status:`${section.bestJudgment.summary} Exact curb extent and current rule remain unverified`};
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) {
     return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
@@ -88,7 +94,7 @@ export function curbSchedule(section) {
   if (section.accessOverride?.category === 'permit') return 'Permit required · hours not confirmed';
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
   const s = section.schedule;
-  const days = s.label || (s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
+  const days = s.label || (s.days == null ? (section.publicSign ? 'days unreadable in Street View' : 'days unspecified in PDF') : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
   if (section.category === 'permit-window') return `Permit required · ${clock(s.start)}–${clock(s.end)} · ${days}`;
   if (section.category === 'paid') return `Paid parking · ${clock(s.start)}–${clock(s.end)} · ${days} · rate unknown`;
   return `${section.limitMinutes / 60} hour${section.limitMinutes === 60 ? '' : 's'} · ${clock(s.start)}–${clock(s.end)} · ${days}`;
@@ -152,6 +158,11 @@ export function curbTableSegments(section, dow) {
     {label:'Best local reading',status:section.bestJudgment.summary,rate:null,applies:false},
     {label:'Reported other times',status:section.bestJudgment.otherTimes || 'Not established',rate:null,applies:false},
     {label:'Extent / current rule',status:'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
+  if (section.publicSign && section.schedule.days == null) return [
+    {from:section.schedule.start,to:section.schedule.end,days:'Days unreadable',limit:section.limitMinutes,rate:0,status:'Free · verify days',applies:true},
+    {label:'Other times',status:'Check signs',rate:null,applies:false},
     ...evidence,
   ];
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
