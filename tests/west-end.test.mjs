@@ -16,6 +16,19 @@ const kitsNorth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-north.js
 const kitsSouth = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-south.json', import.meta.url)));
 const kitsPoint = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-point.json', import.meta.url)));
 const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downtown-report-reviews.json', import.meta.url)));
+const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
+
+test('West 11th sign separates permit and public portions without asserting unreadable days', () => {
+  const [publicPart, permitPart] = mountPleasant.sections;
+  assert.equal(publicPart.side, 'south');
+  assert.equal(permitPart.side, 'south');
+  assert.equal(publicPart.schedule.days, null);
+  assert.equal(curbState(publicPart, 600, 1).free, false);
+  assert.equal(curbState(publicPart, 600, 1).group, 'unverified');
+  assert.equal(curbState(permitPart, 600, 1).label, 'Permit only');
+  assert.ok(curbTableSegments(permitPart, 1).some(row => row.url === permitPart.spotChecks[0].url));
+  assert.ok(mountPleasant.excludeInferredBlocks.includes('200 W 11Th Av'));
+});
 
 test('Kits North PDF curb bars use their printed schedules and street sides', () => {
   const sections = kitsNorth.sections;

@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "area": "mount-pleasant",
+  "sources": {
+    "city-streets": {
+      "url": "https://opendata.vancouver.ca/explore/dataset/public-streets/",
+      "title": "City of Vancouver public streets; block centreline location only",
+      "retrieved": "2026-09-22"
+    },
+    "street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ROyehgL5ZyMevzB5kOwokA&heading=112&pitch=0&fov=15",
+      "title": "Google Street View sign observation (July 2024)",
+      "checkedOn": "2026-09-22"
+    }
+  },
+  "geometryNote": "Short, approximate curb pieces near photographed signs. The City line is a block centreline location reference, not surveyed curb geometry.",
+  "restrictionNote": "Historical image only. Check current signs and both curb sides; days on the two-hour sign are unreadable.",
+  "excludeInferredBlocks": [
+    "200 W 11Th Av"
+  ],
+  "sections": [
+    {
+      "area": "mount-pleasant",
+      "street": "W 11th Avenue",
+      "side": "south",
+      "between": [
+        "Alberta",
+        "Columbia"
+      ],
+      "spotChecks": [
+        {
+          "status": "historical-partial-match",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-07",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ROyehgL5ZyMevzB5kOwokA&heading=112&pitch=0&fov=15",
+          "finding": "On the south curb of W 11th near 231, the green P 2h sign points west and the No Parking Except With Permit sign points east. The 9am\u20136pm text is visible on the 2h sign, but day text and further sign boundaries are not legible.",
+          "scope": "Only short sign-adjacent curb portions are represented; exact sign position, section endpoints, and current rules need field checking."
+        }
+      ],
+      "geometryStatus": "approximate-street-view",
+      "sourceIds": [
+        "city-streets",
+        "street-view"
+      ],
+      "splitBoundaryNote": "Short illustrative portions beside one July 2024 sign; endpoints are approximate and not surveyed.",
+      "id": "mount-pleasant-w11-south-west-2h",
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1080,
+        "label": "Days unreadable"
+      },
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "bestJudgment": {
+        "label": "2h \u00b7 Verify",
+        "summary": "Sign points west: public 2h, 9am\u20136pm; days and extent unconfirmed."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.11056,
+            49.261229
+          ],
+          [
+            -123.11029,
+            49.261225
+          ]
+        ]
+      }
+    },
+    {
+      "area": "mount-pleasant",
+      "street": "W 11th Avenue",
+      "side": "south",
+      "between": [
+        "Alberta",
+        "Columbia"
+      ],
+      "spotChecks": [
+        {
+          "status": "historical-partial-match",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-07",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ROyehgL5ZyMevzB5kOwokA&heading=112&pitch=0&fov=15",
+          "finding": "On the south curb of W 11th near 231, the green P 2h sign points west and the No Parking Except With Permit sign points east. The 9am\u20136pm text is visible on the 2h sign, but day text and further sign boundaries are not legible.",
+          "scope": "Only short sign-adjacent curb portions are represented; exact sign position, section endpoints, and current rules need field checking."
+        }
+      ],
+      "geometryStatus": "approximate-street-view",
+      "sourceIds": [
+        "city-streets",
+        "street-view"
+      ],
+      "splitBoundaryNote": "Short illustrative portions beside one July 2024 sign; endpoints are approximate and not surveyed.",
+      "id": "mount-pleasant-w11-south-east-permit",
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440
+      },
+      "outsideSchedule": "not-applicable",
+      "verification": "historical-partial-match",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.11017,
+            49.261223
+          ],
+          [
+            -123.1099,
+            49.261219
+          ]
+        ]
+      }
+    }
+  ]
+}

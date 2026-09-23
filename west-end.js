@@ -155,7 +155,7 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
-  if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
+  if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }, ...evidence];
   const s = section.schedule;
   const applies = s.days?.includes(dow) === true;
   const days = s.label || (s.days == null ? 'Days unknown' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : s.days.join() === '0,1,2,3,4,5,6' ? 'Every day' : 'Mon–Sat');
