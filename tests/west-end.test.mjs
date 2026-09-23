@@ -30,7 +30,8 @@ test('Beach and Pacific public signs use confirmed days without guessing other d
   for (const section of beachPacific.sections) {
     if (section !== beach583) assert.equal(section.schedule.days, null);
     assert.equal(curbState(section, 600, 1).group, 'free');
-    assert.match(curbState(section, 600, 1).label, /verify/);
+    assert.equal(curbState(section, 600, 1).label, 'Free · 2h');
+    assert.ok(curbTableSegments(section, 1).some(row => row.status === 'Free'));
     assert.equal(curbState(section, 1200, 1).group, 'unverified');
     assert.ok(curbTableSegments(section, 1).some(row => row.url === section.spotChecks[0].url));
   }
