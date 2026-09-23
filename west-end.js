@@ -16,6 +16,18 @@ export function buildWestEndBlocks(data) {
   });
 }
 
+// A side-specific paid curb already represents these exact City meter records.
+// Keep the curb and its evidence; do not draw a third, overlapping meter marker.
+export function filterMetersCoveredByCurbs(meters, feeds) {
+  const ids = new Set(feeds.flatMap(feed => feed?.sections || [])
+    .filter(section => section.accessOverride?.category === 'paid')
+    .map(section => section.accessOverride.meterId).filter(Boolean).map(String));
+  return meters.filter(meter => !ids.has(String(meter.meter_id)));
+}
+
+const paidStyle = rate => rate <= 2 ? ['p1', '#16a34a'] : rate <= 4 ? ['p2', '#d97706']
+  : rate <= 6 ? ['p3', '#ea580c'] : ['p4', '#dc2626'];
+
 export function curbState(section, mins, dow) {
   if (section.category === 'no-parking') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'PDF shows a no-parking restriction; check posted signs for its exact limits'};
   if (section.category === 'permit-window') {
@@ -38,9 +50,10 @@ export function curbState(section, mins, dow) {
     if (mins >= a.start && mins < a.end) {
       const evening = mins >= 1080;
       const limit = evening ? a.eveningLimitMinutes : a.dayLimitMinutes;
-      return {free:false,rate:a.rate,group:'paid',cls:'p2',color:'#d97706',label:`$${a.rate} /hr · ${limit / 60}h`,status:`Pay parking · ${a.paymentLocation}`};
+      const [cls, color] = paidStyle(a.rate);
+      return {free:false,rate:a.rate,group:'paid',cls,color,label:`$${a.rate} /hr · ${limit / 60}h`,status:'Paid parking'};
     }
-    return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside paid hours — restrictions unknown'};
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside paid hours, per user instruction; check posted signs'};
   }
   if (section.accessOverride?.category === 'prohibited') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:`${section.accessOverride.restriction} · ${section.accessOverride.arrows}`};
   if (section.accessOverride?.category === 'public') {
@@ -118,9 +131,7 @@ export function curbTableSegments(section, dow) {
     return [
       {from:a.start,to:1080,limit:a.dayLimitMinutes,rate:a.rate,status:'Paid',applies:true},
       {from:1080,to:a.end,limit:a.eveningLimitMinutes,rate:a.rate,status:'Paid',applies:true},
-      {from:0,to:a.start,label:'Before paid hours',status:'Check signs',rate:null},
-      {from:a.end,to:1440,label:'After paid hours',status:'Check signs',rate:null},
-      {label:'PayByPhone location',status:a.paymentLocation,rate:null,applies:false},
+      {label:`Before ${clock(a.start)} · after ${clock(a.end)}`,status:'Free',rate:0,activeOutside:[a.start,a.end]},
       ...evidence,
     ];
   }

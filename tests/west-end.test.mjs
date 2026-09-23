@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbVisible, curbSchedule, curbTableSegments } from '../west-end.js';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbVisible, curbSchedule, curbTableSegments, filterMetersCoveredByCurbs } from '../west-end.js';
 import { createLabelLayer, buildSeattleFreeBlocks } from '../labels.js';
 import { rptKey } from '../reports.js';
 
@@ -342,9 +342,16 @@ test('side-specific City meter data makes the Davie records paid', () => {
   for (const section of [south, north]) {
     assert.equal(curbState(section, 600, 1).rate, 2);
     assert.equal(curbState(section, 600, 1).group, 'paid');
+    assert.equal(curbState(section, 600, 1).cls, 'p1');
     assert.equal(curbState(section, 1140, 1).label, '$2 /hr · 4h');
-    assert.equal(section.accessOverride.paymentLocation.startsWith('PayByPhone'), true);
+    assert.equal(curbState(section, 480, 1).label, 'Free');
+    assert.equal(curbState(section, 1380, 1).group, 'free');
+    const rows = curbTableSegments(section, 1);
+    assert.deepEqual(rows.slice(0, 3).map(row => row.status), ['Paid', 'Paid', 'Free']);
+    assert.ok(rows.every(row => !/PayByPhone/.test(`${row.label || ''} ${row.status || ''}`)));
   }
-  assert.equal(south.accessOverride.paymentLocation, 'PayByPhone 65523');
-  assert.equal(north.accessOverride.paymentLocation, 'PayByPhone 67822');
+  const meters = JSON.parse(fs.readFileSync(new URL('../data/meters.json', import.meta.url)));
+  const remaining = filterMetersCoveredByCurbs(meters, [data, additions[0]]);
+  assert.equal(remaining.length, meters.length - 2);
+  assert.ok(!remaining.some(meter => ['161314', '161325'].includes(String(meter.meter_id))));
 });

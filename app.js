@@ -1,8 +1,8 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=14';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=15';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=45';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=26';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=46';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=27';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
@@ -330,7 +330,7 @@ async function loadCity(key) {
     const feeds = await Promise.all(c.data.map((d) => fetch(d.url).then((r) => r.json()).catch(() => [])));
     c.data.forEach((d, i) => {
       const data = feeds[i] || [];
-      if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
+      if (d.kind === 'meters') { meters = filterMetersCoveredByCurbs(data, feeds); pushBlocks(buildBlocks(meters)); }
       else if (d.kind === 'free') { freeBlocks = buildInferredBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
       else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
