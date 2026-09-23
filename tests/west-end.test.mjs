@@ -46,7 +46,7 @@ test('West 11th sign separates permit and public portions without asserting unre
   assert.equal(publicPart.schedule.days, null);
   assert.equal(curbState(publicPart, 600, 1).free, false);
   assert.equal(curbState(publicPart, 600, 1).group, 'unverified');
-  assert.equal(curbState(permitPart, 600, 1).label, 'Permit only');
+  assert.equal(curbState(permitPart, 600, 1).label, 'Permit');
   assert.ok(curbTableSegments(permitPart, 1).some(row => row.url === permitPart.spotChecks[0].url));
   assert.ok(mountPleasant.excludeInferredBlocks.includes('200 W 11Th Av'));
 });
@@ -69,7 +69,7 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
   assert.equal(curbState(mondayFriday, 600, 6).label, 'Free');
   assert.equal(curbState(mondaySaturday, 600, 6).label, 'Free · 2h');
   assert.equal(curbState(mondaySaturday, 1080, 6).label, 'Free');
-  assert.equal(curbState(permitOnly, 600, 1).label, 'Permit only');
+  assert.equal(curbState(permitOnly, 600, 1).label, 'Permit');
   assert.equal(curbState(permitOnly, 600, 0).free, false);
   assert.match(curbSchedule(mondayFriday), /Mon–Fri/);
   assert.ok(!JSON.stringify(kitsNorth).includes('Polygon'));
@@ -84,7 +84,7 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
     assert.ok(!JSON.stringify(guide).includes('Polygon'));
   }
   const resident = kitsSouth.sections.find(s => s.pdfBar.rule === 'rmf');
-  assert.equal(curbState(resident, 600, 1).label, 'Permit only');
+  assert.equal(curbState(resident, 600, 1).label, 'Permit');
   assert.equal(curbState(resident, 1200, 1).free, false);
   const publicTwoHour = kitsSouth.sections.find(s => s.pdfBar.rule === '2m8');
   assert.equal(curbState(publicTwoHour, 1140, 6).label, 'Free · 2h');
@@ -112,7 +112,7 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
   assert.equal(curbState(ogden, 600, 1).free, false);
   assert.match(ogden.spotChecks[0].summary, /west arrow/);
   const split = kitsPoint.sections.find(s => s.pdfBar.rule === 'pay-split');
-  assert.equal(curbState(split, 1200, 1).label, 'Permit only');
+  assert.equal(curbState(split, 1200, 1).label, 'Permit');
 });
 
 test('individual lines retain evidence and never acquire residential-free defaults', () => {
@@ -158,7 +158,7 @@ test('full-time permits are never public/free on any day or hour', () => {
     const s = curbState(permit.curb, mins, day);
     assert.equal(s.free, false);
     assert.equal(s.rate, null);
-    assert.equal(s.label, 'Permit only');
+    assert.equal(s.label, 'Permit');
     assert.equal(curbVisible(permit.curb, mins, day, { free:true, paid:false, restrictions:false,unverified:false }), false);
   }
 });
@@ -281,7 +281,7 @@ test('1835 Comox permit sign is limited to the Gilford-facing curb portion', () 
   const denmanSide = sections.find(s => s.id === 'denman-west-b672f507d5a2-denman-review');
   assert.ok(permitSide && denmanSide);
   assert.deepEqual(permitSide.geometry.coordinates.at(-1), denmanSide.geometry.coordinates[0]);
-  assert.equal(curbState(permitSide, 600, 1).label, 'Permit only');
+  assert.equal(curbState(permitSide, 600, 1).label, 'Permit');
   assert.equal(curbState(permitSide, 600, 0).free, false);
   assert.equal(curbState(denmanSide, 600, 1).group, 'unverified');
   assert.equal(curbVisible(permitSide, 600, 1, {free:true,restrictions:false,unverified:false}), false);
@@ -401,7 +401,7 @@ test('enforcement-derived Vancouver records are not classified as free', () => {
 
  test('user checked permit spot stays nonpublic without inventing its hours', () => {
  const s=data.sections.find(s=>s.id==='wep-e9554463e621');
- assert.equal(curbState(s,600,1).label,'Permit only');
+ assert.equal(curbState(s,600,1).label,'Permit');
  assert.equal(curbState(s,600,1).free,false);
  assert.equal(curbState(s,600,1).group,'restrictions');
  assert.ok(curbTableSegments(s,1).some(r=>r.label==='Hours not confirmed'));
@@ -410,12 +410,17 @@ test('enforcement-derived Vancouver records are not classified as free', () => {
 
 test('user off-hours assumption stays explicit and does not invent Sunday daytime access', () => {
  const s=additions[0].sections.find(s=>s.id==='davie-beach-c2b83be3a9f7');
- assert.equal(curbState(s,539,1).label,'Free · assumed');
+ assert.equal(curbState(s,539,1).label,'Free');
  assert.equal(curbState(s,540,1).label,'Free · 2h');
  assert.equal(curbState(s,1199,1).label,'Free · 2h');
- assert.equal(curbState(s,1200,1).label,'Free · assumed');
+ assert.equal(curbState(s,1200,1).label,'Free');
  assert.equal(curbState(s,600,0).free,false);
  assert.equal(s.accessOverride.daysConfirmed,false);
+ const rows=curbTableSegments(s,1);
+ assert.equal(rows[0].days,'Mon–Sat');
+ assert.equal(rows[1].label,'Other hours');
+ assert.equal(rows[1].status,'Free');
+ assert.equal(rows.some(r=>r.label==='Off-hours rule'),false);
 });
 
 test('confirmed no-stopping record cannot appear in normal parking results', () => {

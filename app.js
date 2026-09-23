@@ -1,5 +1,5 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=18';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=19';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=47';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=30';
@@ -131,7 +131,8 @@ function installLayers() {
   if (!map.getSource('west-end-curbs')) map.addSource('west-end-curbs', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('west-end-curbs')) map.addLayer({
     id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 14.5,
-    paint: { 'line-color': ['get', 'color'], 'line-width': 6, 'line-opacity': 0.8, 'line-dasharray': [2, 1] },
+    layout: { 'line-cap': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.8, 'line-dasharray': [0.1, 2.2] },
   });
   if (!map.getSource('blockface-lines')) map.addSource('blockface-lines', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('blockface-lines')) map.addLayer({
@@ -1415,7 +1416,7 @@ function daySegments(b, wknd, dow) {
 const ZONE_LABEL = {
   'TOW-AWAY': 'Tow-away',
   'NO STOPPING': 'No stopping', 'LOADING ZONE': 'Loading zone', 'CVLZ': 'Commercial loading',
-  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit only', 'TAXI ZONE': 'Taxi only',
+  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit', 'TAXI ZONE': 'Taxi only',
   'MILITARY ZONE': 'Military only', 'POLICE ZONE': 'Police only', 'TOUR BUS ZONE': 'Tour bus only',
   'AUTHORIZED VEHICLES ONLY': 'Authorized only',
 };

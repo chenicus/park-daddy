@@ -35,7 +35,7 @@ export function curbState(section, mins, dow) {
   if (section.category === 'permit-window') {
     const s = section.schedule;
     return s.days?.includes(dow) && mins >= s.start && mins < s.end
-      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit only',status:'Resident permit required during listed hours'}
+      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit',status:'Resident permit required during listed hours'}
       : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed permit hours — restrictions unknown'};
   }
   if (section.category === 'paid') {
@@ -43,7 +43,7 @@ export function curbState(section, mins, dow) {
     const s = section.schedule;
     if (mins >= s.start && mins < s.end) return {free:false,rate:null,group:'paid',cls:'p2',color:'#d97706',label:'Paid · verify',status:'PDF shows pay parking; rate and days not specified'};
     return section.outsideSchedule === 'permit-only'
-      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit only',status:'PDF shows permit-only outside paid hours; days not specified'}
+      ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit',status:'PDF shows permit-only outside paid hours; days not specified'}
       : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed paid hours — restrictions unknown'};
   }
   if (section.accessOverride?.category === 'reserved') return {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Reserved parking',status:section.accessOverride.summary};
@@ -60,11 +60,11 @@ export function curbState(section, mins, dow) {
   if (section.accessOverride?.category === 'prohibited') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:`${section.accessOverride.restriction} · ${section.accessOverride.arrows}`};
   if (section.accessOverride?.category === 'public') {
     const a = section.accessOverride;
-    if (mins < a.start || mins >= a.end) return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free · assumed',status:'Free outside 9am–8pm assumed by user; check signs'};
+    if (mins < a.start || mins >= a.end) return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside 9am–8pm assumed by user; check signs'};
     if (section.schedule.days?.includes(dow)) return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free · 2h',status:'User confirmed hours; days from PDF'};
     return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Daytime rules for this day not confirmed'};
   }
-  if (section.accessOverride?.category === 'permit') return { free:false, rate:null, group:'restrictions', cls:'p-permit', color:'#7c3aed', label:'Permit only', status:'Permit required; hours not confirmed' };
+  if (section.accessOverride?.category === 'permit') return { free:false, rate:null, group:'restrictions', cls:'p-permit', color:'#7c3aed', label:'Permit', status:'Permit required; hours not confirmed' };
   if (scheduledNoStopping(section).some(rule => rule.days?.includes(dow) && mins >= rule.start && mins < rule.end))
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No stopping',status:'Separate posted no-stopping period'};
   if (section.publicSign && section.schedule.days == null) {
@@ -84,7 +84,7 @@ export function curbState(section, mins, dow) {
     return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
   }
   if (section.category === 'permit') {
-    return { free: false, rate: null, group: 'restrictions', cls: 'p-permit', color: '#7c3aed', label: 'Permit only', status: 'Permit required at all times' };
+    return { free: false, rate: null, group: 'restrictions', cls: 'p-permit', color: '#7c3aed', label: 'Permit', status: 'Permit required at all times' };
   }
   const s = section.schedule;
   const active = s.days?.includes(dow) && mins >= s.start && mins < s.end;
@@ -158,10 +158,8 @@ export function curbTableSegments(section, dow) {
   }
   if (section.accessOverride?.category === 'prohibited') return [{from:0,to:1440,label:`${section.accessOverride.restriction} · ${section.accessOverride.arrows}`,status:'No parking',rate:null}, {label:'Verified sign',status:section.accessOverride.checkedOn,rate:null,applies:false}, ...evidence];
   if (section.accessOverride?.category === 'public') return [
-    {from:540,to:1200,days:'Mon–Sat (PDF)',limit:120,rate:0,status:'Free',applies:section.schedule.days?.includes(dow)},
-    {from:0,to:540,rate:0,status:'Free · assumed'},
-    {from:1200,to:1440,rate:0,status:'Free · assumed'},
-    {label:'Off-hours rule',status:'User assumption',rate:null,applies:false},
+    {from:540,to:1200,days:'Mon–Sat',limit:120,rate:0,status:'Free',applies:section.schedule.days?.includes(dow)},
+    {label:'Other hours',status:'Free',rate:0,activeOutside:section.schedule.days?.includes(dow) ? [540,1200] : undefined,applies:section.schedule.days?.includes(dow)},
     ...evidence,
   ];
   if (section.accessOverride?.category === 'permit') return [{ label:'Hours not confirmed', status:'Permit required', rate:null, applies:false }, { label:'User sign check', status:section.accessOverride.checkedOn, rate:null, applies:false }, ...evidence];
