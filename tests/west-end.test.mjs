@@ -211,8 +211,7 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,4);
     assert.equal(sources.get('blockface-lines').data.features.length,1);
-    assert.equal(sources.get('meter-dots').data.features.length,1);
-    assert.equal(sources.get('meter-dots').data.features[0].properties.color,'#a16207');
+    assert.equal(sources.get('meter-dots').data.features.length,0);
     layer.setFilter({free:true,paid:false,restrictions:false,unverified:false});
     assert.equal(sources.get('west-end-curbs').data.features.length,3);
     assert.equal(sources.get('meter-dots').data.features.length,0);

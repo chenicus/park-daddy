@@ -202,7 +202,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
-  let filter = { free: true, paid: true, restrictions: true, unverified: true };
+  let filter = { free: true, paid: true, restrictions: true, unverified: false };
   // Set for the single refresh a Free/Paid toggle triggers: pills animate in/out instead of
   // popping, so the filter reads as pins leaving rather than the map silently changing.
   let morph = false;

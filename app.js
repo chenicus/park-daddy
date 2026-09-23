@@ -1,7 +1,7 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=20';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=47';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=48';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=33';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -16,12 +16,6 @@ const filters = { free: true, paid: true, restrictions: true, unverified: false 
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
-const reviewLink = $('reviewToggle');
-const reviewURL = new URL(location.href);
-if (params.get('review') === '1') { reviewURL.searchParams.delete('review'); reviewLink.textContent = 'Exit review'; }
-else reviewURL.searchParams.set('review','1');
-reviewURL.searchParams.delete('spot');
-reviewLink.href = reviewURL.pathname + reviewURL.search;
 if (params.get('dest')) $('dest').value = params.get('dest');
 // ---- trip: when you'll arrive + how long you'll stay -------------------------
 // clockMins() is the real wall clock (or the ?t= mock). The trip's ARRIVAL can
@@ -963,7 +957,6 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
-$('chipUnverified').addEventListener('click', () => { filters.unverified = !filters.unverified; $('chipUnverified').classList.toggle('on', filters.unverified); $('chipUnverified').setAttribute('aria-pressed', String(filters.unverified)); applyFilters(); });
 $('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
@@ -2155,7 +2148,7 @@ function updateRecenter() {
 function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
-  labelLayer.refresh();
+  labelLayer.setFilter(filters);
   if (params.get('review') === '1') labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
   initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
