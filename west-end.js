@@ -50,6 +50,7 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Daytime rules for this day not confirmed'};
   }
   if (section.accessOverride?.category === 'permit') return { free:false, rate:null, group:'restrictions', cls:'p-permit', color:'#7c3aed', label:'Permit only', status:'Permit required; hours not confirmed' };
+  if (section.bestJudgment && section.verification !== 'historical-sign-match') return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment.label,status:`${section.bestJudgment.summary} Exact curb extent and current rule remain unverified`};
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) {
     return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
   }
@@ -132,6 +133,12 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.accessOverride?.category === 'permit') return [{ label:'Hours not confirmed', status:'Permit required', rate:null, applies:false }, { label:'User sign check', status:section.accessOverride.checkedOn, rate:null, applies:false }, ...evidence];
+  if (section.bestJudgment && section.verification !== 'historical-sign-match') return [
+    {label:'Best local reading',status:section.bestJudgment.summary,rate:null,applies:false},
+    {label:'Reported other times',status:section.bestJudgment.otherTimes || 'Not established',rate:null,applies:false},
+    {label:'Extent / current rule',status:'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];
   if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
   const s = section.schedule;
@@ -142,6 +149,7 @@ export function curbTableSegments(section, dow) {
       rate: s.days == null ? null : 0, status: s.days == null ? 'Check signs' : 'Free', applies },
     { from: 0, to: 1440, label: 'Other times', status: 'Check signs', rate: null,
       activeOutside: applies ? [s.start, s.end] : [] },
+    ...(section.bestJudgment ? [{label:'Adjacent sign',status:section.bestJudgment.summary,rate:null,applies:false}] : []),
     ...evidence,
   ];
 }

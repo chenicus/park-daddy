@@ -1,8 +1,8 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=13';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree } from './west-end.js?v=14';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=45';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=25';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=26';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
@@ -585,7 +585,13 @@ function clearMap() { markers.forEach((m) => m.remove()); markers = []; }
 // flags: rptKey -> { count, items[] }. Drives the pill warning badge / auto-hide
 // (labels.js) and the spot-card report banner + list.
 let flags = new Map();
-function flagFor(b) { return flags.get(rptKey(b)); }
+function flagFor(b) {
+  const f = flags.get(rptKey(b));
+  if (!f || !b.curb?.reviewedReportsThrough) return f;
+  const reviewedAt = Date.parse(b.curb.reviewedReportsThrough);
+  const items = f.items.filter(item => Date.parse(item.created_at) > reviewedAt);
+  return items.length ? {count:items.length,items} : undefined;
+}
 function flagState(b) {
   const c = flagFor(b)?.count || 0;
   return { flagged: c >= FLAG_MIN, hidden: c >= HIDE_MIN };
