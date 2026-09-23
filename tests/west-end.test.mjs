@@ -259,8 +259,11 @@ test('additional guides retain evidence, unique curb identities and unresolved o
   for (const b of added) {
     assert.equal(b.curb.geometry.type, 'LineString');
     if (b.curb.category === 'permit') {
-      assert.equal(b.curb.verification, 'pdf-only');
-      assert.deepEqual(b.curb.spotChecks, []);
+      if (b.curb.verification === 'pdf-only') assert.deepEqual(b.curb.spotChecks, []);
+      else {
+        assert.equal(b.curb.verification, 'historical-conflict');
+        assert.ok(b.curb.spotChecks.length > 0);
+      }
     } else assert.ok(b.curb.spotChecks.length > 0);
     assert.ok(['approximate-schematic','approximate-sign-split','approximate-sign-slice'].includes(b.curb.geometryStatus));
     assert.ok(b.sources.every(s => s.url.startsWith('https://')));
@@ -269,6 +272,10 @@ test('additional guides retain evidence, unique curb identities and unresolved o
     if (b.curb.category === 'permit') for (let day=0; day<7; day++)
       assert.equal(curbState(b.curb,600,day).free, false);
   }
+  const beachConflict = added.find(b => b.id === 'davie-beach-a3b367290959').curb;
+  assert.equal(curbState(beachConflict, 600, 1).group, 'unverified');
+  assert.match(curbSchedule(beachConflict), /Conflicting permit and no-parking signs/);
+  assert.ok(curbTableSegments(beachConflict, 1).some(row => row.url === beachConflict.spotChecks[0].url));
   const unresolved = additions.flatMap(d => d.unmappedSections);
   assert.equal(unresolved.length,14);
   for (const s of unresolved) {

@@ -26,7 +26,7 @@ export const CITIES = {
       { url: 'data/meters.json', kind: 'meters' },
       { url: 'data/free.json?v=4', kind: 'free' },
       { url: 'data/west-end-plateau.json?v=11', kind: 'west-end' },
-      { url: 'data/davie-beach.json?v=7', kind: 'west-end' },
+      { url: 'data/davie-beach.json?v=8', kind: 'west-end' },
       { url: 'data/denman-west.json?v=5', kind: 'west-end' },
       { url: 'data/robson-north.json?v=2', kind: 'west-end' },
       { url: 'data/kitsilano-north.json?v=3', kind: 'west-end' },

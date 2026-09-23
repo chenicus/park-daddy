@@ -105,6 +105,7 @@ export function curbVisible(section, mins, dow, filters) {
 const clock = (m) => `${Math.floor(m / 60) % 12 || 12}${m % 60 ? ':' + String(m % 60).padStart(2, '0') : ''}${m < 720 ? 'am' : 'pm'}`;
 export function curbSchedule(section) {
   if (section.accessOverride?.category === 'permit') return 'Permit required · hours not confirmed';
+  if (section.category === 'permit' && section.verification === 'historical-conflict') return 'Conflicting permit and no-parking signs · exact curb limits unknown';
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
   const s = section.schedule;
   const days = s.label || (s.days == null ? (section.publicSign ? 'days unreadable in Street View' : 'days unspecified in PDF') : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
