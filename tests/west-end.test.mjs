@@ -401,7 +401,8 @@ test('enforcement-derived Vancouver records are not classified as free', () => {
   assert.equal(candidates.length, source.length);
   assert.ok(candidates.length > 2000);
   assert.equal(retired.length, 259);
-  assert.equal(source.length + retired.length, 2399);
+  assert.equal(source.length + retired.length, 2397);
+  assert.ok(!source.some(r => ['1100 Foundry Quay', '1000 Scantlings'].includes(r.h)));
   assert.equal(retired.filter(r => source.some(active => active.h === r.h)).length, 0);
   for (const block of candidates) {
     assert.equal(block.unverified,true);

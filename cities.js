@@ -24,7 +24,7 @@ export const CITIES = {
     bounds: [[49.19, -123.28], [49.33, -123.02]],   // [[south, west], [north, east]]
     data: [
       { url: 'data/meters.json', kind: 'meters' },
-      { url: 'data/free.json?v=4', kind: 'free' },
+      { url: 'data/free.json?v=5', kind: 'free' },
       { url: 'data/west-end-plateau.json?v=11', kind: 'west-end' },
       { url: 'data/davie-beach.json?v=8', kind: 'west-end' },
       { url: 'data/denman-west.json?v=5', kind: 'west-end' },
