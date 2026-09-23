@@ -1,0 +1,6340 @@
+{
+  "version": 1,
+  "excludeInferredBlocks": [
+    "2100 W 5Th Av",
+    "2000 W 6Th Av",
+    "2000 W 7Th Av",
+    "1800 W 7Th Av"
+  ],
+  "sources": {
+    "city-pdf": {
+      "url": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-south.pdf",
+      "title": "City of Vancouver Kitsilano South Residential Permit Zone guide",
+      "retrieved": "2026-09-22"
+    },
+    "city-intersections": {
+      "url": "https://opendata.vancouver.ca/explore/dataset/street-intersections/",
+      "title": "City of Vancouver street intersections (location reference only)",
+      "retrieved": "2026-09-22"
+    }
+  },
+  "geometryNote": "Approximate curb sections traced from a schematic guide. Endpoints and sign arrows are not surveyed; check posted signs.",
+  "restrictionNote": "Only clearly readable bars are included. Rules outside listed hours, days omitted by the guide, and paid rates are unverified. Purple resident-eligibility shading is excluded.",
+  "sections": [
+    {
+      "id": "kits-south-f41ac2c359da",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267392,-123.156896&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.44,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157299,
+            49.267399
+          ],
+          [
+            -123.156493,
+            49.267386
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-7a4effb8bb66",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.44,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156493,
+            49.267386
+          ],
+          [
+            -123.155213,
+            49.267366
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-15549d08033f",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267356,-123.154550&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.5,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155119,
+            49.267365
+          ],
+          [
+            -123.153981,
+            49.267347
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-f41d2cc19f1d",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153981,
+            49.267347
+          ],
+          [
+            -123.152844,
+            49.267329
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-112f5f358e36",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.03,
+        "to": 0.6,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150325,
+            49.267288
+          ],
+          [
+            -123.148957,
+            49.267266
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-f32ab9767e65",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.6,
+        "to": 0.69,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148957,
+            49.267266
+          ],
+          [
+            -123.148741,
+            49.267262
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-412d1330f4da",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.69,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148741,
+            49.267262
+          ],
+          [
+            -123.148045,
+            49.267251
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-e42be21536de",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14795,
+            49.26725
+          ],
+          [
+            -123.147713,
+            49.267246
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-080e1e66b73e",
+      "street": "W 5th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.64,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147713,
+            49.267246
+          ],
+          [
+            -123.146481,
+            49.267226
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-dd024bf62454",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267292,-123.157362&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.13,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157492,
+            49.267294
+          ],
+          [
+            -123.157232,
+            49.26729
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-008fce921dfe",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.4,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157232,
+            49.26729
+          ],
+          [
+            -123.156592,
+            49.26728
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-94de33d53ca3",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267269,-123.155904&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.4,
+        "to": 0.98,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156592,
+            49.26728
+          ],
+          [
+            -123.155217,
+            49.267258
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-4e456abfb809",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267255,-123.155005&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155123,
+            49.267257
+          ],
+          [
+            -123.154886,
+            49.267253
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-3e8043865e09",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154886,
+            49.267253
+          ],
+          [
+            -123.153985,
+            49.267239
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-4aec57e73048",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [
+        {
+          "status": "historical-partial-match",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
+          "finding": "South-curb sign near 2154 W 5th reads 2h 9AM–6PM EXCEPT WITH PERMIT. Days and arrow extents were not independently readable; Mon–Sat remains from PDF only.",
+          "scope": "Historical local observation; mapped endpoints and current rule unverified."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=-_W4wgUbgQbmQZuVS4zELQ&heading=115&pitch=0&fov=15",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.9,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153985,
+            49.267239
+          ],
+          [
+            -123.153037,
+            49.267224
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-c6003c01e796",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.2,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152753,
+            49.267219
+          ],
+          [
+            -123.152321,
+            49.267212
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-095d897783b5",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267186,-123.150725&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 0.98,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151001,
+            49.267191
+          ],
+          [
+            -123.150449,
+            49.267182
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-6ee6a4f58ac2",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267178,-123.150161&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.18,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150353,
+            49.267181
+          ],
+          [
+            -123.149969,
+            49.267174
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-bddfa16beade",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.18,
+        "to": 0.4,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149969,
+            49.267174
+          ],
+          [
+            -123.149441,
+            49.267166
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-373b2c6d773b",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.6,
+        "to": 0.8,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148961,
+            49.267158
+          ],
+          [
+            -123.148481,
+            49.26715
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-cc1f00ec0b94",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267134,-123.147456&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.36,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147764,
+            49.267139
+          ],
+          [
+            -123.147148,
+            49.267129
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8295ac42d51e",
+      "street": "W 5th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.58,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147148,
+            49.267129
+          ],
+          [
+            -123.146627,
+            49.267121
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-787c3665c6d4",
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.266535,-123.156893&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.55,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157521,
+            49.266545
+          ],
+          [
+            -123.156265,
+            49.266525
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-48182f985f71",
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156265,
+            49.266525
+          ],
+          [
+            -123.155246,
+            49.266509
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-cc8926da80b5",
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152779,
+            49.26647
+          ],
+          [
+            -123.152531,
+            49.266466
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-959141f84e7d",
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.6,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151935,
+            49.266456
+          ],
+          [
+            -123.151339,
+            49.266446
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-672360f958e0",
+      "street": "W 6th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.9,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150595,
+            49.266434
+          ],
+          [
+            -123.150396,
+            49.266431
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-65229a046c92",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.266427,-123.156860&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.58,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157524,
+            49.266437
+          ],
+          [
+            -123.156197,
+            49.266416
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-cfd51a973225",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.58,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156197,
+            49.266416
+          ],
+          [
+            -123.15525,
+            49.266401
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-7b4d3b39cf89",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152585,
+            49.266359
+          ],
+          [
+            -123.151592,
+            49.266343
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-e8dcba501e9a",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.45,
+        "to": 0.7,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149308,
+            49.266306
+          ],
+          [
+            -123.148729,
+            49.266297
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-32ae05bddb25",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.7,
+        "to": 0.95,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148729,
+            49.266297
+          ],
+          [
+            -123.14815,
+            49.266288
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-3d96d8aee134",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.24,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147987,
+            49.266285
+          ],
+          [
+            -123.147465,
+            49.266276
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-1f9246b9117a",
+      "street": "W 6th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.63,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146541,
+            49.266262
+          ],
+          [
+            -123.145711,
+            49.266248
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-411affd8759c",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265702,-123.157243&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.28,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157551,
+            49.265706
+          ],
+          [
+            -123.156936,
+            49.265697
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-736630f68263",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265675,-123.155514&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.78,
+        "to": 0.98,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155751,
+            49.265678
+          ],
+          [
+            -123.155277,
+            49.265671
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-b4017257790c",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155183,
+            49.265669
+          ],
+          [
+            -123.154946,
+            49.265666
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-53224094480b",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.98,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151661,
+            49.265613
+          ],
+          [
+            -123.150509,
+            49.265594
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-f2321a6b3deb",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265589,-123.150173&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.22,
+        "rule": "2m8"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150413,
+            49.265593
+          ],
+          [
+            -123.149934,
+            49.265585
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-bd126f6567fd",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.22,
+        "to": 0.47,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149934,
+            49.265585
+          ],
+          [
+            -123.149334,
+            49.265575
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8c5456562607",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265571,-123.149070&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.47,
+        "to": 0.69,
+        "rule": "2m8"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149334,
+            49.265575
+          ],
+          [
+            -123.148806,
+            49.265567
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-36faad2f132c",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.69,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148806,
+            49.265567
+          ],
+          [
+            -123.14811,
+            49.265556
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8bb7174f8e0c",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265552,-123.147908&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.11,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148015,
+            49.265554
+          ],
+          [
+            -123.147801,
+            49.265551
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-be6914fa6200",
+      "street": "W 7th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.58,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147351,
+            49.265544
+          ],
+          [
+            -123.146687,
+            49.265533
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-2152bc73f0b2",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.46,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155187,
+            49.265562
+          ],
+          [
+            -123.154144,
+            49.265545
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-248e08d40895",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.2,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152816,
+            49.265523
+          ],
+          [
+            -123.152384,
+            49.265516
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-e17a446666fb",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.34,
+        "to": 0.66,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152049,
+            49.265511
+          ],
+          [
+            -123.151281,
+            49.265499
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-ea410687f5e9",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265481,-123.150178&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.22,
+        "rule": "2m8"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150417,
+            49.265485
+          ],
+          [
+            -123.149938,
+            49.265477
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-545f82afe33f",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.22,
+        "to": 0.47,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149938,
+            49.265477
+          ],
+          [
+            -123.149338,
+            49.265468
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-aac7c3788949",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1200,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265463,-123.149074&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.47,
+        "to": 0.69,
+        "rule": "2m8"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149338,
+            49.265468
+          ],
+          [
+            -123.14881,
+            49.265459
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-767094fb97bc",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.69,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14881,
+            49.265459
+          ],
+          [
+            -123.148114,
+            49.265448
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-d7de61ec74c4",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.36,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148019,
+            49.265446
+          ],
+          [
+            -123.147213,
+            49.265434
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-500b10d0479e",
+      "street": "W 7th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265429,-123.146929&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.6,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147213,
+            49.265434
+          ],
+          [
+            -123.146644,
+            49.265425
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-710c1566a165",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264845,-123.156137&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.48,
+        "to": 0.78,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156493,
+            49.264851
+          ],
+          [
+            -123.155782,
+            49.26484
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8af9e7a86725",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.47,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155213,
+            49.264831
+          ],
+          [
+            -123.154147,
+            49.264814
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-e0d381078e62",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.98,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151692,
+            49.264774
+          ],
+          [
+            -123.150541,
+            49.264756
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-432660721735",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.78,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150445,
+            49.264754
+          ],
+          [
+            -123.148621,
+            49.264725
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-837843deb622",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.28,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148046,
+            49.264716
+          ],
+          [
+            -123.147429,
+            49.264706
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8e2c1056eef0",
+      "street": "W 8th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.28,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147429,
+            49.264706
+          ],
+          [
+            -123.14577,
+            49.26468
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-db8ec3504c4c",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264759,-123.157467&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157586,
+            49.264761
+          ],
+          [
+            -123.157349,
+            49.264757
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-c56f4306e576",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.4,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157349,
+            49.264757
+          ],
+          [
+            -123.156686,
+            49.264746
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-6b7e65b7c197",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264708,-123.154270&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.82,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155218,
+            49.264723
+          ],
+          [
+            -123.153322,
+            49.264693
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-805a96c8c91a",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.82,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153322,
+            49.264693
+          ],
+          [
+            -123.152943,
+            49.264687
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-4de70a75d948",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.2,
+        "to": 0.4,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152416,
+            49.264678
+          ],
+          [
+            -123.151936,
+            49.26467
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-54ec5411c0da",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.4,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151936,
+            49.26467
+          ],
+          [
+            -123.150545,
+            49.264648
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-2313f4eef921",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150449,
+            49.264646
+          ],
+          [
+            -123.150209,
+            49.264643
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-18ed24664e6b",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.24,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150209,
+            49.264643
+          ],
+          [
+            -123.149921,
+            49.264638
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-753f63f6af99",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264634,-123.149633&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.24,
+        "to": 0.48,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149921,
+            49.264638
+          ],
+          [
+            -123.149345,
+            49.264629
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-d28543a2ac44",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264615,-123.148505&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.78,
+        "to": 0.88,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148625,
+            49.264617
+          ],
+          [
+            -123.148385,
+            49.264613
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-710d5989a8f6",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.88,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148385,
+            49.264613
+          ],
+          [
+            -123.148145,
+            49.26461
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-c69f3b20afd7",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.12,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14805,
+            49.264608
+          ],
+          [
+            -123.147813,
+            49.264604
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-dd87c5640b28",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.3,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147813,
+            49.264604
+          ],
+          [
+            -123.147386,
+            49.264598
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-9dc0614c49f6",
+      "street": "W 8th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.264594,-123.147125&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.52,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147386,
+            49.264598
+          ],
+          [
+            -123.146864,
+            49.264589
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-f730365c36a3",
+      "street": "W 10th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.16,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150179,
+            49.262872
+          ],
+          [
+            -123.149362,
+            49.262859
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-125ec60f0672",
+      "street": "W 10th",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.262852,-123.148930&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.86,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149362,
+            49.262859
+          ],
+          [
+            -123.148498,
+            49.262845
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-7dbb370399df",
+      "street": "W 10th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.71,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148119,
+            49.262731
+          ],
+          [
+            -123.146483,
+            49.262705
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-b190eba09c3e",
+      "street": "W 10th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.262700,-123.146163&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.71,
+        "to": 0.98,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146483,
+            49.262705
+          ],
+          [
+            -123.145843,
+            49.262695
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-9bd26157d222",
+      "street": "W 11th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.52,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148149,
+            49.261919
+          ],
+          [
+            -123.146964,
+            49.2619
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-40d917740de3",
+      "street": "W 11th",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.261891,-123.146419&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 0.98,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146964,
+            49.2619
+          ],
+          [
+            -123.145874,
+            49.261882
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-88b62286557a",
+      "street": "W 11th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.261803,-123.147584&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.5,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148153,
+            49.261812
+          ],
+          [
+            -123.147016,
+            49.261793
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-3a49b589a09f",
+      "street": "W 11th",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147016,
+            49.261793
+          ],
+          [
+            -123.145878,
+            49.261775
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-764dfbe03045",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.267210,-123.155255&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.22,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155251,
+            49.267296
+          ],
+          [
+            -123.155258,
+            49.267124
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-03c1dfa2c86c",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.22,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155258,
+            49.267124
+          ],
+          [
+            -123.155282,
+            49.266473
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-ec31dbfbcfef",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.266154,-123.155294&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.7,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155283,
+            49.266439
+          ],
+          [
+            -123.155305,
+            49.265869
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-4d804ffde12c",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.7,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155305,
+            49.265869
+          ],
+          [
+            -123.155314,
+            49.265634
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-46954171c300",
+      "street": "Maple",
+      "side": "east",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.08,
+        "to": 0.98,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150383,
+            49.265471
+          ],
+          [
+            -123.150412,
+            49.264716
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-82bd9b2d510a",
+      "street": "Cypress",
+      "side": "west",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.265348,-123.148152&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.35,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148147,
+            49.265486
+          ],
+          [
+            -123.148158,
+            49.265209
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-170c94a4666e",
+      "street": "Cypress",
+      "side": "west",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.35,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148158,
+            49.265209
+          ],
+          [
+            -123.148177,
+            49.264681
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-45a97d716356",
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 7th",
+        "W 8th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.75,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147982,
+            49.265483
+          ],
+          [
+            -123.148005,
+            49.264871
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-8282984419c6",
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 5th",
+        "W 6th"
+      ],
+      "category": "permit-window",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.6,
+        "rule": "rmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.145713,
+            49.267143
+          ],
+          [
+            -123.145732,
+            49.266645
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-ba41ba335ca7",
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.32,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.145745,
+            49.266286
+          ],
+          [
+            -123.145754,
+            49.266034
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-a3505dba4bca",
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 6th",
+        "W 7th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.72,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.145767,
+            49.265699
+          ],
+          [
+            -123.145775,
+            49.265481
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-b45178152395",
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.48,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148116,
+            49.261846
+          ],
+          [
+            -123.148132,
+            49.261414
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-ed54e9df5955",
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.261160,-123.148142&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 0.98,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148134,
+            49.261376
+          ],
+          [
+            -123.14815,
+            49.260944
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-south-5a5a31214156",
+      "street": "Burrard",
+      "side": "west",
+      "between": [
+        "W 11th",
+        "W 12th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.261359,-123.145928&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.98,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.145912,
+            49.26181
+          ],
+          [
+            -123.145945,
+            49.260908
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    }
+  ]
+}

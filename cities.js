@@ -24,7 +24,16 @@ export const CITIES = {
     bounds: [[49.19, -123.28], [49.33, -123.02]],   // [[south, west], [north, east]]
     data: [
       { url: 'data/meters.json', kind: 'meters' },
-      { url: 'data/free.json', kind: 'free' },
+      { url: 'data/free.json?v=5', kind: 'free' },
+      { url: 'data/west-end-plateau.json?v=11', kind: 'west-end' },
+      { url: 'data/davie-beach.json?v=8', kind: 'west-end' },
+      { url: 'data/denman-west.json?v=5', kind: 'west-end' },
+      { url: 'data/robson-north.json?v=2', kind: 'west-end' },
+      { url: 'data/kitsilano-north.json?v=3', kind: 'west-end' },
+      { url: 'data/kitsilano-south.json?v=2', kind: 'west-end' },
+      { url: 'data/kitsilano-point.json?v=5', kind: 'west-end' },
+      { url: 'data/mount-pleasant.json?v=1', kind: 'west-end' },
+      { url: 'data/beach-pacific-street-view.json?v=2', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)

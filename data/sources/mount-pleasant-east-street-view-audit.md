@@ -1,0 +1,16 @@
+# Mount Pleasant east Street View spot checks
+
+These are checks of legacy block-centre “Check signs” markers east of Main Street. A parked car does not establish a legal free curb; no marker below was promoted to free, paid, or permit-only without a readable sign and an attributable curb side.
+
+| Legacy marker | Imagery checked | Finding |
+| --- | --- | --- |
+| 900 E 10th Ave (49.261486, -123.084288) | [April 2012 panorama](https://www.google.com/maps/@?api=1&map_action=pano&pano=kBKqjyfj74RLWU6JE78O7w&heading=0&pitch=0&fov=55) | The panorama at the marker is too old for a current classification; Google’s date selector only offered April 2012 and August 2011 at this position. |
+| 600 E 10th Ave (49.261533, -123.090102) | [July 2024 panorama](https://www.google.com/maps/@?api=1&map_action=pano&pano=gdibbjEzkMZZaQrsJp3zGA&heading=90&pitch=0&fov=55), [closer view near Fraser](https://www.google.com/maps/@?api=1&map_action=pano&pano=gIY1qzpp6Xfz9H8BI1jPQQ&heading=90&pitch=0&fov=35) | Cars are parked on both sides. No legible parking rule or boundary arrow was visible in these views, so both sides remain unverified. |
+| 300 E 18th Ave (49.254748, -123.097791) | [December 2020 panorama](https://www.google.com/maps/@?api=1&map_action=pano&pano=A1Cv5-TbNSVp8noRDm1pdQ&heading=0&pitch=0&fov=55) | No parking sign was visible at the marker position. No curb classification follows from the parked car. |
+| 2800 Fraser St (49.259038, -123.089177) | [July 2024 panorama](https://www.google.com/maps/@?api=1&map_action=pano&pano=i6HsdCX3W7MEz-UfEGz3aA&heading=0&pitch=0&fov=45) | A nearby pole carries a sign, but its parking relevance and text are not legible in this view. No curb classification was made. |
+| 2400 Fraser St (49.263198, -123.089108) | [April 2022 panorama](https://www.google.com/maps/@?api=1&map_action=pano&pano=v8bU5Rey31e8QWQ9p5vE6Q&heading=0&pitch=0&fov=55) | Parked cars on both curbs, but no readable regulation sign; remains unverified. |
+| 400 E 5th Ave (49.266175, -123.093898) | [July 2025 contributed photosphere](https://www.google.com/maps/@?api=1&map_action=pano&pano=CIABIhCZiEIiOUs0ijX7Xt76W8Qe&heading=90&pitch=0&fov=55) | This is not Google road imagery, and the visible curb sign is unreadable. No classification. |
+| 700 E 10th Ave at Fraser (49.26154, -123.0891) | [July 2024 panorama looking west](https://www.google.com/maps/@?api=1&map_action=pano&pano=yv2O9KeuegfZu45nUdX5DQ&heading=270&pitch=0&fov=35) | The visible east-corner sign is a 30 km/h bikeway speed sign, not a parking rule. No parking restriction or arrow was readable on either E 10th curb at this corner. |
+| 200 E 1st Ave (49.26971, -123.099732) | [April 2022 panorama looking southeast](https://www.google.com/maps/@?api=1&map_action=pano&pano=7W-ZqqoaQc36X9f7_6F_CQ&heading=145&pitch=-2&fov=20) | Cars line the north curb. The visible sign on the south-side utility pole appears to prohibit parking by a construction site, but its text/temporal status and arrow are not legible. It does not classify the north curb or establish a permanent south-curb rule. |
+
+Next pass should inspect individual poles from nearby panoramas on each side, especially at cross streets, and record arrow direction before drawing any curb line. At E 10th the marker-centre panorama is older than nearby 2024 road imagery, so nearby panoramas should be preferred.

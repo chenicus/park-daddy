@@ -1,0 +1,53 @@
+{
+  "wep-17d8d42a59a6": {
+    "reviewedReportsThrough": "2026-09-23T03:35:07.049191+00:00",
+    "reports": ["1h, 9am-6pm"],
+    "bestJudgment": {
+      "label": "1h near sign",
+      "summary": "South-curb sign shows 1h, 9am–6pm, arrow right; no days printed.",
+      "otherTimes": "Not stated on the sign",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ybE6elSF4YHmlN_EekKJ6A&heading=183&pitch=0&fov=15"
+    }
+  },
+  "wep-b7bd3d236123": {
+    "reviewedReportsThrough": "2026-09-23T03:39:20.039086+00:00",
+    "reports": ["2h, 9am–8pm Mon–Sat; other times no restrictions", "Most of the street is no parking except one 2h space"],
+    "bestJudgment": {
+      "label": "2h / Mobi split",
+      "summary": "West-curb sign shows 2h, 9am–8pm Mon–Sat in one direction; the opposite direction is reserved for Mobi bike share. The report describes additional no-parking curb without a mapped endpoint.",
+      "otherTimes": "Reporter says unrestricted; sign does not establish this, and reserved curb remains reserved",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=4EVAJ1jxYAbUF1PkO6B-fg&heading=263&pitch=0&fov=15"
+    }
+  },
+  "wep-c104b0d51182": {
+    "reviewedReportsThrough": "2026-09-23T03:36:16.937167+00:00",
+    "reports": ["2h, 9am–8pm Mon–Sat; other times no restrictions"],
+    "bestJudgment": {
+      "label": "2h / Modo split",
+      "summary": "East-curb sign shows 2h, 9am–8pm toward the public side; opposite direction is reserved for Modo. Days are legible in the PDF and report but blurred in Street View. A temporary no-stopping notice was present in August 2024.",
+      "otherTimes": "Reporter says unrestricted; permanent sign and temporary notice do not confirm the full curb",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20"
+    }
+  },
+  "denman-west-8a345fd5d337": {
+    "reviewedReportsThrough": "2026-09-23T03:33:56.763913+00:00",
+    "verification": "historical-sign-match",
+    "reports": ["2h, 9am–8pm Mon–Fri; other hours no restrictions"],
+    "bestJudgment": {
+      "label": "2h / permit split",
+      "summary": "North-curb sign shows 2h, 9am–8pm Mon–Sat toward Gilford and no parking except permit toward Denman. The report says Mon–Fri, but the photographed sign reads Mon–Sat.",
+      "otherTimes": "Reporter says unrestricted; the sign does not confirm this, and the permit direction is not public parking",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=s4Iro5vSGJeGsA1-uE24hQ&heading=348&pitch=-2&fov=15"
+    }
+  },
+  "denman-west-b672f507d5a2": {
+    "reviewedReportsThrough": "2026-09-23T03:33:10.115702+00:00",
+    "reports": ["Sign says permit only"],
+    "bestJudgment": {
+      "label": "Permit near sign",
+      "summary": "South-curb sign near 1835 Comox says no parking except with permit; separate no-stopping signs appear nearby. The report agrees with the local permit sign, but neither source establishes the rule along the entire PDF bar.",
+      "otherTimes": "No public off-hours established",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=qySC9WUrTC0Qr9Fua6Z8uA&heading=151&pitch=0&fov=15"
+    }
+  }
+}

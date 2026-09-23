@@ -1,0 +1,90 @@
+{
+  "reviewDate": "2026-09-22",
+  "reason": "User requested removal after historical Street View spot-checks failed to verify whole-block free parking. This does not establish that every curb is paid or prohibited.",
+  "records": [
+    {
+      "h": "400 Robson St",
+      "lat": 49.279622,
+      "lon": -123.117134,
+      "n": 19
+    },
+    {
+      "h": "1400 Burrard St",
+      "lat": 49.276793,
+      "lon": -123.132638,
+      "n": 10
+    },
+    {
+      "h": "800 Seymour St",
+      "lat": 49.280196,
+      "lon": -123.119632,
+      "n": 4
+    },
+    {
+      "h": "500 Robson St",
+      "lat": 49.280566,
+      "lon": -123.118594,
+      "n": 3
+    },
+    {
+      "h": "500 Smithe St",
+      "lat": 49.279512,
+      "lon": -123.120186,
+      "n": 3
+    },
+    {
+      "h": "300 Richards St",
+      "lat": 49.284523,
+      "lon": -123.111179,
+      "n": 1
+    },
+    {
+      "h": "800 Robson St",
+      "lat": 49.282315,
+      "lon": -123.121297,
+      "n": 1
+    },
+    {
+      "h": "800 Homer St",
+      "lat": 49.278938,
+      "lon": -123.117688,
+      "n": 1
+    },
+    {
+      "h": "200 Abbott St",
+      "lat": 49.283161,
+      "lon": -123.106689,
+      "n": 1
+    },
+    {
+      "h": "100 Milross Av",
+      "lat": 49.276068,
+      "lon": -123.101404,
+      "n": 1
+    },
+    {
+      "h": "100 Columbia St",
+      "lat": 49.283435,
+      "lon": -123.102166,
+      "n": 1
+    },
+    {
+      "h": "1000 Richards St",
+      "lat": 49.277461,
+      "lon": -123.121846,
+      "n": 1
+    },
+    {
+      "h": "300 W Georgia St",
+      "lat": 49.280439,
+      "lon": -123.114944,
+      "n": 1
+    },
+    {
+      "h": "400 Smithe St",
+      "lat": 49.278569,
+      "lon": -123.11873,
+      "n": 1
+    }
+  ]
+}

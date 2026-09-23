@@ -1,0 +1,48 @@
+{
+  "reviewed": "2026-09-22",
+  "scope": "Selected high-count side-less enforcement-derived Kitsilano review points outside the three residential permit PDF curb bars",
+  "method": "Street View panoramas were viewed along the street in both directions where available. A parked car, absence of a visible sign, or block-level meter proximity does not establish free parking on either curb side.",
+  "findings": [
+    {
+      "candidate": "1800 Dunbar St",
+      "tickets": 49,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=_gMzmuxQSh6xLc2FC1IVzA&heading=0&pitch=0&fov=45",
+      "imageryDate": "2024-08",
+      "result": "unresolved",
+      "observation": "Both Dunbar directions show parked cars, but no legible parking restriction or arrow on either curb face near the block-centre point."
+    },
+    {
+      "candidate": "2500 York Av",
+      "tickets": 34,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271829,-123.163257&heading=270&fov=55",
+      "imageryDate": "2023-07",
+      "result": "unresolved",
+      "observation": "The selected user-contributed panorama shows cars along both curbs, but no readable parking sign; the imagery did not provide a navigable street panorama."
+    },
+    {
+      "candidate": "2400 W 5Th Av",
+      "tickets": 28,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=_MtUVroRFOQmkQ1TgdtmEw&heading=90&pitch=0&fov=50",
+      "imageryDate": "2015-08",
+      "result": "unresolved",
+      "observation": "Parked cars are visible on both sides, but no legible restriction sign or arrow. The selected panorama is too old to support a current free-parking claim."
+    },
+    {
+      "candidate": "2500 W 6Th Av",
+      "tickets": 25,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=lRuITgs1yo5xWljhMPz4Qw&heading=90&pitch=0&fov=50",
+      "imageryDate": "2024-08",
+      "result": "unresolved",
+      "observation": "Westward and eastward views show parked cars, but the available sign faces do not establish a curb rule, side, and arrow extent."
+    },
+    {
+      "candidate": "1900 Balaclava St",
+      "tickets": 24,
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=LI8BWeILdIRpFjeA8Jr4oQ&heading=10&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "result": "unresolved",
+      "observation": "The legible green sign near W 3rd is a bicycle route sign, not a parking restriction. No nearby parking sign with readable rule and arrows was found."
+    }
+  ],
+  "classificationChanges": 0
+}

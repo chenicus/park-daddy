@@ -1,16 +1,18 @@
+import { initReview, renderReviewDetail } from './review.js?v=7';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=20';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=36';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=48';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=33';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true };
+const filters = { free: true, paid: true, restrictions: true, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 
 const params = new URLSearchParams(location.search);
@@ -120,6 +122,12 @@ const EMPTY_FC = { type: 'FeatureCollection', features: [] };
 // All custom sources/layers live here. setStyle (theme swap) wipes them, so this is re-run on
 // every 'style.load'. HTML markers (pills/pin/car) are NOT part of the style and survive.
 function installLayers() {
+  if (!map.getSource('west-end-curbs')) map.addSource('west-end-curbs', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('west-end-curbs')) map.addLayer({
+    id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 14.5,
+    layout: { 'line-cap': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.8, 'line-dasharray': [0.1, 2.2] },
+  });
   if (!map.getSource('blockface-lines')) map.addSource('blockface-lines', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('blockface-lines')) map.addLayer({
     id: 'blockface-lines', type: 'line', source: 'blockface-lines', layout: { 'line-cap': 'round' },
@@ -257,16 +265,9 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
 });
 
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
-// that ride the same pill/filter/card machinery as meters, but always read as FREE.
+// remain unverified until supported by readable curb signage.
 let freeBlocks = [];
-function buildFreeBlocks(arr) {
-  return arr.map((f, i) => ({
-    id: 1e6 + i, lat: f.lat, lon: f.lon, isFree: true, hblock: f.h, tickets: f.n,
-    rate1: null, rate2: null, flat: null,
-    limits: { day: 180, eve: null, wkndDay: 180, wkndEve: null },
-    rushes: [], pts: [], count: 0, spaces: 0, card: false,
-  }));
-}
+
 
 // Multi-city: the current city is whichever CITIES bounds contain the map center. We
 // lazy-load a city's feeds the first time you're there (on open via geolocation, or on
@@ -324,8 +325,9 @@ async function loadCity(key) {
     const feeds = await Promise.all(c.data.map((d) => fetch(d.url).then((r) => r.json()).catch(() => [])));
     c.data.forEach((d, i) => {
       const data = feeds[i] || [];
-      if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
-      else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(data); pushBlocks(freeBlocks); }
+      if (d.kind === 'meters') { meters = filterMetersCoveredByCurbs(data, feeds); pushBlocks(buildBlocks(meters)); }
+      else if (d.kind === 'free') { freeBlocks = buildInferredBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
+      else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
       else if (d.kind === 'sf') { pushBlocks(buildSFBlocks(data)); }
@@ -424,7 +426,7 @@ async function pollKirkLive() {
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
-    const b = blocks.find((x) => x.id === parseInt(rawSpot, 10));
+    const b = blocks.find((x) => String(x.id) === rawSpot);
     if (b) {
       showSpotCard(b);
       // Below 760px the card is a full-width sheet pinned to the bottom (see the .spotcard
@@ -578,7 +580,13 @@ function clearMap() { markers.forEach((m) => m.remove()); markers = []; }
 // flags: rptKey -> { count, items[] }. Drives the pill warning badge / auto-hide
 // (labels.js) and the spot-card report banner + list.
 let flags = new Map();
-function flagFor(b) { return flags.get(rptKey(b)); }
+function flagFor(b) {
+  const f = flags.get(rptKey(b));
+  if (!f || !b.curb?.reviewedReportsThrough) return f;
+  const reviewedAt = Date.parse(b.curb.reviewedReportsThrough);
+  const items = f.items.filter(item => Date.parse(item.created_at) > reviewedAt);
+  return items.length ? {count:items.length,items} : undefined;
+}
 function flagState(b) {
   const c = flagFor(b)?.count || 0;
   return { flagged: c >= FLAG_MIN, hidden: c >= HIDE_MIN };
@@ -949,10 +957,12 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
-$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
+$('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
+$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
   filters.paid = !filters.paid;
   $('chipPaid').classList.toggle('on', filters.paid);
+  $('chipPaid').setAttribute('aria-pressed', String(filters.paid));
   applyFilters();
   // First time someone hides paid to look at free-only, warn that free data is thin.
   if (!filters.paid && !store.get('freeWarnSeen')) {
@@ -1399,7 +1409,7 @@ function daySegments(b, wknd, dow) {
 const ZONE_LABEL = {
   'TOW-AWAY': 'Tow-away',
   'NO STOPPING': 'No stopping', 'LOADING ZONE': 'Loading zone', 'CVLZ': 'Commercial loading',
-  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit only', 'TAXI ZONE': 'Taxi only',
+  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit', 'TAXI ZONE': 'Taxi only',
   'MILITARY ZONE': 'Military only', 'POLICE ZONE': 'Police only', 'TOUR BUS ZONE': 'Tour bus only',
   'AUTHORIZED VEHICLES ONLY': 'Authorized only',
 };
@@ -1460,16 +1470,24 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
+  const segs = b.unverified ? [
+    { from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null },
+    ...(b.streetViewUrl ? [{ from: 0, to: 1440, label: 'Nearby Street View · side unverified', status: 'Open', url: b.streetViewUrl, linkLabel: 'Open nearby Street View; check both curb sides', applies: false }] : []),
+  ] : b.curb ? curbTableSegments(b.curb, dowNow())
+    : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
+    : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
-    const active = mins >= s.from && mins < s.to;
+    const active = s.activeOutside ? !(mins >= s.activeOutside[0] && mins < s.activeOutside[1])
+      : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
-    const cost = s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`);
+    const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));
+    const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.linkLabel || `Open Street View imagery from ${cost}`)}">${esc(cost)} ↗</a>` : cost;
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
-      `<span class="when">${segLabel(s)}${lim}</span><span class="cost">${cost}</span></div>`;
+      `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${costText}</span></div>`;
   }).join('');
+  renderReviewDetail(b, el);
   el.hidden = false;
 }
 
@@ -1503,6 +1521,30 @@ function showSpotCard(b) {
   b._label = blockLabel(b);
   renderFlag(b);
 
+  $('scprice').classList.remove('free');
+  if (b.unverified) {
+    $('scprice').textContent = 'Check signs';
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
+    $('scmaps').href = navUrl(b);
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
+  if (b.curb) {
+    const state = curbState(b.curb, mins, dowNow());
+    $('scprice').textContent = state.label;
+    $('scprice').classList.toggle('free', state.free);
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
+    $('scmaps').href = navUrl(b);
+    track('spot_opened', { city: activeCity, free: state.free, spot_type: b.curb.category, from_search: !!lastLoc });
+    if (wasOpen) flashSpotContent();
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
+
   // Rate is resolved before the isFree early-return below so the one analytics call
   // covers both card shapes — free-residential blocks return early and would otherwise
   // never be counted, which is exactly the population we most want to measure.
@@ -1525,13 +1567,10 @@ function showSpotCard(b) {
 
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
-    $('scsched').hidden = true;
+    renderSchedule(b, mins);
     $('scprice').textContent = 'Free';
     $('scprice').classList.add('free');
-    $('scrows').innerHTML = [
-      `${IC.clock} Max stay <b>3h</b> · 8am–6pm`,
-      `${IC.info} Residential street — no meter. Check posted signs.`,
-    ].map((h) => `<div>${h}</div>`).join('');
+    $('scrows').replaceChildren();
     $('scmaps').href = navUrl(b);
     if (wasOpen) flashSpotContent();
     $('spotcard').hidden = false;
@@ -1541,7 +1580,9 @@ function showSpotCard(b) {
 
   // just "Free" — the schedule below lists the paid windows, so "right now" was
   // spelling out something the reader can already see
-  $('scprice').innerHTML = r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
+  const pNow = prohibitionNow(b, mins, dowNow());
+  const rushNow = (b.rushes || []).some(([start, end]) => mins >= start && mins < end);
+  $('scprice').innerHTML = pNow || rushNow ? 'No parking now' : r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
 
   // full-day price breakdown so a currently-free spot still shows its paid window
   renderSchedule(b, mins);
@@ -1557,7 +1598,6 @@ function showSpotCard(b) {
   const fmtWin = (a, z) => { const s = short(a), e = short(z); return (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap; };
   // A prohibition active right now — rare via a pill tap (those are hidden while active) but
   // reachable by search; call it out plainly.
-  const pNow = prohibitionNow(b, mins, dow);
   if (pNow) rows.push(`<span class="warn">${IC.alert} No parking now · ${zoneLabel(pNow)}</span>`);
   // Upcoming no-park within the ~2h stay: a rush tow-away OR a prohibition zone. The full-day
   // schedule already lists every window; this is the urgency nudge you can't scroll past.
@@ -1591,6 +1631,13 @@ function closeSpotCard() {
 }
 $('scclose').addEventListener('click', closeSpotCard);
 // tapping the already-selected pill again closes the card instead of re-opening it
+map.on('click', 'west-end-curbs', (e) => {
+  const b = blocks.find((block) => block.id === e.features?.[0]?.properties.id);
+  if (b) tapBlock(b);
+});
+map.on('mouseenter', 'west-end-curbs', () => { map.getCanvas().style.cursor = 'pointer'; });
+map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''; });
+
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
   showSpotCard(b);
@@ -2101,7 +2148,9 @@ function updateRecenter() {
 function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
-  labelLayer.refresh();
+  labelLayer.setFilter(filters);
+  if (params.get('review') === '1') labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
+  initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {
     const ctr = map.getCenter();

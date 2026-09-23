@@ -1,0 +1,7839 @@
+{
+  "version": 1,
+  "excludeInferredBlocks": [
+    "2100 W 2Nd Av",
+    "2000 W 2Nd Av"
+  ],
+  "sources": {
+    "city-kits-north-pdf": {
+      "url": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-north.pdf",
+      "title": "City of Vancouver Kitsilano North Residential Permit Zone guide",
+      "retrieved": "2026-09-22"
+    },
+    "city-intersections": {
+      "url": "https://opendata.vancouver.ca/explore/dataset/street-intersections/",
+      "title": "City of Vancouver street intersections (location reference only)",
+      "retrieved": "2026-09-22"
+    }
+  },
+  "geometryNote": "Approximate curb sections traced from a schematic guide. Endpoints and sign arrows are not surveyed; check posted signs.",
+  "restrictionNote": "The PDF gives the listed schedule and permit exception. Rules outside listed hours are not stated, so they remain unknown. Purple resident-eligibility shading is excluded.",
+  "sections": [
+    {
+      "id": "kits-north-9664e1992e0a",
+      "street": "Larch",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.272411,-123.162175&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.16,
+        "to": 0.48,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.162169,
+            49.272552
+          ],
+          [
+            -123.162181,
+            49.27227
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-9319eff3ae8c",
+      "street": "Larch",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.162183,
+            49.272234
+          ],
+          [
+            -123.1622,
+            49.271829
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-b09f3dfa1df8",
+      "street": "Larch",
+      "side": "west",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.48,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.162201,
+            49.271793
+          ],
+          [
+            -123.162214,
+            49.271387
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e2ec31a52972",
+      "street": "Larch",
+      "side": "west",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Sat"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271140,-123.162222&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.54,
+        "to": 0.98,
+        "rule": "2ms"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.162216,
+            49.271334
+          ],
+          [
+            -123.162228,
+            49.270946
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-de6ee5336d9a",
+      "street": "Balsam",
+      "side": "east",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.47,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159629,
+            49.272635
+          ],
+          [
+            -123.159644,
+            49.272238
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-47de0d420085",
+      "street": "Balsam",
+      "side": "east",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271991,-123.159653&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 0.98,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159646,
+            49.272194
+          ],
+          [
+            -123.159661,
+            49.271789
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-cef4babe9e4d",
+      "street": "Cornwall",
+      "side": "south",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.31,
+        "to": 0.6,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158978,
+            49.272589
+          ],
+          [
+            -123.158291,
+            49.272578
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d2a896ad5866",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.29,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159505,
+            49.271822
+          ],
+          [
+            -123.159055,
+            49.271815
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-10ae076e8171",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271797,-123.157929&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.64,
+        "to": 0.89,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158225,
+            49.271802
+          ],
+          [
+            -123.157633,
+            49.271792
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-0b0642a1510a",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.29,
+        "to": 0.6,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159059,
+            49.271707
+          ],
+          [
+            -123.158324,
+            49.271695
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4cf8503d7651",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.2,
+        "to": 0.45,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1593,
+            49.270936
+          ],
+          [
+            -123.158708,
+            49.270927
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-0d54cc1d1a47",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270918,-123.158151&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 0.85,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158542,
+            49.270924
+          ],
+          [
+            -123.15776,
+            49.270912
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4b7ee4890102",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.29,
+        "to": 0.51,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159091,
+            49.270825
+          ],
+          [
+            -123.15857,
+            49.270817
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-91101a453948",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.3,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15957,
+            49.270059
+          ],
+          [
+            -123.159096,
+            49.270051
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-482244c136ec",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270048,-123.158871&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.49,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159096,
+            49.270051
+          ],
+          [
+            -123.158646,
+            49.270044
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d211f7686939",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.49,
+        "to": 0.69,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158646,
+            49.270044
+          ],
+          [
+            -123.158172,
+            49.270036
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e82d376021ef",
+      "street": "Vine",
+      "side": "west",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.54,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157507,
+            49.270377
+          ],
+          [
+            -123.157521,
+            49.26999
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-adc47ac9772d",
+      "street": "Vine",
+      "side": "west",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.54,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15754,
+            49.269496
+          ],
+          [
+            -123.157554,
+            49.269108
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4665ca27f654",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.4,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.159603,
+            49.269177
+          ],
+          [
+            -123.158892,
+            49.269166
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-a6a626f480b9",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.7,
+        "to": 0.99,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158181,
+            49.269154
+          ],
+          [
+            -123.157494,
+            49.269143
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-5d05c00077e2",
+      "street": "W 3rd",
+      "side": "south",
+      "between": [
+        "Balsam",
+        "Vine"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269053,-123.158541&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.4,
+        "to": 0.7,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.158896,
+            49.269058
+          ],
+          [
+            -123.158185,
+            49.269047
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-dd992c0d9371",
+      "street": "Balsam",
+      "side": "east",
+      "between": [
+        "W 3rd",
+        "W 4th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.48,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15976,
+            49.269108
+          ],
+          [
+            -123.159775,
+            49.268702
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-fa3fb499309c",
+      "street": "Cornwall",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.2,
+        "to": 0.82,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156869,
+            49.272555
+          ],
+          [
+            -123.155401,
+            49.272532
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e5d0f410de84",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.25,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157372,
+            49.271788
+          ],
+          [
+            -123.15678,
+            49.271778
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-527706e99da1",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 0.85,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156116,
+            49.271768
+          ],
+          [
+            -123.155357,
+            49.271755
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-0bebd58528c4",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.37,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157139,
+            49.271676
+          ],
+          [
+            -123.156499,
+            49.271666
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d71fcba582f9",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 60,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271650,-123.155492&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.73,
+        "to": 0.86,
+        "rule": "1mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155646,
+            49.271652
+          ],
+          [
+            -123.155338,
+            49.271647
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-82a1fad188d8",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.25,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157404,
+            49.270906
+          ],
+          [
+            -123.156812,
+            49.270896
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c1064fc4602c",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 0.85,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156148,
+            49.270886
+          ],
+          [
+            -123.15539,
+            49.270874
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-950531b0777a",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 0.8,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156152,
+            49.270778
+          ],
+          [
+            -123.155513,
+            49.270768
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-27688c636fa8",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.53,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157437,
+            49.270025
+          ],
+          [
+            -123.156181,
+            49.270005
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-079ed1d1d2f1",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269996,-123.155625&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156181,
+            49.270005
+          ],
+          [
+            -123.155068,
+            49.269987
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-dcd6b8cce1b9",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269125,-123.156357&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.25,
+        "to": 0.69,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.156878,
+            49.269133
+          ],
+          [
+            -123.155835,
+            49.269117
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6636ae2d6fe6",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Vine",
+        "Yew"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 0.9,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155693,
+            49.269114
+          ],
+          [
+            -123.155338,
+            49.269109
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-a3a0305f3ed2",
+      "street": "Cornwall",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.23,
+        "to": 0.8,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154429,
+            49.272516
+          ],
+          [
+            -123.153079,
+            49.272494
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-fc8c1ca8ed03",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.25,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154765,
+            49.271746
+          ],
+          [
+            -123.15441,
+            49.27174
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6f2c83c88f5d",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271738,-123.154256&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.25,
+        "to": 0.38,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15441,
+            49.27174
+          ],
+          [
+            -123.154102,
+            49.271736
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-dbf72428070b",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153225,
+            49.271722
+          ],
+          [
+            -123.152633,
+            49.271713
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-76409ab8d799",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271631,-123.154296&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.5,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154769,
+            49.271638
+          ],
+          [
+            -123.153822,
+            49.271623
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-9576b0cfed77",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.75,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153822,
+            49.271623
+          ],
+          [
+            -123.153229,
+            49.271614
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-cc89d31b2a38",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.34,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154798,
+            49.270864
+          ],
+          [
+            -123.154229,
+            49.270855
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-8bf2cffe14e8",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270847,-123.153743&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.34,
+        "to": 0.75,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154229,
+            49.270855
+          ],
+          [
+            -123.153258,
+            49.270839
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-b5ee6e884b24",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153258,
+            49.270839
+          ],
+          [
+            -123.152666,
+            49.27083
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-19acaef85dbe",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.34,
+        "to": 0.65,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154233,
+            49.270747
+          ],
+          [
+            -123.153499,
+            49.270735
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c264531cd8f2",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.25,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154831,
+            49.269983
+          ],
+          [
+            -123.154475,
+            49.269977
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e977563b7a47",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269967,-123.153883&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.25,
+        "to": 0.75,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154475,
+            49.269977
+          ],
+          [
+            -123.153291,
+            49.269957
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e8d52a6d0a0b",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153291,
+            49.269957
+          ],
+          [
+            -123.152698,
+            49.269948
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4cfc2a508891",
+      "street": "W 2nd",
+      "side": "south",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.34,
+        "to": 0.65,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154266,
+            49.269866
+          ],
+          [
+            -123.153532,
+            49.269854
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-3dd7acd11bdc",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.25,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154864,
+            49.269101
+          ],
+          [
+            -123.154508,
+            49.269095
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6cdbf936e822",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269091,-123.154212&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.25,
+        "to": 0.5,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154508,
+            49.269095
+          ],
+          [
+            -123.153916,
+            49.269086
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-a9dc57098629",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Yew",
+        "Arbutus"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.75,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.153324,
+            49.269076
+          ],
+          [
+            -123.152731,
+            49.269066
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-81a84f8cda18",
+      "street": "Vine",
+      "side": "east",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269757,-123.157365&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.48,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157357,
+            49.269969
+          ],
+          [
+            -123.157373,
+            49.269546
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4ae093036d9f",
+      "street": "Vine",
+      "side": "east",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.157374,
+            49.269511
+          ],
+          [
+            -123.15739,
+            49.269088
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-954bb9fd347f",
+      "street": "Vine",
+      "side": "east",
+      "between": [
+        "W 3rd",
+        "W 4th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15739,
+            49.269088
+          ],
+          [
+            -123.157406,
+            49.268646
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-3c3c4f5e85e6",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271894,-123.154914&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154907,
+            49.272092
+          ],
+          [
+            -123.154921,
+            49.271695
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-adbdecafebdd",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271012,-123.154946&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154939,
+            49.27121
+          ],
+          [
+            -123.154954,
+            49.270813
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-970d5c3a4a66",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.85,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155119,
+            49.270815
+          ],
+          [
+            -123.155147,
+            49.270066
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-61737dc32151",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.48,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154954,
+            49.270813
+          ],
+          [
+            -123.15497,
+            49.27039
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-fadfd1ebf97f",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270144,-123.154979&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.154971,
+            49.270355
+          ],
+          [
+            -123.154987,
+            49.269932
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-212a5aa20402",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269248,-123.155012&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155005,
+            49.269446
+          ],
+          [
+            -123.15502,
+            49.269049
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c2e0d0f4d7fc",
+      "street": "Yew",
+      "side": "west",
+      "between": [
+        "W 3rd",
+        "W 4th"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.268832,-123.155193&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.5,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.155185,
+            49.269052
+          ],
+          [
+            -123.155202,
+            49.268611
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-df787d54ac17",
+      "street": "Yew",
+      "side": "east",
+      "between": [
+        "W 3rd",
+        "W 4th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15502,
+            49.269049
+          ],
+          [
+            -123.155036,
+            49.268608
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-53832e089887",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.272334,-123.152693&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152686,
+            49.272542
+          ],
+          [
+            -123.152701,
+            49.272127
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e43a4991cc23",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152703,
+            49.272074
+          ],
+          [
+            -123.152718,
+            49.27166
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-2a688697f79a",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271452,-123.152726&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152718,
+            49.27166
+          ],
+          [
+            -123.152733,
+            49.271245
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-4464cff97f91",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152735,
+            49.271192
+          ],
+          [
+            -123.15275,
+            49.270777
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-5608da3f48d7",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270570,-123.152758&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15275,
+            49.270777
+          ],
+          [
+            -123.152766,
+            49.270363
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e497792b5609",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1528,
+            49.269428
+          ],
+          [
+            -123.152816,
+            49.269014
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-43c4d4f571e7",
+      "street": "Arbutus",
+      "side": "west",
+      "between": [
+        "W 3rd",
+        "W 4th"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152816,
+            49.269014
+          ],
+          [
+            -123.152832,
+            49.268573
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-80caf1f82a44",
+      "street": "Cornwall",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.89,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152605,
+            49.272486
+          ],
+          [
+            -123.15047,
+            49.272452
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d81d83808c6d",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271704,-123.152093&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.45,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152633,
+            49.271713
+          ],
+          [
+            -123.151553,
+            49.271695
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-1333adcf4de6",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.64,
+        "to": 0.89,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151098,
+            49.271687
+          ],
+          [
+            -123.150498,
+            49.271677
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d77249465d33",
+      "street": "York",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 480,
+        "end": 1020,
+        "label": "School days; permit required at other times"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 480,
+        "end": 1020,
+        "label": "School days; permit required at other times"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.91,
+        "rule": "school"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14937,
+            49.271659
+          ],
+          [
+            -123.14805,
+            49.271638
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d96bb6d5504f",
+      "street": "York",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.25,
+        "to": 0.64,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152037,
+            49.271595
+          ],
+          [
+            -123.151102,
+            49.27158
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-536e397b7f87",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270821,-123.152126&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.45,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152666,
+            49.27083
+          ],
+          [
+            -123.151586,
+            49.270812
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-b9ff90ec5b33",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.73,
+        "to": 0.89,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150914,
+            49.270801
+          ],
+          [
+            -123.15053,
+            49.270795
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-cd88f973fe67",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.32,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150026,
+            49.270787
+          ],
+          [
+            -123.149498,
+            49.270779
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c5ab68bd706c",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270776,-123.149318&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.32,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149498,
+            49.270779
+          ],
+          [
+            -123.149138,
+            49.270773
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-501e62e40c69",
+      "street": "W 1st",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.47,
+        "to": 0.83,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149138,
+            49.270773
+          ],
+          [
+            -123.148274,
+            49.270759
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-ce688df987c9",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270705,-123.151602&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.53,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151806,
+            49.270708
+          ],
+          [
+            -123.151398,
+            49.270701
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-0df2df13bcad",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.59,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14955,
+            49.270672
+          ],
+          [
+            -123.148854,
+            49.270661
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-f51034e75cf5",
+      "street": "W 1st",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270658,-123.148698&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.59,
+        "to": 0.72,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148854,
+            49.270661
+          ],
+          [
+            -123.148542,
+            49.270656
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e4821d1e5246",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.28,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152458,
+            49.269944
+          ],
+          [
+            -123.152026,
+            49.269937
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d7087193ce05",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269925,-123.151306&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.44,
+        "to": 0.72,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151642,
+            49.269931
+          ],
+          [
+            -123.15097,
+            49.26992
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6bb3c619c372",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.72,
+        "to": 0.89,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15097,
+            49.26992
+          ],
+          [
+            -123.150562,
+            49.269914
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-b64ac72b8119",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269900,-123.149698&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.4,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150058,
+            49.269906
+          ],
+          [
+            -123.149339,
+            49.269894
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-9634ae396b1c",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.4,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149339,
+            49.269894
+          ],
+          [
+            -123.147899,
+            49.269871
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-df0b5bd485c9",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.15,
+        "to": 0.39,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147546,
+            49.269866
+          ],
+          [
+            -123.146981,
+            49.269857
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-91ca05b4b152",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269852,-123.146675&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.39,
+        "to": 0.65,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146981,
+            49.269857
+          ],
+          [
+            -123.146369,
+            49.269847
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-5defdd6ef594",
+      "street": "W 2nd",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.65,
+        "to": 0.85,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146369,
+            49.269847
+          ],
+          [
+            -123.145898,
+            49.269839
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-e8f410596e5a",
+      "street": "W 2nd",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.36,
+        "to": 0.56,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151838,
+            49.269826
+          ],
+          [
+            -123.151358,
+            49.269818
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-a34832a0e1c2",
+      "street": "W 2nd",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.39,
+        "to": 0.8,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149367,
+            49.269787
+          ],
+          [
+            -123.148383,
+            49.269771
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-afac166b4f94",
+      "street": "W 2nd",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.6,
+        "to": 0.96,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14649,
+            49.269741
+          ],
+          [
+            -123.145643,
+            49.269727
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-a5b84d465b47",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.2,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152731,
+            49.269066
+          ],
+          [
+            -123.152251,
+            49.269059
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-cb5b304c2493",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269042,-123.151242&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.74,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151531,
+            49.269047
+          ],
+          [
+            -123.150954,
+            49.269038
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-90fa3b32450b",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.74,
+        "to": 0.89,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150954,
+            49.269038
+          ],
+          [
+            -123.150594,
+            49.269032
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-38a2487c7c96",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.1,
+        "to": 0.3,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15009,
+            49.269024
+          ],
+          [
+            -123.14961,
+            49.269017
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6f2cdcba6c9c",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269013,-123.149394&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.48,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14961,
+            49.269017
+          ],
+          [
+            -123.149179,
+            49.26901
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-9c9579612ba7",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.269004,-123.148807&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 0.72,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149011,
+            49.269007
+          ],
+          [
+            -123.148603,
+            49.269001
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-6a8573cc1af7",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.72,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148603,
+            49.269001
+          ],
+          [
+            -123.147931,
+            49.26899
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c7491225869a",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.15,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147931,
+            49.26899
+          ],
+          [
+            -123.147584,
+            49.268984
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-982fc9d0ce74",
+      "street": "W 3rd",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.268966,-123.146415&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.48,
+        "to": 0.83,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14682,
+            49.268972
+          ],
+          [
+            -123.146009,
+            49.268959
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-d72b420e2cb5",
+      "street": "W 3rd",
+      "side": "south",
+      "between": [
+        "Arbutus",
+        "Maple"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.268943,-123.151787&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.2,
+        "to": 0.59,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152255,
+            49.268951
+          ],
+          [
+            -123.151319,
+            49.268936
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-8130a32cc37c",
+      "street": "W 3rd",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.22,
+        "to": 0.5,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149806,
+            49.268912
+          ],
+          [
+            -123.149135,
+            49.268901
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-64271f672677",
+      "street": "W 3rd",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Burrard"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.47,
+        "to": 0.73,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146847,
+            49.268864
+          ],
+          [
+            -123.146245,
+            49.268855
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-ab23e758c196",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.272291,-123.150295&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.48,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150287,
+            49.272503
+          ],
+          [
+            -123.150302,
+            49.272079
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-06c031858027",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "Cornwall",
+        "York"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.52,
+        "to": 1.0,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150303,
+            49.272044
+          ],
+          [
+            -123.150318,
+            49.27162
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-b4416c421169",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150318,
+            49.27162
+          ],
+          [
+            -123.150351,
+            49.270738
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-98b75461b3e2",
+      "street": "Maple",
+      "side": "east",
+      "between": [
+        "York",
+        "W 1st"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271177,-123.150170&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150153,
+            49.271618
+          ],
+          [
+            -123.150186,
+            49.270736
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-f9012c40d7dc",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150351,
+            49.270738
+          ],
+          [
+            -123.150366,
+            49.270324
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-880143a93706",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270064,-123.150375&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150368,
+            49.270271
+          ],
+          [
+            -123.150383,
+            49.269857
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-66679f469f8e",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri; except with permit"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "npmf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150383,
+            49.269857
+          ],
+          [
+            -123.150398,
+            49.269443
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-c2614c57dc15",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1504,
+            49.26939
+          ],
+          [
+            -123.150415,
+            49.268976
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-7704bdbf359d",
+      "street": "Arbutus",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270567,-123.152592&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152585,
+            49.270775
+          ],
+          [
+            -123.1526,
+            49.27036
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-00ef02cca40b",
+      "street": "Arbutus",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152602,
+            49.270307
+          ],
+          [
+            -123.152618,
+            49.269892
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-27b2f8c6b4b1",
+      "street": "Arbutus",
+      "side": "east",
+      "between": [
+        "W 2nd",
+        "W 3rd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.152618,
+            49.269892
+          ],
+          [
+            -123.152651,
+            49.269011
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-8fe398d8678d",
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "time-limited",
+      "limitMinutes": 120,
+      "schedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "pdfSchedule": {
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Mon–Fri"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.270490,-123.147794&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.0,
+        "to": 0.47,
+        "rule": "2mf"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147786,
+            49.270697
+          ],
+          [
+            -123.147801,
+            49.270283
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-north-555749e95efc",
+      "street": "Cypress",
+      "side": "east",
+      "between": [
+        "W 1st",
+        "W 2nd"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.53,
+        "to": 1.0,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147803,
+            49.27023
+          ],
+          [
+            -123.147818,
+            49.269816
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-kits-north-pdf",
+        "city-intersections"
+      ]
+    }
+  ]
+}

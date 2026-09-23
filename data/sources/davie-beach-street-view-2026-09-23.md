@@ -1,0 +1,13 @@
+# Davie–Beach Street View audit — 2026-09-23
+
+Scope: `data/davie-beach.json` contains 104 mapped curb sections: 11 time-limited/public candidates and 93 permit sections. Ten of the eleven public candidates already had historical Street View sign observations; one has a city-meter conflict/override. Those older records are local sign checks, not proof of every endpoint or present-day restrictions. The 93 permit sections began this pass as PDF-only.
+
+This pass inspected three permit sections in August 2024 Google Street View. It found one **same-side conflict**, zero complete-section confirmations, and two unresolved views. Thus 92 permit sections remain PDF-only, and one is marked `historical-conflict`. None of the 104 sections should be described as fully Street View–verified across their entire mapped length.
+
+| Section | Same-side observation | Outcome |
+|---|---|---|
+| `davie-beach-a3b367290959`, Beach north, Jervis–Bute | [1265 Beach, August 2024](https://www.google.com/maps/@?api=1&map_action=pano&pano=nmJ6u80sUfSssnWoTRevWA&heading=12&pitch=0&fov=15): one post has “No Parking Except With Permit” pointing toward the Jervis/northwest side and plain “No Parking” pointing toward the Bute/southeast side. | **Conflict:** the current single permit line spans both directions. Marked mixed restrictions for review; do not treat the full line as permit-verified. The exact split and other signs need inspection. |
+| `davie-beach-56ab94517730`, Beach north, Bute–Thurlow | [1133 Beach, August 2024](https://www.google.com/maps/@?api=1&map_action=pano&pano=yMGj8LQSY3swP1DkX-tfiQ&heading=347&pitch=0&fov=15): a no-parking symbol appears farther down the north curb, but the wording and applicability could not be read. | Unresolved; no data classification changed. Revisit closer signs and check both directions. |
+| `davie-beach-705c58774e7c`, Burnaby north, Jervis–Bute | [1221 Burnaby, August 2024](https://www.google.com/maps/@?api=1&map_action=pano&pano=82u10ApiVbE3eytSauKcdw&heading=359&pitch=0&fov=15): the visible sign face is turned away from the panorama. | Unresolved; no data classification changed. Need an opposite-facing panorama and both ends of the curb. |
+
+Continue with the 92 PDF-only permit lines, starting with Beach, Burnaby, Bidwell, and Cardero where the public is most likely to park. For each line, confirm street side, sign arrows, permit wording, nearby crossing or driveway changes, and imagery month. Record a complete-section match only if the applicable signs bound both ends of the mapped line; otherwise keep it partial or unresolved. Historical imagery cannot establish today's posted rules.

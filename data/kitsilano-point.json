@@ -1,0 +1,1659 @@
+{
+  "version": 1,
+  "sources": {
+    "city-pdf": {
+      "url": "https://vancouver.ca/files/cov/residential-permit-parking-kitsilano-point.pdf",
+      "title": "City of Vancouver Kitsilano Point Residential Permit Zone guide",
+      "retrieved": "2026-09-22"
+    },
+    "city-intersections": {
+      "url": "https://opendata.vancouver.ca/explore/dataset/street-intersections/",
+      "title": "City of Vancouver street intersections (location reference only)",
+      "retrieved": "2026-09-22"
+    }
+  },
+  "geometryNote": "Approximate curb sections traced from a schematic guide. Endpoints and sign arrows are not surveyed; check posted signs.",
+  "restrictionNote": "Only clearly readable bars are included. Rules outside listed hours, days omitted by the guide, and paid rates are unverified. Purple resident-eligibility shading is excluded.",
+  "sections": [
+    {
+      "id": "kits-point-91b09e74061b",
+      "street": "Ogden",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.08,
+        "to": 0.45,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149853,
+            49.277147
+          ],
+          [
+            -123.148971,
+            49.276993
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-3ab8c81351fc",
+      "street": "Ogden",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
+          "mapLabel": "Permit near sign",
+          "summary": "No parking except permit · west arrow",
+          "finding": "South-curb sign near 1946 Ogden reads NO PARKING EXCEPT WITH PERMIT and its arrow points west toward Maple. This conflicts with the approximate PDF paid bar at the inspected location. The sign position and full restriction endpoints are not surveyed; east side of the sign is not classified by this check.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "Permit near sign",
+        "summary": "No parking except permit, arrow toward Maple",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zq-4bQ9Pyy029QEt_9EwOA&heading=155&pitch=0&fov=20",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.46,
+        "to": 0.72,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148948,
+            49.276989
+          ],
+          [
+            -123.148328,
+            49.276881
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-cb41b6a31097",
+      "street": "Ogden",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276750,-123.147246&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.06,
+        "to": 0.49,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147557,
+            49.27676
+          ],
+          [
+            -123.146935,
+            49.276739
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-bfb3718d1ccf",
+      "street": "Ogden",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.5,
+        "to": 0.81,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146921,
+            49.276739
+          ],
+          [
+            -123.146473,
+            49.276724
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-31b46b50fce6",
+      "street": "McNicoll",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.08,
+        "to": 0.41,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149866,
+            49.276306
+          ],
+          [
+            -123.149075,
+            49.276293
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-c86bfe75434b",
+      "street": "McNicoll",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
+          "mapLabel": "2h near sign",
+          "summary": "2h · 9am–6pm",
+          "finding": "Near 1925 McNicoll, north-curb sign reads 2h, 9AM–6PM, EXCEPT WITH PERMIT. Day line and full arrow extents not reliably readable. Local sign conflicts with PDF paid bar.",
+          "scope": "Local historical observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm, except with permit; day line unclear",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Xu5hMYY5x9HV6RvysihHwA&heading=342&pitch=0&fov=15",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.42,
+        "to": 0.96,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149051,
+            49.276293
+          ],
+          [
+            -123.147756,
+            49.276272
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-09d8373ec66f",
+      "street": "McNicoll",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276258,-123.146939&heading=0",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.04,
+        "to": 0.96,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147602,
+            49.276269
+          ],
+          [
+            -123.146275,
+            49.276248
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-5612162ed11c",
+      "street": "McNicoll",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "permit-only",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.276190,-123.149391&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.54,
+        "rule": "pay-split"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150014,
+            49.2762
+          ],
+          [
+            -123.148767,
+            49.27618
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-8a9bae802115",
+      "street": "McNicoll",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.55,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148743,
+            49.27618
+          ],
+          [
+            -123.147712,
+            49.276163
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-5aeff8d8c189",
+      "street": "McNicoll",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147476,
+            49.276159
+          ],
+          [
+            -123.14625,
+            49.27614
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-56d428449d05",
+      "street": "Whyte",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.12,
+        "to": 0.88,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149803,
+            49.275422
+          ],
+          [
+            -123.14798,
+            49.275393
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-ff9520ea8d55",
+      "street": "Whyte",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.53,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147505,
+            49.275385
+          ],
+          [
+            -123.14693,
+            49.275376
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-254412cc8890",
+      "street": "Whyte",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
+          "mapLabel": "2h near sign",
+          "summary": "2h · 9am–6pm · Mon–Fri",
+          "finding": "At 1838 Whyte, north-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT, arrows both directions. Local sign conflicts with PDF paid bar; arrows do not establish full schematic endpoints.",
+          "scope": "Local historical observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm Mon–Fri, except with permit; arrows both ways",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=OMgl2Y0DjJ3gTR3X6Uxh_Q&heading=309&pitch=0&fov=10",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.54,
+        "to": 0.96,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.146916,
+            49.275376
+          ],
+          [
+            -123.146312,
+            49.275366
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-ee8e5ba1f8d8",
+      "street": "Whyte",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.275309,-123.149507&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.47,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150047,
+            49.275318
+          ],
+          [
+            -123.148968,
+            49.275301
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-fcc154ce760b",
+      "street": "Whyte",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.48,
+        "to": 0.97,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148944,
+            49.275301
+          ],
+          [
+            -123.147768,
+            49.275282
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-3243fff2ce54",
+      "street": "Whyte",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.97,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147509,
+            49.275277
+          ],
+          [
+            -123.146301,
+            49.275258
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-65d53332bf31",
+      "street": "Creelman",
+      "side": "north",
+      "between": [
+        "Maple",
+        "Cypress"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150077,
+            49.274544
+          ],
+          [
+            -123.147773,
+            49.274507
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-b184772ad8b7",
+      "street": "Creelman",
+      "side": "north",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147539,
+            49.274503
+          ],
+          [
+            -123.14632,
+            49.274483
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-4357f6e486b8",
+      "street": "Creelman",
+      "side": "south",
+      "between": [
+        "Maple",
+        "Walnut"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "permit-only",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.274429,-123.149674&heading=180",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.02,
+        "to": 0.73,
+        "rule": "pay-split"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150105,
+            49.274436
+          ],
+          [
+            -123.149243,
+            49.274422
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-0d3e42ce57f4",
+      "street": "Creelman",
+      "side": "south",
+      "between": [
+        "Walnut",
+        "Cypress"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "permit-only",
+      "permitException": true,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
+          "mapLabel": "No parking near sign",
+          "summary": "No parking · west arrow",
+          "finding": "At about 1911 Creelman, the south-curb sign shows the red No Parking symbol and an arrow pointing west toward Walnut. This locally conflicts with the PDF pay-parking bar. The arrow does not establish the precise western endpoint or classify the curb east of the sign.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "No parking near sign",
+        "summary": "No parking, arrow toward Walnut",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VkPgaIVcDi51HRDSUxqu1Q&heading=145&pitch=0&fov=12",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.06,
+        "to": 0.89,
+        "rule": "pay-split"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148844,
+            49.274416
+          ],
+          [
+            -123.14786,
+            49.2744
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-c07e715834d0",
+      "street": "Creelman",
+      "side": "south",
+      "between": [
+        "Cypress",
+        "Chestnut"
+      ],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "pdfSchedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "not-applicable",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": null,
+      "pdfBar": {
+        "page": 1,
+        "from": 0.13,
+        "to": 0.98,
+        "rule": "p"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.147543,
+            49.274395
+          ],
+          [
+            -123.146324,
+            49.274375
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-165b006dc943",
+      "street": "Laburnum",
+      "side": "west",
+      "between": [
+        "Creelman",
+        "Cornwall"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": true,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273258,-123.151473&heading=270",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.28,
+        "to": 0.98,
+        "rule": "pay-exempt"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151446,
+            49.273955
+          ],
+          [
+            -123.151499,
+            49.272562
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-7a7644b45acd",
+      "street": "Maple",
+      "side": "west",
+      "between": [
+        "Creelman",
+        "Cornwall"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1020,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "permit-only",
+      "permitException": true,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
+          "mapLabel": "Permit near sign",
+          "summary": "No parking except permit · south arrow",
+          "finding": "At about 1415 Maple, a west-curb sign reads NO PARKING EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid/permit split bar. The exact southern endpoint and rule north of the sign are not established.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "Permit near sign",
+        "summary": "No parking except permit, arrow toward Cornwall",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.98,
+        "rule": "pay-split"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150233,
+            49.273895
+          ],
+          [
+            -123.150285,
+            49.272543
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-1179d0ccc33c",
+      "street": "Maple",
+      "side": "east",
+      "between": [
+        "Creelman",
+        "Cornwall"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273217,-123.150094&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.98,
+        "rule": "pay"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150068,
+            49.273893
+          ],
+          [
+            -123.15012,
+            49.27254
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-cbb1df77af94",
+      "street": "Walnut",
+      "side": "west",
+      "between": [
+        "Creelman",
+        "Cornwall"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "historical-conflict",
+      "spotChecks": [
+        {
+          "status": "historical-conflict",
+          "checkedOn": "2026-09-22",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
+          "mapLabel": "2h near sign",
+          "summary": "2h · 9am–6pm · Mon–Fri · south arrow",
+          "finding": "At about 1419 Walnut, a west-curb sign reads 2h, 9AM–6PM, MON–FRI, EXCEPT WITH PERMIT and points south toward Cornwall. This locally conflicts with the PDF paid bar. The exact southern endpoint and rule north of the sign are not established.",
+          "scope": "Local historical sign observation; current rule and schematic endpoints unverified."
+        }
+      ],
+      "bestJudgment": {
+        "label": "2h near sign",
+        "summary": "Two-hour parking, 9am–6pm Mon–Fri, except with permit; arrow toward Cornwall",
+        "basis": "August 2024 Street View sign on this street side; directional arrows limit the local reading. Schematic bar endpoints and present-day rule are not verified."
+      },
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=1yKZZhmr3wL8S-98YXQNrw&heading=262&pitch=0&fov=14",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.98,
+        "rule": "pay"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.149018,
+            49.273876
+          ],
+          [
+            -123.14907,
+            49.272523
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    },
+    {
+      "id": "kits-point-5588b2017710",
+      "street": "Walnut",
+      "side": "east",
+      "between": [
+        "Creelman",
+        "Cornwall"
+      ],
+      "category": "paid",
+      "limitMinutes": null,
+      "schedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "pdfSchedule": {
+        "days": null,
+        "start": 540,
+        "end": 1320,
+        "label": "Days not specified in PDF"
+      },
+      "outsideSchedule": "unknown",
+      "permitException": false,
+      "verification": "pdf-guide",
+      "spotChecks": [],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273197,-123.148879&heading=90",
+      "pdfBar": {
+        "page": 1,
+        "from": 0.3,
+        "to": 0.98,
+        "rule": "pay"
+      },
+      "geometryStatus": "approximate-schematic",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.148853,
+            49.273873
+          ],
+          [
+            -123.148905,
+            49.272521
+          ]
+        ]
+      },
+      "sourceIds": [
+        "city-pdf",
+        "city-intersections"
+      ]
+    }
+  ]
+}
