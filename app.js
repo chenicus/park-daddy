@@ -1476,7 +1476,10 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.unverified ? [{ from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null }] : b.curb ? curbTableSegments(b.curb, dowNow())
+  const segs = b.unverified ? [
+    { from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null },
+    ...(b.streetViewUrl ? [{ from: 0, to: 1440, label: 'Nearby Street View · side unverified', status: 'Open', url: b.streetViewUrl, linkLabel: 'Open nearby Street View; check both curb sides', applies: false }] : []),
+  ] : b.curb ? curbTableSegments(b.curb, dowNow())
     : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
     : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {

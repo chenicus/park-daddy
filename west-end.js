@@ -181,6 +181,7 @@ export function filterInferredFree(records, feeds) {
 export function buildInferredBlocks(arr) {
   return arr.map((f, i) => ({
     id: 1e6 + i, lat: f.lat, lon: f.lon, unverified: true, hblock: f.h, tickets: f.n,
+    streetViewUrl: f.streetViewUrl || null,
     rate1: null, rate2: null, flat: null,
     limits: { day: null, eve: null, wkndDay: null, wkndEve: null },
     rushes: [], pts: [], count: 0, spaces: 0, card: false,

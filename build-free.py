@@ -65,13 +65,15 @@ excluded = {canon(r['h']) for r in json.loads((Path(__file__).parent /
     'data/sources/inferred-free-exclusions.json').read_text())['records']}
 kit_ring = json.loads((Path(__file__).parent /
     'data/sources/kitsilano-local-area-boundary.json').read_text())['ring']
+mount_pleasant_ring = json.loads((Path(__file__).parent /
+    'data/sources/mount-pleasant-local-area-boundary.json').read_text())['ring']
 
-def inside_kitsilano(lon, lat):
-    # Internal review filter only. The City local-area boundary is not a
-    # residential permit zone and is never rendered on the parking map.
+def inside_ring(lon, lat, ring):
+    # Local-area boundaries select review records; they are not parking zones
+    # and are never rendered on the map.
     hit = False
-    for i, b in enumerate(kit_ring):
-        a = kit_ring[i - 1]
+    for i, b in enumerate(ring):
+        a = ring[i - 1]
         if (a[1] > lat) != (b[1] > lat) and lon < (b[0] - a[0]) * (lat - a[1]) / (b[1] - a[1]) + a[0]:
             hit = not hit
     return hit
@@ -84,9 +86,13 @@ for hb, n in freec.items():
     if not g:
         unmatched += 1
         continue
-    if inside_kitsilano(g[1], g[0]):
+    if inside_ring(g[1], g[0], kit_ring):
         continue  # side-less ticket evidence cannot define a Kits curb rule
-    out.append({"h": hb.title(), "lat": round(g[0], 6), "lon": round(g[1], 6), "n": n})
+    record = {"h": hb.title(), "lat": round(g[0], 6), "lon": round(g[1], 6), "n": n}
+    if inside_ring(g[1], g[0], mount_pleasant_ring):
+        record['streetViewUrl'] = ("https://www.google.com/maps/@?api=1&map_action=pano"
+            f"&viewpoint={record['lat']},{record['lon']}")
+    out.append(record)
 
 out.sort(key=lambda x: -x["n"])
 json.dump(out, open("data/free.json", "w"), separators=(",", ":"))
