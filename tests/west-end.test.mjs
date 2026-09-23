@@ -19,11 +19,16 @@ const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downto
 const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
 const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
 
-test('Beach and Pacific public signs show free two-hour parking without guessing days or off-hours', () => {
+test('Beach and Pacific public signs use confirmed days without guessing other days or off-hours', () => {
   assert.equal(beachPacific.sections.length, 3);
   assert.deepEqual(new Set(beachPacific.sections.map(s => s.side)), new Set(['north', 'south']));
+  const beach583 = beachPacific.sections.find(s => s.id === 'beach-crescent-583-north-2h');
+  assert.deepEqual(beach583.schedule.days, [1, 2, 3, 4, 5]);
+  assert.equal(curbState(beach583, 600, 1).group, 'free');
+  assert.equal(curbState(beach583, 600, 6).group, 'unverified');
+  assert.match(curbSchedule(beach583), /Mon–Fri/);
   for (const section of beachPacific.sections) {
-    assert.equal(section.schedule.days, null);
+    if (section !== beach583) assert.equal(section.schedule.days, null);
     assert.equal(curbState(section, 600, 1).group, 'free');
     assert.match(curbState(section, 600, 1).label, /verify/);
     assert.equal(curbState(section, 1200, 1).group, 'unverified');

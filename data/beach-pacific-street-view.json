@@ -14,7 +14,7 @@
     }
   },
   "geometryNote": "Short sign-adjacent curb estimates based on historical imagery and City street centrelines; endpoints are not surveyed.",
-  "restrictionNote": "Public 2-hour signs are visible, but their day text and full extent are not legible. Check current signs; no unrestricted off-hours parking is asserted.",
+  "restrictionNote": "Public 2-hour signs are visible. The 583 Beach sign reads Mon–Fri; day text on the other signs and all curb endpoints remain uncertain. Check current signs; no unrestricted off-hours parking is asserted.",
   "excludeInferredBlocks": [],
   "sections": [
     {
@@ -26,7 +26,7 @@
       "category": "time-limited",
       "publicSign": true,
       "limitMinutes": 120,
-      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 540, "end": 1080, "label": "Mon–Fri"},
       "outsideSchedule": "unknown",
       "verification": "historical-partial-match",
       "geometryStatus": "approximate-street-view",
@@ -34,11 +34,11 @@
       "sourceIds": ["city-streets", "street-view"],
       "spotChecks": [{
         "status": "historical-partial-match",
-        "checkedOn": "2026-09-22",
+        "checkedOn": "2026-09-23",
         "imageryDate": "2024-08",
-        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=2FVk-5KQH_XLAlqHV4B8vw&heading=300&pitch=0&fov=45",
-        "finding": "User-provided August 2024 Street View screenshots at 583 and 593 Beach Ave show public P 2h, 9AM–6PM signs on the building-side/north curb. The 583 sign has arrows both ways; a nearby sign also marks a no-parking direction. The linked road panorama is nearby and may require moving to the photographed signs.",
-        "scope": "Days and the start/end of each signed portion are unresolved; this short line is approximate."
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=R03MvEt-SuIbzEZlqEIllw&heading=312.24&pitch=0.31&fov=15",
+        "finding": "User-provided close-up of the August 2024 sign near 583 Beach shows public P 2h, 9AM–6PM, Mon–Fri with arrows both ways. A nearby sign also marks a no-parking direction.",
+        "scope": "The start/end of each signed portion and the current rule remain unresolved; this short line is approximate."
       }],
       "geometry": {"type": "LineString", "coordinates": [[-123.12905, 49.273335], [-123.12950, 49.273405]]}
     },

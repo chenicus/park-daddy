@@ -69,6 +69,12 @@ export function curbState(section, mins, dow) {
       ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${section.limitMinutes / 60}h · verify`,status:'A public parking sign shows this time limit; days and exact curb limits need checking'}
       : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside observed sign hours; rules unconfirmed'};
   }
+  if (section.publicSign && section.schedule.days != null) {
+    const inHours = section.schedule.days.includes(dow) && mins >= section.schedule.start && mins < section.schedule.end;
+    return inHours
+      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${section.limitMinutes / 60}h · verify`,status:'Historical public parking sign; exact curb limits and current rule need checking'}
+      : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside observed sign days or hours; rules unconfirmed'};
+  }
   if (section.bestJudgment && section.verification !== 'historical-sign-match') return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment.label,status:`${section.bestJudgment.summary} Exact curb extent and current rule remain unverified`};
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) {
     return { free: false, rate: null, group: 'unverified', cls: 'p-unknown', color: '#a16207', label: 'Check signs', status: section.verification === 'historical-conflict' ? 'Street View conflicts with PDF' : 'Parking restrictions not confirmed' };
@@ -162,6 +168,11 @@ export function curbTableSegments(section, dow) {
   ];
   if (section.publicSign && section.schedule.days == null) return [
     {from:section.schedule.start,to:section.schedule.end,days:'Days unreadable',limit:section.limitMinutes,rate:0,status:'Free · verify days',applies:true},
+    {label:'Other times',status:'Check signs',rate:null,applies:false},
+    ...evidence,
+  ];
+  if (section.publicSign && section.schedule.days != null) return [
+    {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,limit:section.limitMinutes,rate:0,status:'Free · verify curb',applies:section.schedule.days.includes(dow)},
     {label:'Other times',status:'Check signs',rate:null,applies:false},
     ...evidence,
   ];
