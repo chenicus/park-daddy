@@ -2651,7 +2651,17 @@
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-conflict",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "mapSplit": {
+      "fraction": 0.5,
+      "boundary": "Approximate midpoint at the photographed sign; two-hour parking points toward Haro. Mobi bike-share curb toward Barclay is omitted from car-parking results. Exact endpoints are not surveyed.",
+      "parts": [
+        {
+          "id": "wep-b7bd3d236123",
+          "verification": "historical-sign-match"
+        }
+      ]
+    }
   },
   {
     "id": "wep-c104b0d51182",

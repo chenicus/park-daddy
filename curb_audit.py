@@ -39,3 +39,25 @@ def apply_audit(sections):
                     'finding': review['bestJudgment']['summary'],
                     'scope': 'Historical local sign matched to the PDF-traced side and segment; exact endpoints and current rule remain unverified.',
                 })
+    # A photographed sign identifies a public portion and a Mobi bike-share
+    # portion. Keep only the public half in car-parking results. The midpoint
+    # is illustrative; neither sign nor PDF supplies surveyed ends.
+    for section in list(sections):
+        split = by_id.get(section['id'], {}).get('mapSplit')
+        if not split:
+            continue
+        fraction = split['fraction']
+        assert 0 < fraction < 1 and len(split['parts']) == 1
+        line = section['geometry']['coordinates']
+        trace = section['schematicTrace']
+        assert len(line) == len(trace) == 2
+        middle = [round(a + (b-a)*fraction, 6) for a,b in zip(*line)]
+        trace_middle = [a + (b-a)*fraction for a,b in zip(*trace)]
+        part = split['parts'][0]
+        section['id'] = part['id']
+        section['verification'] = part['verification']
+        section['geometry']['coordinates'] = [line[0], middle]
+        section['schematicTrace'] = [trace[0], trace_middle]
+        section['geometryStatus'] = 'approximate-sign-split'
+        section['splitBoundaryNote'] = split['boundary']
+        section.pop('bestJudgment', None)
