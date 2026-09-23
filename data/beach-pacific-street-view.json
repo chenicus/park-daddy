@@ -14,7 +14,7 @@
     }
   },
   "geometryNote": "Short sign-adjacent curb estimates based on historical imagery and City street centrelines; endpoints are not surveyed.",
-  "restrictionNote": "Public 2-hour signs are visible. The 583 Beach sign reads Mon–Fri; day text on the other signs and all curb endpoints remain uncertain. Check current signs; no unrestricted off-hours parking is asserted.",
+  "restrictionNote": "Public 2-hour signs are visible. The 583 Beach sign reads Mon–Fri; day text on the other signs and all curb endpoints remain uncertain. Free parking outside the posted limit is a user-requested assumption, not verified from Street View.",
   "excludeInferredBlocks": [],
   "sections": [
     {

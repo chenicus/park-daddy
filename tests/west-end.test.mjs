@@ -19,20 +19,22 @@ const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downto
 const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
 const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
 
-test('Beach and Pacific public signs use confirmed days without guessing other days or off-hours', () => {
+test('Beach and Pacific public signs show user-assumed free time outside the limit', () => {
   assert.equal(beachPacific.sections.length, 3);
   assert.deepEqual(new Set(beachPacific.sections.map(s => s.side)), new Set(['north', 'south']));
   const beach583 = beachPacific.sections.find(s => s.id === 'beach-crescent-583-north-2h');
   assert.deepEqual(beach583.schedule.days, [1, 2, 3, 4, 5]);
   assert.equal(curbState(beach583, 600, 1).group, 'free');
-  assert.equal(curbState(beach583, 600, 6).group, 'unverified');
+  assert.equal(curbState(beach583, 600, 6).label, 'Free');
   assert.match(curbSchedule(beach583), /Mon–Fri/);
   for (const section of beachPacific.sections) {
     if (section !== beach583) assert.equal(section.schedule.days, null);
     assert.equal(curbState(section, 600, 1).group, 'free');
     assert.equal(curbState(section, 600, 1).label, 'Free · 2h');
     assert.ok(curbTableSegments(section, 1).some(row => row.status === 'Free'));
-    assert.equal(curbState(section, 1200, 1).group, 'unverified');
+    assert.equal(curbState(section, 1200, 1).label, 'Free');
+    assert.ok(curbTableSegments(section, 1).some(row => row.label === 'Other times' && row.status === 'Free'));
+    assert.ok(!curbTableSegments(section, 1).some(row => row.label === 'Curb limits'));
     assert.ok(curbTableSegments(section, 1).some(row => row.url === section.spotChecks[0].url));
   }
 });
@@ -64,9 +66,9 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
   assert.ok(curbTableSegments(mondayFriday, 1).some(segment => segment.url === mondayFriday.streetViewUrl &&
     segment.label.includes('sign not verified')));
   assert.equal(curbState(mondayFriday, 600, 1).label, 'Free · 2h');
-  assert.equal(curbState(mondayFriday, 600, 6).free, false);
+  assert.equal(curbState(mondayFriday, 600, 6).label, 'Free');
   assert.equal(curbState(mondaySaturday, 600, 6).label, 'Free · 2h');
-  assert.equal(curbState(mondaySaturday, 1080, 6).free, false);
+  assert.equal(curbState(mondaySaturday, 1080, 6).label, 'Free');
   assert.equal(curbState(permitOnly, 600, 1).label, 'Permit only');
   assert.equal(curbState(permitOnly, 600, 0).free, false);
   assert.match(curbSchedule(mondayFriday), /Mon–Fri/);
@@ -135,7 +137,7 @@ test('Bute west shows only the Haro-facing two-hour portion, not the Mobi docks'
   assert.equal(curb.geometryStatus, 'approximate-sign-split');
   assert.deepEqual(curb.geometry.coordinates, [[-123.128696,49.284946],[-123.128873,49.284829]]);
   assert.equal(curbState(curb, 600, 1).label, 'Free · 2h');
-  assert.equal(curbState(curb, 1260, 1).group, 'unverified');
+    assert.equal(curbState(curb, 1260, 1).label, 'Free');
   assert.match(curb.splitBoundaryNote, /Mobi bike-share curb.*omitted/);
   assert.ok(!blocks.some(b => b.id === 'wep-b7bd3d236123-mobi'));
 });
@@ -147,7 +149,7 @@ test('Bute east shows only the Pendrell-facing two-hour portion, not the Modo cu
   assert.equal(curb.geometryStatus, 'approximate-sign-split');
   assert.deepEqual(curb.geometry.coordinates, [[-123.131456,49.282966],[-123.131636,49.282847]]);
   assert.equal(curbState(curb, 600, 1).label, 'Free · 2h');
-  assert.equal(curbState(curb, 1260, 1).group, 'unverified');
+  assert.equal(curbState(curb, 1260, 1).label, 'Free');
   assert.match(curb.splitBoundaryNote, /Modo-only no-stopping curb.*omitted/);
 });
 
@@ -170,20 +172,20 @@ test('Barclay correction is scoped, historical and retains PDF omission', () => 
   assert.equal(haro.curb.pdfSchedule.days, null);
   assert.deepEqual(haro.curb.schedule.days, [0,1,2,3,4,5,6]);
   for (let day=0; day<7; day++) assert.equal(curbState(haro.curb,600,day).free,true);
-  assert.equal(curbState(barclay.curb,539,1).free,false);
+  assert.equal(curbState(barclay.curb,539,1).label,'Free');
   assert.equal(curbState(barclay.curb,540,6).free,true);
   assert.equal(curbState(barclay.curb,1079,6).free,true);
-  assert.equal(curbState(barclay.curb,1080,6).free,false);
-  assert.equal(curbState(barclay.curb,600,0).free,false);
+  assert.equal(curbState(barclay.curb,1080,6).label,'Free');
+  assert.equal(curbState(barclay.curb,600,0).label,'Free');
 });
 
-test('Bidwell historical check and 2-hour boundaries preserve unknown off-hours', () => {
+test('Bidwell historical check keeps the posted limit and free other times', () => {
   assert.equal(bidwell.curb.limitMinutes,120);
   assert.equal(bidwell.curb.spotChecks[0].status,'historical-sign-match');
   assert.equal(curbState(bidwell.curb,540,1).free,true);
   assert.equal(curbState(bidwell.curb,1199,6).free,true);
-  assert.equal(curbState(bidwell.curb,1200,6).free,false);
-  assert.equal(curbState(bidwell.curb,600,0).free,false);
+  assert.equal(curbState(bidwell.curb,1200,6).label,'Free');
+  assert.equal(curbState(bidwell.curb,600,0).label,'Free');
   assert.equal(bidwell.curb.outsideSchedule,'unknown');
   assert.equal(curbVisible(bidwell.curb,600,1,{free:false,paid:true,restrictions:true,unverified:true}),false);
 });
@@ -212,13 +214,13 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     assert.equal(sources.get('west-end-curbs').data.features.length,3);
     assert.equal(sources.get('meter-dots').data.features.length,0);
     day=0; layer.refresh();
-    assert.equal(sources.get('west-end-curbs').data.features.length,1);
-    layer.setFilter({free:false,paid:false,restrictions:true,unverified:true});
     assert.equal(sources.get('west-end-curbs').data.features.length,3);
+    layer.setFilter({free:false,paid:false,restrictions:true,unverified:true});
+    assert.equal(sources.get('west-end-curbs').data.features.length,1);
     assert.equal(sources.get('blockface-lines').data.features.length,0);
     assert.equal(sources.get('meter-dots').data.features.length,1);
     sources.set('west-end-curbs',{setData(d){this.data=d;}}); layer.refresh();
-    assert.equal(sources.get('west-end-curbs').data.features.length,3);
+    assert.equal(sources.get('west-end-curbs').data.features.length,1);
     zoom=14; layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,0);
   } finally {layer.destroy();}
@@ -231,7 +233,7 @@ test('shared table preserves weekly limits and unknown periods', () => {
   assert.equal(monday[0].limit, 120);
   assert.equal(monday[0].rate, 0);
   assert.equal(monday[0].applies, true);
-  assert.equal(monday[1].rate, null);
+  assert.equal(monday[1].rate, 0);
   assert.deepEqual(monday[1].activeOutside, [540, 1200]);
   const sunday = curbTableSegments(bidwell.curb, 0);
   assert.equal(sunday[0].applies, false);
@@ -289,30 +291,33 @@ test('1260 Bidwell shows only a short two-hour pocket between reserved uses', ()
   const curb = additions[0].sections.find(s => s.id === 'davie-beach-99cd6fc2597d');
   assert.equal(curb.geometryStatus, 'approximate-sign-slice');
   assert.equal(curbState(curb, 600, 1).label, 'Free · 2h');
-  assert.equal(curbState(curb, 1200, 1).group, 'unverified');
+  assert.equal(curbState(curb, 1200, 1).label, 'Free');
   assert.ok(curb.geometry.coordinates.length >= 2);
   assert.match(curb.splitBoundaryNote, /Accessible-only curb.*bike docks/);
   assert.equal(curbTableSegments(curb, 1)[0].days, 'Mon–Sat');
 });
 
-test('1755 Haro sign shows one-hour parking daily without inventing off-hours access', () => {
+test('1755 Haro sign shows one-hour parking daily and free other times', () => {
   assert.equal(haro.curb.id, 'wep-17d8d42a59a6');
   assert.equal(haro.curb.pdfSchedule.days, null);
   assert.equal(haro.curb.verification, 'historical-sign-match');
   assert.equal(curbState(haro.curb, 540, 0).label, 'Free · 1h');
   assert.equal(curbState(haro.curb, 1079, 6).free, true);
-  assert.equal(curbState(haro.curb, 1080, 1).group, 'unverified');
+  assert.equal(curbState(haro.curb, 1080, 1).label, 'Free');
   assert.equal(curbTableSegments(haro.curb, 0)[0].days, 'Every day');
 });
 
-test('Pacific two-hour schedule ends at 3pm without inferring free evenings or Sundays', () => {
+test('Pacific two-hour schedule keeps its separate no-stopping period', () => {
   const early = additions[0].sections.find(s => s.schedule.end === 900);
   assert.ok(early);
-  assert.equal(curbState(early,539,1).free,false);
+  assert.equal(curbState(early,539,1).label,'Free');
   assert.equal(curbState(early,540,1).free,true);
   assert.equal(curbState(early,899,6).free,true);
-  assert.equal(curbState(early,900,6).free,false);
-  assert.equal(curbState(early,600,0).free,false);
+  assert.equal(curbState(early,900,6).label,'Free');
+  assert.equal(curbState(early,900,1).label,'No stopping');
+  assert.equal(curbVisible(early,900,1,{free:true,prohibited:true}),false);
+  assert.equal(curbState(early,1080,1).label,'Free');
+  assert.equal(curbState(early,600,0).label,'Free');
   assert.equal(early.pdfSchedule.end,900);
   assert.ok(curbTableSegments(early,1).some(row => row.rate === 0 && row.to === 900));
   assert.ok(early.spotChecks.at(-1).restrictions.some(r => r.kind === 'no-stopping' && r.start === 900 && r.end === 1080));
@@ -373,7 +378,7 @@ test('unconfirmed timed curbs are marked and filter independently of permits', (
   assert.match(pend.bestJudgment.summary,/Mon–Sat/);
   assert.deepEqual(pend.pdfSchedule.days,[1,2,3,4,5,6]);
   assert.equal(curbState(pend,600,1).label,'Free · 2h');
-  assert.equal(curbState(pend,600,0).free,false);
+  assert.equal(curbState(pend,600,0).label,'Free');
   assert.ok(curbTableSegments(pend,1).some(row => row.status?.includes('Mon–Sat')));
   assert.equal(curbVisible(permit.curb,600,1,{restrictions:false,unverified:true}),false);
 });
