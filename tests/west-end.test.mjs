@@ -28,9 +28,12 @@ test('Beach and Pacific public signs show user-assumed free time outside the lim
   assert.equal(curbState(beach583, 600, 6).label, 'Free');
   assert.match(curbSchedule(beach583), /Mon–Fri/);
   for (const section of beachPacific.sections) {
-    if (section !== beach583) assert.equal(section.schedule.days, null);
+    assert.deepEqual(section.schedule.days, [1, 2, 3, 4, 5]);
+    if (section !== beach583) assert.match(section.scheduleDaysStatus, /user-assumed.*unreadable/);
     assert.equal(curbState(section, 600, 1).group, 'free');
     assert.equal(curbState(section, 600, 1).label, 'Free · 2h');
+    assert.equal(curbState(section, 600, 6).label, 'Free');
+    assert.equal(curbTableSegments(section, 1)[0].days, 'Mon–Fri');
     assert.ok(curbTableSegments(section, 1).some(row => row.status === 'Free'));
     assert.equal(curbState(section, 1200, 1).label, 'Free');
     assert.ok(curbTableSegments(section, 1).some(row => row.label === 'Other times' && row.status === 'Free'));

@@ -14,7 +14,7 @@
     }
   },
   "geometryNote": "Short sign-adjacent curb estimates based on historical imagery and City street centrelines; endpoints are not surveyed.",
-  "restrictionNote": "Public 2-hour signs are visible. The 583 Beach sign reads Mon–Fri; day text on the other signs and all curb endpoints remain uncertain. Free parking outside the posted limit is a user-requested assumption, not verified from Street View.",
+  "restrictionNote": "Public 2-hour signs are visible. The 583 Beach sign reads Mon–Fri. The user assumes Mon–Fri for 638 Beach and 550 Pacific because their day text is unreadable. Curb endpoints remain uncertain. Free parking outside the posted limit is a user-requested assumption, not verified from Street View.",
   "excludeInferredBlocks": [],
   "sections": [
     {
@@ -51,7 +51,8 @@
       "category": "time-limited",
       "publicSign": true,
       "limitMinutes": 120,
-      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 540, "end": 1080, "label": "Mon–Fri"},
+      "scheduleDaysStatus": "user-assumed; sign day text unreadable",
       "outsideSchedule": "unknown",
       "verification": "historical-partial-match",
       "geometryStatus": "approximate-street-view",
@@ -76,7 +77,8 @@
       "category": "time-limited",
       "publicSign": true,
       "limitMinutes": 120,
-      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 540, "end": 1080, "label": "Mon–Fri"},
+      "scheduleDaysStatus": "user-assumed; sign day text unreadable",
       "outsideSchedule": "unknown",
       "verification": "historical-partial-match",
       "geometryStatus": "approximate-street-view",
