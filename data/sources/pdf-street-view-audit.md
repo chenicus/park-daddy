@@ -63,10 +63,12 @@ davie-beach — Pacific, north side, Jervis–Bute. **historical-sign-match**.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=GHtmM7wl2EiBAbZBajEiwg&heading=351.91&pitch=-4.96&fov=15): Second pass: Moved toward Bute past permanent sign and turned back. Full panel reads green P 2h 9AM–3PM MON–SAT, arrow left toward Jervis. Adjacent no-stopping 3PM–6PM MON–FRI also points left; upper unconditional no-stopping arrow right points toward Bute end/driveway. The temporary notice at original midpoint was not the permanent rule. Historical schedule match is local and does not establish current rules or exact public endpoints.
 
 ### davie-beach-99cd6fc2597d
-davie-beach — Bidwell, west side, Burnaby–Beach. **historical-partial-match**.
+davie-beach — Bidwell, west side, Burnaby–Beach. **historical-sign-match for an approximate short public pocket**.
 
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=jG_twXMXvgd-U9vMaj2Kag&heading=305&pitch=0&fov=90): At the approximate west-curb section midpoint, imagery shows a bike-share docking station rather than a public car-parking curb. Does not establish rules for remaining curb portions.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=Dw_UqWi4vmJK9vShHB3RYg&heading=289.4&pitch=1.46&fov=31): Second pass: Moved north from bike station toward Burnaby and looked back at west-curb split sign. Public panel clearly 2h 9AM–8PM MON–SAT arrow left (south toward Beach/bike station); adjacent accessible parking panel shows 3h arrow right toward Burnaby. Temporary no-parking placard hangs below; dates not reliably transcribed. Full local public schedule matches PDF, but mapped midpoint is bike docks and public segment endpoints are not established, so retain partial status and Check signs. Never characterize entire block as public/free.
+
+2026-09-22 user screenshot correction: Show a short illustrative public car-parking pocket immediately south of the 1260 Bidwell sign, before the mapped bike docks. The sign reads 2h, 9am–8pm Mon–Sat toward Beach; the other direction is 3-hour accessible-only. The clipped line is deliberately short, not a surveyed parking-space boundary. Historical temporary notice dates and other hours remain unverified.
 
 ### davie-beach-605be445f641
 davie-beach — Cardero, west side, Burnaby–Harwood. **historical-sign-match**.
@@ -86,10 +88,12 @@ denman-west — Barclay, south side, Gilford–Denman. **historical-sign-match**
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=4_tzvoqxOXNxmI9FVMx8uA&heading=164&pitch=0&fov=15): Second pass: South curb near 1844 Barclay: readable 2h, 9am–8pm, Mon–Sat, arrow right, with permit-only arrow left. The closer view resolves the day line.
 
 ### denman-west-b672f507d5a2
-denman-west — Comox, south side, Gilford–Denman. **unresolved**.
+denman-west — Comox, south side, Gilford–Denman. **historical sign match for a local Gilford-facing permit portion; Denman-facing remainder unresolved**.
 
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=cRzQYxtdiRseYESitHFI2Q&heading=151&pitch=0&fov=20): South curb has temporary equipment, tape and a storage container in imagery. Nearby no-parking signs visible but exception text not confidently legible. No readable two-hour sign obtained; current rules and section endpoints remain unverified.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=qySC9WUrTC0Qr9Fua6Z8uA&heading=151&pitch=0&fov=15): Second pass: Moved southeast beyond original container-obstructed view toward Denman. South-curb pole near 1835 Comox reads no parking EXCEPT WITH PERMIT. Further toward Denman, sign pairs show no-stopping and a circular exception/zone marking whose fine text is not confidently readable; no public two-hour sign found in inspected stretch. These are local restrictions, not proof that entire approximate mapped curb conflicts. Container/equipment in original panorama is observed obstruction, not a permanent posted rule. Western remaining portion and exact bounds unverified.
+
+2026-09-22 user screenshot correction: The 1835 Comox panel reads NO PARKING EXCEPT WITH PERMIT, arrow toward Gilford. The PDF-drawn two-hour bar is split illustratively at its midpoint. Its Gilford-facing half is shown as permit-only, with hours unconfirmed; its Denman-facing half stays in sign review because different no-stopping signs appear there. Exact boundaries are not surveyed.
 
 ### denman-west-8a345fd5d337
 denman-west — Pendrell, north side, Gilford–Denman. **historical-partial-match**.
@@ -126,10 +130,12 @@ denman-west — Gilford, east side, Alberni–Robson. **historical-sign-match**.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=VBNlhdLYiqRxAxCB_feQ8Q&heading=87&pitch=0&fov=15): Second pass: Moved southwest past lane and turned back toward east curb. Clear front-facing sign reads green P, 2h, 9AM–8PM, MON–SAT, arrow left toward Alberni. Full local schedule match; sign is near lane and does not establish precise entire mapped extent.
 
 ### wep-17d8d42a59a6
-west-end-plateau — Haro, south side, Denman–Bidwell. **historical-partial-match**.
+west-end-plateau — Haro, south side, Denman–Bidwell. **historical-sign-match for the PDF-traced one-hour portion**.
 
 - [2024-07 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=ybE6elSF4YHmlN_EekKJ6A&heading=183&pitch=0&fov=20): South-side sign at ice rink reads 1h 9AM–6PM arrow right. No days printed on visible sign; does not independently establish an explicit day schedule. PDF midpoint initially landed on park path; actual road viewpoint used. Endpoints remain approximate.
 - [2024-07 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=ybE6elSF4YHmlN_EekKJ6A&heading=183&pitch=0&fov=15): Second pass: Rechecked entire unobscured south-curb sign face at West End ice rink: green P, 1h, 9AM–6PM, arrow right. No day qualification is printed on this sign. Hours and limit confirmed, but PDF days are unspecified and no explicit named-day schedule is established. Exact far endpoint remains unverified.
+
+2026-09-22 user screenshot correction: Show the one-hour period as 9am–6pm every day because the reviewed July 2024 sign has no printed day limit; preserve the PDF's omitted days in source evidence. Outside 9am–6pm and exact endpoints remain unverified.
 
 ### wep-519348bc0ef3
 west-end-plateau — Haro, south side, Cardero–Nicola. **historical-sign-match**.
@@ -249,10 +255,12 @@ west-end-plateau — Bute, west side, Haro–Barclay. **historical-sign-match fo
 2026-09-22 map correction: Show only the approximate Haro-facing half of this west curb as free two-hour car parking during the printed 9am–8pm Mon–Sat hours. The Barclay-facing Mobi bike-share half is omitted from car-parking results. The division is illustrative at the photographed sign, not a surveyed endpoint; other hours remain unverified.
 
 ### wep-c104b0d51182
-west-end-plateau — Bute, east side, Comox–Pendrell. **historical-partial-match**.
+west-end-plateau — Bute, east side, Comox–Pendrell. **historical-sign-match for the approximate Pendrell-facing half**.
 
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20): East curb near 1086 Bute: permanent green sign reads 2h 9am–8pm arrow right; days too blurred. Adjacent no-parking exception unreadable. Construction, cones and temporary no-parking sign occupied curb in this imagery; temporary dates unreadable and not assumed current.
 - [2024-08 Street View](https://www.google.com/maps/@?api=1&map_action=pano&pano=8jsRPpOKG4eeefk4qTOrUw&heading=87&pitch=0&fov=20): Second pass: Rechecked original at maximum zoom and moved toward Comox to inspect back/side of pole. Permanent panel confirms 2h 9AM–8PM arrow right, but day letters still not independently readable. Adjacent no-stopping EXCEPT panel shows modo logo and left arrow. Temporary no-stopping notice below points right; dates remain unreadable. Construction materials and cones occupy local curb in August 2024. Partial match retained; exact public/Modo boundary extents and temporary dates unverified.
+
+2026-09-22 map correction: Show only the approximate Pendrell-facing half as public two-hour parking, 9am–8pm Mon–Sat (days from the PDF). The Comox-facing half is signed no stopping except Modo and is omitted from public car-parking results. The split is illustrative at the photographed sign; the temporary construction notice's dates and other hours remain unverified.
 
 ## Manual review correction
 
@@ -272,4 +280,4 @@ The review now treats Davie south (PayByPhone 65523) and Davie north (PayByPhone
 
 Three south-curb records have been removed from normal parking results because their observed sign directions establish no public parking at the approximate marker: Haro Jervis–Bute is no parking both ways; Haro Bute–Thurlow is no stopping to the left and no parking to the right; Barclay Bute–Thurlow is a passenger zone to the left and permit parking to the right.
 
-Four records remain in manual review because the street side is known but the public/accessible/Modo boundary or complete schedule is not. They are Bidwell west Burnaby–Beach, Comox south Gilford–Denman, Haro south Denman–Bidwell, and Bute east Comox–Pendrell. They stay out of normal free results until the posted arrows can be mapped to a supported curb extent. The PDF-traced public portion of Pendrell north Gilford–Denman and the approximate Haro-facing half of Bute west Haro–Barclay are shown as free during their documented two-hour hours.
+The Bidwell west Burnaby–Beach sign supports only a short approximate public pocket between accessible-only parking and bike docks; the rest is excluded from ordinary car-parking results. Comox south Gilford–Denman is divided into a local permit-facing portion and a Denman-facing remainder that still needs sign review. Haro south Denman–Bidwell now shows the user's every-day reading of the one-hour sign, while preserving the PDF's omitted days. The PDF-traced public portion of Pendrell north Gilford–Denman and the approximate public halves of Bute west Haro–Barclay and Bute east Comox–Pendrell are shown as free during their documented two-hour hours.

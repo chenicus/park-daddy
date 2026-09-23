@@ -85,6 +85,7 @@ export function curbVisible(section, mins, dow, filters) {
 
 const clock = (m) => `${Math.floor(m / 60) % 12 || 12}${m % 60 ? ':' + String(m % 60).padStart(2, '0') : ''}${m < 720 ? 'am' : 'pm'}`;
 export function curbSchedule(section) {
+  if (section.accessOverride?.category === 'permit') return 'Permit required · hours not confirmed';
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
   const s = section.schedule;
   const days = s.label || (s.days == null ? 'days unspecified in PDF' : s.days.join() === '1,2,3,4,5,6' ? 'Mon–Sat' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Every day');
@@ -97,9 +98,12 @@ export function curbSchedule(section) {
 // unlisted period must never become an unrestricted/free row.
 export function curbTableSegments(section, dow) {
   const check = section.spotChecks?.findLast(c => c.url && c.imageryDate);
-  const evidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }]
+  const sourceEvidence = check ? [{ label: 'Street View imagery', status: check.imageryDate, url: check.url, rate: null, applies: false }]
     : section.streetViewUrl ? [{ label: 'Street View · sign not verified', status: 'Open', url: section.streetViewUrl,
       linkLabel: 'Open Street View near this curb; sign not verified', rate: null, applies: false }] : [];
+  const evidence = section.splitBoundaryNote
+    ? [{ label: 'Curb limits', status: 'Approximate · check signs', rate: null, applies: false }, ...sourceEvidence]
+    : sourceEvidence;
   if (section.category === 'permit-window') return [
     {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'Permit required',rate:null,applies:section.schedule.days?.includes(dow)},
     {label:'Other times',status:'Check signs',rate:null,applies:false},
@@ -154,7 +158,7 @@ export function curbTableSegments(section, dow) {
   if (section.category === 'permit') return [{ from: 0, to: 1440, label: 'Every day · All hours', status: 'Permit required', rate: null }];
   const s = section.schedule;
   const applies = s.days?.includes(dow) === true;
-  const days = s.label || (s.days == null ? 'Days unknown' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : 'Mon–Sat');
+  const days = s.label || (s.days == null ? 'Days unknown' : s.days.join() === '1,2,3,4,5' ? 'Mon–Fri' : s.days.join() === '0,1,2,3,4,5,6' ? 'Every day' : 'Mon–Sat');
   return [
     { from: s.start, to: s.end, days, limit: section.limitMinutes,
       rate: s.days == null ? null : 0, status: s.days == null ? 'Check signs' : 'Free', applies },

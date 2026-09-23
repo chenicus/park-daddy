@@ -791,11 +791,24 @@
             "imageryDate": "2024-08"
           }
         ]
+      },
+      {
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=Dw_UqWi4vmJK9vShHB3RYg&heading=289.4&pitch=1.46&fov=31",
+        "text": "User-provided screenshot at 1260 Bidwell confirms the split sign: two-hour 9AM–8PM Mon–Sat toward Beach, three-hour accessible-only toward Burnaby, and a historical temporary notice below. Show only an illustrative short public portion before the bike-share docks; exact endpoints are unverified.",
+        "status": "user-reported-sign-check",
+        "checkedOn": "2026-09-22"
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-conflict",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "mapSlice": {
+      "startFraction": 0.3,
+      "endFraction": 0.45,
+      "verification": "historical-sign-match",
+      "boundary": "Illustrative short public pocket south of the photographed 1260 Bidwell sign and north of mapped bike-share docks. Accessible-only curb points toward Burnaby; bike docks occupy the source midpoint. Exact public space endpoints and temporary notice dates are not surveyed."
+    }
   },
   {
     "id": "davie-beach-605be445f641",
@@ -1001,11 +1014,38 @@
             "notes": "Storage container in south curb; no legible temporary legal restriction established"
           }
         ]
+      },
+      {
+        "status": "user-reported-sign-check",
+        "checkedOn": "2026-09-22",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=qySC9WUrTC0Qr9Fua6Z8uA&heading=151&pitch=0&fov=15",
+        "text": "User-provided August 2024 Street View screenshot at 1835 Comox clearly reads NO PARKING EXCEPT WITH PERMIT, with an arrow toward Gilford. This supports a local permit-only portion, not the entire PDF-drawn two-hour curb. No hours or days are printed on the photographed panel; exact endpoints remain unverified."
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "unresolved",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "mapSplit": {
+      "fraction": 0.5,
+      "boundary": "Illustrative split near the photographed 1835 Comox sign. Permit restriction points toward Gilford; the Denman-facing remainder has separate no-stopping signs and stays unverified. Exact sign endpoints are not surveyed.",
+      "parts": [
+        {
+          "id": "denman-west-b672f507d5a2",
+          "verification": "historical-sign-match",
+          "accessOverride": {
+            "category": "permit",
+            "scheduleConfirmed": false,
+            "source": "user-screenshot-2024-08",
+            "checkedOn": "2026-09-22"
+          }
+        },
+        {
+          "id": "denman-west-b672f507d5a2-denman-review",
+          "verification": "unresolved"
+        }
+      ]
+    }
   },
   {
     "id": "denman-west-8a345fd5d337",
@@ -1394,11 +1434,33 @@
             "notes": "Local sign evidence; exact full extent unverified"
           }
         ]
+      },
+      {
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=ybE6elSF4YHmlN_EekKJ6A&heading=159.53&pitch=0&fov=20",
+        "text": "User confirmed clear 1h 9AM–6PM sign at 1755 Haro with no printed day limitation and requested every-day treatment. Applies to the PDF-traced south-side one-hour section toward the sign arrow; exact endpoints remain approximate.",
+        "status": "user-reported-sign-check",
+        "checkedOn": "2026-09-22"
       }
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-partial-match",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "mapVerification": "historical-sign-match",
+    "scheduleOverride": {
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "start": 540,
+      "end": 1080,
+      "basis": "User reviewed July 2024 Street View sign with no printed day limitation and interprets 9am–6pm as every day; PDF omits days. Local sign only; exact endpoints and current rule unverified."
+    }
   },
   {
     "id": "wep-519348bc0ef3",
@@ -2730,6 +2792,17 @@
     ],
     "checkedOn": "2026-09-22",
     "previousStatus": "historical-partial-match",
-    "recheckedOn": "2026-09-22"
+    "recheckedOn": "2026-09-22",
+    "mapSplit": {
+      "fraction": 0.5,
+      "keep": "second",
+      "boundary": "Approximate midpoint at the photographed 1086 Bute sign; two-hour parking points toward Pendrell. Modo-only no-stopping curb toward Comox is omitted from public car-parking results. Exact endpoints and temporary notice dates are not verified.",
+      "parts": [
+        {
+          "id": "wep-c104b0d51182",
+          "verification": "historical-sign-match"
+        }
+      ]
+    }
   }
 ]

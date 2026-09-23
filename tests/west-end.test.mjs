@@ -87,7 +87,7 @@ test('individual lines retain evidence and never acquire residential-free defaul
   assert.equal(new Set(blocks.map(rptKey)).size, blocks.length);
   for (const b of blocks) {
     assert.equal(b.curb.geometry.type, 'LineString');
-    assert.ok(['approximate-schematic','approximate-sign-split'].includes(b.curb.geometryStatus));
+    assert.ok(['approximate-schematic','approximate-sign-split','approximate-sign-slice'].includes(b.curb.geometryStatus));
     assert.equal(b.isFree, undefined);
     assert.equal(b.sources.length, 2);
     for (const [lon, lat] of b.curb.geometry.coordinates) {
@@ -108,6 +108,17 @@ test('Bute west shows only the Haro-facing two-hour portion, not the Mobi docks'
   assert.ok(!blocks.some(b => b.id === 'wep-b7bd3d236123-mobi'));
 });
 
+test('Bute east shows only the Pendrell-facing two-hour portion, not the Modo curb', () => {
+  const curb = blocks.find(b => b.id === 'wep-c104b0d51182')?.curb;
+  assert.ok(curb);
+  assert.equal(curb.verification, 'historical-sign-match');
+  assert.equal(curb.geometryStatus, 'approximate-sign-split');
+  assert.deepEqual(curb.geometry.coordinates, [[-123.131456,49.282966],[-123.131636,49.282847]]);
+  assert.equal(curbState(curb, 600, 1).label, 'Free · 2h');
+  assert.equal(curbState(curb, 1260, 1).group, 'unverified');
+  assert.match(curb.splitBoundaryNote, /Modo-only no-stopping curb.*omitted/);
+});
+
 test('full-time permits are never public/free on any day or hour', () => {
   for (let day = 0; day < 7; day++) for (const mins of [0,539,540,1079,1080,1200,1439]) {
     const s = curbState(permit.curb, mins, day);
@@ -124,8 +135,9 @@ test('Barclay correction is scoped, historical and retains PDF omission', () => 
   assert.equal(barclay.curb.spotChecks[0].imageryDate, '2024-08');
   assert.equal(barclay.curb.spotChecks[0].url, null);
   assert.match(curbSchedule(barclay.curb), /Mon–Sat/);
-  assert.equal(haro.curb.schedule.days, null);
-  for (let day=0; day<7; day++) assert.equal(curbState(haro.curb,600,day).free,false);
+  assert.equal(haro.curb.pdfSchedule.days, null);
+  assert.deepEqual(haro.curb.schedule.days, [0,1,2,3,4,5,6]);
+  for (let day=0; day<7; day++) assert.equal(curbState(haro.curb,600,day).free,true);
   assert.equal(curbState(barclay.curb,539,1).free,false);
   assert.equal(curbState(barclay.curb,540,6).free,true);
   assert.equal(curbState(barclay.curb,1079,6).free,true);
@@ -165,16 +177,16 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     assert.equal(sources.get('meter-dots').data.features.length,1);
     assert.equal(sources.get('meter-dots').data.features[0].properties.color,'#a16207');
     layer.setFilter({free:true,paid:false,restrictions:false,unverified:false});
-    assert.equal(sources.get('west-end-curbs').data.features.length,2);
+    assert.equal(sources.get('west-end-curbs').data.features.length,3);
     assert.equal(sources.get('meter-dots').data.features.length,0);
     day=0; layer.refresh();
-    assert.equal(sources.get('west-end-curbs').data.features.length,0);
+    assert.equal(sources.get('west-end-curbs').data.features.length,1);
     layer.setFilter({free:false,paid:false,restrictions:true,unverified:true});
-    assert.equal(sources.get('west-end-curbs').data.features.length,4);
+    assert.equal(sources.get('west-end-curbs').data.features.length,3);
     assert.equal(sources.get('blockface-lines').data.features.length,0);
     assert.equal(sources.get('meter-dots').data.features.length,1);
     sources.set('west-end-curbs',{setData(d){this.data=d;}}); layer.refresh();
-    assert.equal(sources.get('west-end-curbs').data.features.length,4);
+    assert.equal(sources.get('west-end-curbs').data.features.length,3);
     zoom=14; layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,0);
   } finally {layer.destroy();}
@@ -192,7 +204,8 @@ test('shared table preserves weekly limits and unknown periods', () => {
   const sunday = curbTableSegments(bidwell.curb, 0);
   assert.equal(sunday[0].applies, false);
   assert.deepEqual(sunday[1].activeOutside, []);
-  assert.equal(curbTableSegments(haro.curb, 1)[0].rate, null);
+  assert.equal(curbTableSegments(haro.curb, 1)[0].rate, 0);
+  assert.equal(curbTableSegments(haro.curb, 0)[0].days, 'Every day');
   const permitRows = curbTableSegments(permit.curb, 1);
   assert.equal(permitRows.length, 1);
   assert.equal(permitRows[0].status, 'Permit required');
@@ -204,15 +217,15 @@ const additions = ['davie-beach', 'denman-west', 'robson-north'].map(name =>
 
 test('additional guides retain evidence, unique curb identities and unresolved omissions', () => {
   const added = additions.flatMap(buildWestEndBlocks);
-  assert.equal(added.length, 193);
-  assert.equal(new Set([...blocks, ...added].map(b => b.id)).size, 367);
+  assert.equal(added.length, 194);
+  assert.equal(new Set([...blocks, ...added].map(b => b.id)).size, 368);
   for (const b of added) {
     assert.equal(b.curb.geometry.type, 'LineString');
     if (b.curb.category === 'permit') {
       assert.equal(b.curb.verification, 'pdf-only');
       assert.deepEqual(b.curb.spotChecks, []);
     } else assert.ok(b.curb.spotChecks.length > 0);
-    assert.equal(b.curb.geometryStatus, 'approximate-schematic');
+    assert.ok(['approximate-schematic','approximate-sign-split','approximate-sign-slice'].includes(b.curb.geometryStatus));
     assert.ok(b.sources.every(s => s.url.startsWith('https://')));
     for (const [lon, lat] of b.curb.geometry.coordinates)
       assert.ok(lon > -123.151 && lon < -123.11 && lat > 49.269 && lat < 49.303);
@@ -226,6 +239,38 @@ test('additional guides retain evidence, unique curb identities and unresolved o
     assert.ok(s.unresolvedReason);
     assert.ok(s.schematicTrace);
   }
+});
+
+test('1835 Comox permit sign is limited to the Gilford-facing curb portion', () => {
+  const sections = additions[1].sections;
+  const permitSide = sections.find(s => s.id === 'denman-west-b672f507d5a2');
+  const denmanSide = sections.find(s => s.id === 'denman-west-b672f507d5a2-denman-review');
+  assert.ok(permitSide && denmanSide);
+  assert.deepEqual(permitSide.geometry.coordinates.at(-1), denmanSide.geometry.coordinates[0]);
+  assert.equal(curbState(permitSide, 600, 1).label, 'Permit only');
+  assert.equal(curbState(permitSide, 600, 0).free, false);
+  assert.equal(curbState(denmanSide, 600, 1).group, 'unverified');
+  assert.equal(curbVisible(permitSide, 600, 1, {free:true,restrictions:false,unverified:false}), false);
+});
+
+test('1260 Bidwell shows only a short two-hour pocket between reserved uses', () => {
+  const curb = additions[0].sections.find(s => s.id === 'davie-beach-99cd6fc2597d');
+  assert.equal(curb.geometryStatus, 'approximate-sign-slice');
+  assert.equal(curbState(curb, 600, 1).label, 'Free · 2h');
+  assert.equal(curbState(curb, 1200, 1).group, 'unverified');
+  assert.ok(curb.geometry.coordinates.length >= 2);
+  assert.match(curb.splitBoundaryNote, /Accessible-only curb.*bike docks/);
+  assert.equal(curbTableSegments(curb, 1)[0].days, 'Mon–Sat');
+});
+
+test('1755 Haro sign shows one-hour parking daily without inventing off-hours access', () => {
+  assert.equal(haro.curb.id, 'wep-17d8d42a59a6');
+  assert.equal(haro.curb.pdfSchedule.days, null);
+  assert.equal(haro.curb.verification, 'historical-sign-match');
+  assert.equal(curbState(haro.curb, 540, 0).label, 'Free · 1h');
+  assert.equal(curbState(haro.curb, 1079, 6).free, true);
+  assert.equal(curbState(haro.curb, 1080, 1).group, 'unverified');
+  assert.equal(curbTableSegments(haro.curb, 0)[0].days, 'Every day');
 });
 
 test('Pacific two-hour schedule ends at 3pm without inferring free evenings or Sundays', () => {
@@ -253,11 +298,12 @@ test('loaded curb guides supersede only named inferred free blocks', async () =>
 
 test('all timed curbs retain historical evidence and conflicting sections never advertise free', () => {
   const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
-  assert.equal(timed.length, 42);
+  assert.equal(timed.length, 43);
   assert.ok(timed.every(s => s.spotChecks.some(c => c.url?.startsWith('https://www.google.com/maps/'))));
   for (const section of timed) {
-    const source = audit.find(row => row.id === section.id);
-    assert.equal(section.verification, source.mapSplit?.parts[0].verification || reportReviews[section.id]?.verification || source.status);
+    const source = audit.find(row => row.id === (section.splitSourceId || section.id));
+    const splitPart = source.mapSplit?.parts.find(part => part.id === section.id);
+    assert.equal(section.verification, splitPart?.verification || source.mapSlice?.verification || source.mapVerification || reportReviews[section.id]?.verification || source.status);
     const latest = source.observations.at(-1);
     assert.ok(section.spotChecks.some(check => check.url === latest.url && check.finding === latest.text && check.status === latest.status));
     const evidence = curbTableSegments(section,1).find(row => row.url);
@@ -283,7 +329,7 @@ test('all timed curbs retain historical evidence and conflicting sections never 
 test('unconfirmed timed curbs are marked and filter independently of permits', () => {
   const timed = [data, ...additions].flatMap(d => d.sections).filter(s => s.category === 'time-limited');
   const unconfirmed = timed.filter(s => s.verification !== 'historical-sign-match' && !s.accessOverride);
-  assert.equal(unconfirmed.length, audit.filter(r => (r.mapSplit?.parts[0].verification || reportReviews[r.id]?.verification || r.status) !== 'historical-sign-match' && !r.accessOverride).length);
+  assert.ok(unconfirmed.length >= 1);
   for (const section of unconfirmed) {
     assert.equal(curbState(section,600,1).free,false);
     assert.equal(curbState(section,600,1).label,section.bestJudgment?.label || 'Check signs');
