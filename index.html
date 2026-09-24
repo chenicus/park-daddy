@@ -306,8 +306,8 @@
   .chip:active { transform: scale(.965); }
   .chip:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .chip svg { width: 1.1em; height: 1.1em; }
-  .chip .chk { width: 1em; height: 1em; margin-left: -2px; visibility: hidden; }
-  .chip.on .chk { visibility: visible; }
+  .chip .chk { width: 1em; height: 1em; margin-left: -2px; display: none; }
+  .chip.on .chk { display: block; }
   @media (max-width: 759px) { .chip { min-height: 40px; } }
 
   /* ---- trip pill (arrival) ---- */
