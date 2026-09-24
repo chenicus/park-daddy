@@ -304,9 +304,6 @@
     transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-press) var(--ease-press); }
   .seg .cost a { color: inherit; text-underline-offset: 3px; }
   .chip:active { transform: scale(.965); }
-  .chip.on { background: var(--chip-sel); color: var(--text); border-color: var(--stroke); box-shadow: var(--shadow); }
-  .chip.on::before { display: none; }
-  .chip:not(.on):not(.trip) { opacity: .65; box-shadow: none; }
   .chip:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .chip svg { width: 1.1em; height: 1.1em; }
   .chip .chk { width: 1em; height: 1em; margin-left: -2px; visibility: hidden; }
