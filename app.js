@@ -1,8 +1,8 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=20';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=21';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=48';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=33';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=34';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
@@ -1477,7 +1477,8 @@ function renderSchedule(b, mins) {
     : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
     : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
-    const active = s.activeOutside ? !(mins >= s.activeOutside[0] && mins < s.activeOutside[1])
+    const active = s.activeOutside ? !(mins >= s.activeOutside[0] && mins < s.activeOutside[1]) &&
+        !(s.activeExcept || []).some(([start, end]) => mins >= start && mins < end)
       : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
     const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));

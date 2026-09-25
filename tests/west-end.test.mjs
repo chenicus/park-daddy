@@ -18,6 +18,21 @@ const kitsPoint = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-point.js
 const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downtown-report-reviews.json', import.meta.url)));
 const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
 const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
+const signFollowup = JSON.parse(fs.readFileSync(new URL('../data/street-view-two-hour-followup.json', import.meta.url)));
+
+test('new Street View sections keep opposite arrows and Hastings morning ban distinct', () => {
+  const [hastings, hornby] = signFollowup.sections;
+  assert.equal(hastings.side, 'north');
+  assert.equal(hornby.side, 'west');
+  assert.equal(curbState(hastings, 540, 1).label, 'No parking');
+  assert.equal(curbVisible(hastings, 540, 1, {free:true,paid:true,restrictions:true}), false);
+  assert.equal(curbState(hastings, 660, 1).label, 'Free · 2h');
+  assert.equal(curbState(hastings, 660, 0).label, 'Free');
+  assert.ok(curbTableSegments(hastings, 1).some(row => row.status === 'No parking' && row.from === 420 && row.to === 600));
+  assert.equal(curbState(hornby, 600, 1).label, 'Free · 2h');
+  assert.match(curbSchedule(hornby), /Days unreadable/);
+  assert.ok(signFollowup.sections.every(section => section.spotChecks[0].url.includes('map_action=pano')));
+});
 
 test('Beach and Pacific public signs show user-assumed free time outside the limit', () => {
   assert.equal(beachPacific.sections.length, 3);

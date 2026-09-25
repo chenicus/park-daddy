@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "area": "vancouver-sign-followup",
+  "sources": {
+    "hastings-street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=G49YkHU2GtYMqCrDUBRFwQ&heading=307.29&pitch=3.64&fov=26",
+      "title": "Google Street View, April 2026; 1513 E Hastings sign supplied by user",
+      "checkedOn": "2026-09-24"
+    },
+    "hornby-street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zYVMqsddhVvJBkP8w-B9nA&heading=14.57&pitch=0&fov=31",
+      "title": "Google Street View, August 2024; 1498 Hornby sign supplied by user",
+      "checkedOn": "2026-09-24"
+    }
+  },
+  "geometryNote": "Short sign-adjacent curb estimates from Street View. Endpoints are not surveyed; do not extend these lines across a corner, driveway, or another sign.",
+  "restrictionNote": "The Hastings public two-hour arrow points east and is superseded by a separate weekday morning no-parking sign. The Hornby public two-hour arrow points north; its tiny day text and the next sign boundary remain unreadable. Free outside posted hours follows the user's requested assumption and should be checked against signs on site.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "east-hastings-1513-north-2h",
+      "area": "grandview-woodland",
+      "street": "E Hastings Street",
+      "side": "north",
+      "between": ["1513 E Hastings", "toward Woodland Drive"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 600, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "Two-hour arrow points east from the sign. Only the nearby north curb is drawn; the next boundary is not established.",
+      "sourceIds": ["hastings-street-view"],
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-24",
+        "imageryDate": "2026-04",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=G49YkHU2GtYMqCrDUBRFwQ&heading=307.29&pitch=3.64&fov=26",
+        "finding": "North-side sign reads public P 2h, 10AM–6PM Mon–Sat with arrow east. Separate no-parking plate reads 7AM–10AM Mon–Fri with arrows both ways. A taxi exception points west and does not apply to this eastward public section.",
+        "scope": "Nearby eastward curb only; exact endpoint and any later sign remain uncertain.",
+        "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 600, "label": "Mon–Fri"}]
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.07327, 49.28135], [-123.07298, 49.28135]]}
+    },
+    {
+      "id": "hornby-1498-west-2h",
+      "area": "downtown-beach-pacific",
+      "street": "Hornby Street",
+      "side": "west",
+      "between": ["1498 Hornby", "north of sign"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "Public two-hour arrow points north; the adjacent no-parking arrow points south. Only a short northward section is drawn because the next sign boundary is obscured.",
+      "sourceIds": ["hornby-street-view"],
+      "spotChecks": [{
+        "status": "historical-partial-match",
+        "checkedOn": "2026-09-24",
+        "imageryDate": "2024-08",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=zYVMqsddhVvJBkP8w-B9nA&heading=14.57&pitch=0&fov=31",
+        "finding": "West-side sign reads public P 2h, 9AM–6PM with arrow north. Adjacent no-parking arrow points south. Day text is unreadable in the available image.",
+        "scope": "Short northward curb only; exact endpoint and day schedule need a closer sign check."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.13278, 49.27541], [-123.13286, 49.27557]]}
+    }
+  ]
+}
