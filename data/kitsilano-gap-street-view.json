@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "area": "kitsilano-sign-gap-followup",
+  "sources": {
+    "maple-street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=l1B0wtN9EtI9i4HcV-sf2Q&heading=205&pitch=0&fov=15",
+      "title": "Google Street View, August 2024; west curb of Maple near 1130 Maple",
+      "checkedOn": "2026-09-27"
+    },
+    "west-13th-street-view": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=UtC1U8Iwd0UPCH8ZVrUHxQ&heading=115&pitch=0&fov=15",
+      "title": "Google Street View, July 2024; north curb of W 13th near 1886 W 13th",
+      "checkedOn": "2026-09-27"
+    }
+  },
+  "geometryNote": "Short sign-adjacent curb estimates from Street View; endpoints are not surveyed and should not be extended across a driveway, corner, or another sign.",
+  "restrictionNote": "W 13th has a full-time no-parking-except-with-permit sign pointing both ways; only a short piece around that sign is drawn. Maple's two-hour sign has unreadable days and endpoint, so it is retained as source evidence but not plotted.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "kits-west-13th-1886-north-permit",
+      "area": "kitsilano-south",
+      "street": "W 13th Avenue",
+      "side": "north",
+      "between": ["1886 W 13th sign", "nearby north curb"],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": 0, "end": 1440, "label": "Every day"},
+      "outsideSchedule": "not-applicable",
+      "verification": "historical-sign-match",
+      "geometryStatus": "approximate-street-view",
+      "splitBoundaryNote": "The full-time permit-exception sign points both directions. Only a short sign-adjacent piece is drawn because the next sign boundaries have not been established.",
+      "sourceIds": ["west-13th-street-view"],
+      "spotChecks": [{
+        "status": "historical-sign-match",
+        "checkedOn": "2026-09-27",
+        "imageryDate": "2024-07",
+        "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=UtC1U8Iwd0UPCH8ZVrUHxQ&heading=115&pitch=0&fov=15",
+        "finding": "North-side sign reads No Parking Except With Permit and points both ways; no hours are printed.",
+        "scope": "Short curb around the sign only; exact block ends remain uncertain."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.14790, 49.26012], [-123.14761, 49.25994]]}
+    }
+  ]
+}

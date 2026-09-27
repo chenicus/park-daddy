@@ -19,6 +19,16 @@ const reportReviews = JSON.parse(fs.readFileSync(new URL('../data/sources/downto
 const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant.json', import.meta.url)));
 const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
 const signFollowup = JSON.parse(fs.readFileSync(new URL('../data/street-view-two-hour-followup.json', import.meta.url)));
+const kitsGaps = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-gap-street-view.json', import.meta.url)));
+
+test('Kits gap guide publishes only the sign-backed permit curb', () => {
+  assert.deepEqual(kitsGaps.sections.map(section => section.id), ['kits-west-13th-1886-north-permit']);
+  const [section] = kitsGaps.sections;
+  assert.equal(section.side, 'north');
+  assert.equal(curbState(section, 600, 1).label, 'Permit');
+  assert.equal(curbState(section, 1380, 0).label, 'Permit');
+  assert.ok(curbTableSegments(section, 1).some(row => row.url === section.spotChecks[0].url));
+});
 
 test('new Street View sections keep opposite arrows and Hastings morning ban distinct', () => {
   const [hastings, hornby] = signFollowup.sections;
