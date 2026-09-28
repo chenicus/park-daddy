@@ -1597,7 +1597,6 @@ function showSpotCard(b) {
     rows.push(`<a class="paybyphone" data-pbp-code="${payByPhoneCodes[0]}" href="${payByPhoneUrl(payByPhoneCodes[0])}" target="_blank" rel="noopener" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
       `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
       `<span class="pbp-open">${payByPhoneCodes[0]} ↗</span></a>`);
-  if (b.flat != null) rows.push(`${IC.dollar} ${money(b.flat)} flat-rate option · check meter for timing`);
   const dow = dowNow();
   // compact clock: drop :00 and share the meridiem across a range → "3–7pm"
   const short = (m) => {
