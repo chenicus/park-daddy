@@ -129,8 +129,9 @@ export function buildBlocks(meters) {
     if (m.vehicle_type && m.vehicle_type !== 'Any Vehicle') continue;
     const g = m.geo_point_2d;
     if (!g) continue;
+    // A location code identifies the payment zone, so it belongs in marker identity.
     const key = [m.rate_9am_6pm, m.rate_6pm_10pm, m.flat_rate, m.time_limit_9am_6pm,
-      m.time_limit_6pm_10pm, m.direction].join('|');
+      m.time_limit_6pm_10pm, m.direction, m.mobile_payment_number].join('|');
     const ci = Math.floor(g.lat / CELL_LAT), cj = Math.floor(g.lon / CELL_LON);
     let target = null;
     outer:
@@ -154,6 +155,7 @@ export function buildBlocks(meters) {
         },
         rushes: [parseRange(m.am_rush_hours), parseRange(m.pm_rush_hours)].filter(Boolean),
         prohibitions: proh,
+        payByPhoneCodes: m.mobile_payment_number == null ? [] : [String(m.mobile_payment_number)],
         card: /yes/i.test(m.credit_card || ''),
       };
       blocks.push(target);
@@ -167,6 +169,8 @@ export function buildBlocks(meters) {
         if (!target.prohibitions.some((x) => x.zone === q.zone && x.start === q.start && x.end === q.end && x.days === q.days))
           target.prohibitions.push(q);
       }
+      const code = m.mobile_payment_number == null ? null : String(m.mobile_payment_number);
+      if (code && !target.payByPhoneCodes.includes(code)) target.payByPhoneCodes.push(code);
     }
     target.lat = (target.lat * target.count + g.lat) / (target.count + 1);
     target.lon = (target.lon * target.count + g.lon) / (target.count + 1);
