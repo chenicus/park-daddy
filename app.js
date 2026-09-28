@@ -1657,7 +1657,7 @@ document.addEventListener('click', (e) => {
   if (!link) return;
   const code = link.dataset.pbpCode;
   copyPayByPhoneCode(code).then(
-    () => toast(`Location code ${code} copied — paste it into PayByPhone.`),
+    () => toast('Copied. Paste into PayByPhone'),
     () => toast(`Enter location code ${code} in PayByPhone.`),
   );
   track('copied_paybyphone_code', { city: activeCity });
