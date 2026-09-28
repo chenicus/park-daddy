@@ -1594,9 +1594,9 @@ function showSpotCard(b) {
   const rows = [];
   const payByPhoneCodes = b.payByPhoneCodes || [];
   if (payByPhoneCodes.length === 1)
-    rows.push(`<a class="paybyphone" data-pbp-code="${payByPhoneCodes[0]}" href="${payByPhoneUrl(payByPhoneCodes[0])}" target="_blank" rel="noopener" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
+    rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" data-pbp-url="${payByPhoneUrl(payByPhoneCodes[0])}" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
       `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
-      `<span class="pbp-open">${payByPhoneCodes[0]} ↗</span></a>`);
+      `<span class="pbp-open">${payByPhoneCodes[0]} ↗</span></button>`);
   const dow = dowNow();
   // compact clock: drop :00 and share the meridiem across a range → "3–7pm"
   const short = (m) => {
@@ -1661,6 +1661,7 @@ document.addEventListener('click', (e) => {
     () => toast(`Enter location code ${code} in PayByPhone.`),
   );
   track('opened_paybyphone', { city: activeCity });
+  window.open(link.dataset.pbpUrl, '_blank', 'noopener');
 });
 // tapping the already-selected pill again closes the card instead of re-opening it
 map.on('click', 'west-end-curbs', (e) => {
