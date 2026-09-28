@@ -110,12 +110,12 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
   assert.equal(new Set(sections.map(section => section.id)).size, sections.length);
   assert.ok(sections.every(section => section.geometry.type === 'LineString' && section.geometryStatus === 'approximate-schematic'));
   assert.ok(sections.every(section => section.sourceIds.includes('city-kits-north-pdf')));
-  const mondayFriday = sections.find(section => section.pdfBar.rule === '2mf');
+  const mondayFriday = sections.find(section => section.pdfBar.rule === '2mf' && !section.spotChecks?.length);
   const mondaySaturday = sections.find(section => section.pdfBar.rule === '2ms');
   const permitOnly = sections.find(section => section.pdfBar.rule === 'p');
   assert.ok(mondayFriday && mondaySaturday && permitOnly);
   assert.ok(sections.filter(section => section.category === 'time-limited').every(section =>
-    section.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=')));
+    section.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&')));
   assert.ok(curbTableSegments(mondayFriday, 1).some(segment => segment.url === mondayFriday.streetViewUrl &&
     segment.label.includes('sign not verified')));
   assert.equal(curbState(mondayFriday, 600, 1).label, 'Free · 2h');
@@ -130,7 +130,8 @@ test('Kits North PDF curb bars use their printed schedules and street sides', ()
 
 test('South and Point guide curbs retain timed permits and unknown paid rates', () => {
   assert.equal(kitsSouth.sections.length, 95);
-  assert.equal(kitsPoint.sections.length, 26);
+  assert.equal(kitsPoint.sections.length, 23);
+  for (const id of ['kits-point-165b006dc943','kits-point-7a7644b45acd','kits-point-1179d0ccc33c']) assert.ok(!kitsPoint.sections.some(section => section.id === id));
   assert.deepEqual(kitsSouth.excludeInferredBlocks, ['2100 W 5Th Av', '2000 W 6Th Av', '2000 W 7Th Av', '1800 W 7Th Av']);
   for (const guide of [kitsSouth, kitsPoint]) {
     assert.ok(guide.sections.every(s => s.geometry.type === 'LineString' && s.geometryStatus === 'approximate-schematic'));
@@ -154,7 +155,8 @@ test('South and Point guide curbs retain timed permits and unknown paid rates', 
       assert.ok(paid.bestJudgment?.summary);
       assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl));
     } else {
-      assert.match(curbState(paid, 600, 1).label, /Paid/);
+      assert.equal(curbState(paid, 600, 1).group, 'unverified');
+      assert.equal(curbVisible(paid, 600, 1, {free:true,paid:true,restrictions:true,unverified:false}), false);
       assert.ok(paid.streetViewUrl?.startsWith('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint='));
       assert.ok(curbTableSegments(paid, 1).some(s => s.url === paid.streetViewUrl && s.label.includes('sign not verified')));
     }
@@ -511,4 +513,14 @@ test('side-specific City meter data makes the Davie records paid', () => {
   const remaining = filterMetersCoveredByCurbs(meters, [data, additions[0]]);
   assert.equal(remaining.length, meters.length - 2);
   assert.ok(!remaining.some(meter => ['161314', '161325'].includes(String(meter.meter_id))));
+});
+
+ test('Cornwall short pocket preserves half-hour limit and excludes adjacent bus stop', () => {
+  const s = screenshotGaps.sections.find(s => s.id === 'cornwall-cypress-walnut-north-30min');
+  assert.equal(curbState(s,540,1).label,'Free · 30m');
+  assert.equal(curbState(s,1080,1).label,'Free');
+  assert.equal(curbState(s,600,0).label,'Free · 30m');
+  assert.equal(s.spotChecks.length,2);
+  assert.ok(s.geometry.coordinates.every(([lon])=>lon < -123.14842 && lon > -123.14893));
+  assert.equal(curbTableSegments(s,1)[0].limit,30);
 });

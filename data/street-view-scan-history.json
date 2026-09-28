@@ -1,0 +1,395 @@
+{
+  "updated": "2026-09-28",
+  "sections": [
+    {
+      "status": "checked",
+      "title": "York north curb west of Vine: public 2h",
+      "detail": "Public parking: 2h, 9am–6pm, Mon–Fri, except with permit. Arrow points west. The short line records the inspected portion; the western permit transition remains uncertain.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=E4yV3Sz-nxnCkNhK_CVg5g&heading=315&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15768,
+            49.2718
+          ],
+          [
+            -123.15796,
+            49.2718
+          ]
+        ]
+      },
+      "sectionIds": [
+        "kits-north-10ae076e8171"
+      ]
+    },
+    {
+      "status": "no-parking",
+      "title": "York north curb at Vine corner",
+      "detail": "The adjacent sign prohibits stopping east toward the Vine corner. The drawn corner extent is approximate.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=E4yV3Sz-nxnCkNhK_CVg5g&heading=315&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1576,
+            49.27179
+          ],
+          [
+            -123.15747,
+            49.27179
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "unclear",
+      "title": "York north curb toward Balsam",
+      "detail": "Traversed west along York toward Balsam. A permit-except sign was partly hidden by leaves; the transition to the public two-hour section remains unresolved.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VJRIYI-Egc5tK8WB5nIQyg&heading=294&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15838,
+            49.27181
+          ],
+          [
+            -123.15936,
+            49.27183
+          ]
+        ]
+      },
+      "sectionIds": [
+        "kits-north-d2a896ad5866"
+      ]
+    },
+    {
+      "status": "unclear",
+      "title": "Maple · traversed, rate unreadable",
+      "detail": "Moved north through four panoramas from 1455 to 1407 Maple. Inspected poles, but dollar prices and the complete paid schedule were unreadable. City meter records remain the price source. This line follows camera positions, not legal curb limits.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=bfVG2xWYA15RqZOmFgzYBw&heading=150&pitch=0&fov=30",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1502104,
+            49.272779
+          ],
+          [
+            -123.1502096,
+            49.2729648
+          ],
+          [
+            -123.1502004,
+            49.2731488
+          ],
+          [
+            -123.1501938,
+            49.2733321
+          ]
+        ]
+      }
+    },
+    {
+      "status": "gap",
+      "title": "Maple · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.150285,
+            49.272543
+          ],
+          [
+            -123.15027592307692,
+            49.272779
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14"
+    },
+    {
+      "status": "gap",
+      "title": "Maple · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15025465,
+            49.2733321
+          ],
+          [
+            -123.150233,
+            49.273895
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=DLltLH1WeonitDgIQ4xfXA&heading=267&pitch=0&fov=14"
+    },
+    {
+      "status": "gap",
+      "title": "Maple · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.15012,
+            49.27254
+          ],
+          [
+            -123.15011081448633,
+            49.272779
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273217,-123.150094&heading=90"
+    },
+    {
+      "status": "gap",
+      "title": "Maple · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1500895571323,
+            49.2733321
+          ],
+          [
+            -123.150068,
+            49.273893
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273217,-123.150094&heading=90"
+    },
+    {
+      "status": "unclear",
+      "title": "Laburnum · traversed, rate unreadable",
+      "detail": "Moved south through three panoramas from 1407 to 1490 Laburnum. Branches obscured the west-side sign and other poles were seen from behind. Dollar prices remain unverified in Street View. City meter records remain the price source. This line follows camera positions, not legal curb limits.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=fqj3MOJsfZ9YNYkSsGnlCw&heading=263&pitch=4&fov=14",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1514015,
+            49.2732393
+          ],
+          [
+            -123.1514192,
+            49.2728761
+          ],
+          [
+            -123.151435,
+            49.2727096
+          ]
+        ]
+      }
+    },
+    {
+      "status": "gap",
+      "title": "Laburnum · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.151499,
+            49.272562
+          ],
+          [
+            -123.15149338420674,
+            49.2727096
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273258,-123.151473&heading=270"
+    },
+    {
+      "status": "gap",
+      "title": "Laburnum · remaining guide gap",
+      "detail": "This portion was not traversed in the current scan. City meter prices remain mapped; this line is an inspection gap, not a parking rule.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1514732305097,
+            49.2732393
+          ],
+          [
+            -123.151446,
+            49.273955
+          ]
+        ]
+      },
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.273258,-123.151473&heading=270"
+    },
+    {
+      "status": "checked",
+      "title": "Cornwall north: Cypress–Walnut 30-minute pocket",
+      "detail": "Both endposts read 30 min, 9AM–6PM; arrows point inward. Adjacent no-stopping arrows point outward. No day qualifier visible. This is a bounded curb section, not all Cornwall.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=j_BZmCtWmcSQh3_iUcZPEQ&heading=298&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14848,
+            49.27263
+          ],
+          [
+            -123.14885,
+            49.27263
+          ]
+        ]
+      },
+      "sectionIds": [
+        "cornwall-cypress-walnut-north-30min"
+      ]
+    },
+    {
+      "status": "no-parking",
+      "title": "Cornwall north at Cypress corner",
+      "detail": "No stopping, arrows both directions, at pole by Cypress/Triple O’s. Short sign check only; not whole-block classification.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=8DsR-HQv_1r6oRWABrwmdA&heading=310&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14712,
+            49.27254
+          ],
+          [
+            -123.14725,
+            49.27254
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "no-parking",
+      "title": "Cornwall north bus stop east of public pocket",
+      "detail": "Bus stop and no-stopping east arrow at 1915–1929 Cornwall. Short bus-stop frontage excluded from public parking.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=hpczzUvHJvu3XdacxYgXgw&heading=270&pitch=0&fov=60",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14817,
+            49.27263
+          ],
+          [
+            -123.14842,
+            49.27263
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "unclear",
+      "title": "Cornwall south school frontage",
+      "detail": "Inspected from 1939 and 1965 Cornwall looking south. School frontage and restriction poles visible, but schedule not readable. Do not infer free parking or no parking for the entire frontage.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=P2K0MDYLHxUF7DrAFFxIHA&heading=180&pitch=0&fov=40",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14839,
+            49.2724
+          ],
+          [
+            -123.14938,
+            49.2724
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "no-parking",
+      "title": "Cornwall north west of Walnut: reserved Modo",
+      "detail": "No parking except Modo signs delimit reserved pocket; adjacent no stopping. Excluded from general public parking. Geometry approximate sign-adjacent pocket only.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=mTpyWJEUWUQkGGmKFlzqsA&heading=307&pitch=0&fov=15",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1494,
+            49.27264
+          ],
+          [
+            -123.14957,
+            49.27264
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "unclear",
+      "title": "Cornwall north approaching Maple",
+      "detail": "Public-looking sign pair and parked cars west of Modo. A blue map accessibility icon obscures sign text; parking type and time limit not verified. Restaurant patio occupies curb farther east.",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=J-ukTR34zVPzQFUqnZhLjA&heading=291&pitch=0&fov=25",
+      "imageryDate": "2024-08",
+      "checkedOn": "2026-09-28",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14961,
+            49.27264
+          ],
+          [
+            -123.14994,
+            49.27264
+          ]
+        ]
+      },
+      "sectionIds": []
+    },
+    {
+      "status": "gap",
+      "title": "Cornwall near Cypress · remaining frontage",
+      "detail": "No continuous sign scan recorded for this intervening frontage. The neighbouring corner and public pocket checks do not classify this portion.",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1473,
+            49.27263
+          ],
+          [
+            -123.14815,
+            49.27263
+          ]
+        ]
+      }
+    }
+  ]
+}

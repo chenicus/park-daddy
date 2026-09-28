@@ -25,6 +25,7 @@ export function filterMetersCoveredByCurbs(meters, feeds) {
   return meters.filter(meter => !ids.has(String(meter.meter_id)));
 }
 
+const curbLimitLabel = minutes => minutes < 60 ? `${minutes}m` : `${minutes / 60}h`;
 const paidStyle = rate => rate <= 2 ? ['p1', '#16a34a'] : rate <= 4 ? ['p2', '#d97706']
   : rate <= 6 ? ['p3', '#ea580c'] : ['p4', '#dc2626'];
 const scheduledNoStopping = section => section.spotChecks?.flatMap(check => check.restrictions || [])
@@ -43,7 +44,7 @@ export function curbState(section, mins, dow) {
   if (section.category === 'paid') {
     if (['historical-conflict','user-reported-conflict'].includes(section.verification)) return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment?.label || section.spotChecks?.at(-1)?.mapLabel || 'Sign conflict · verify',status:section.bestJudgment ? `${section.bestJudgment.summary} near the photographed sign; extent and current rule unverified` : 'A local sign report conflicts with the PDF paid bar. Exact limits and current rule need checking'};
     const s = section.schedule;
-    if (mins >= s.start && mins < s.end) return {free:false,rate:null,group:'paid',cls:'p2',color:'#d97706',label:'Paid · verify',status:'PDF shows pay parking; rate and days not specified'};
+    if (mins >= s.start && mins < s.end) return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Guide shows paid parking, but rate and days are not confirmed'};
     return section.outsideSchedule === 'permit-only'
       ? {free:false,rate:null,group:'restrictions',cls:'p-permit',color:'#7c3aed',label:'Permit',status:'PDF shows permit-only outside paid hours; days not specified'}
       : {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:'Check signs',status:'Outside listed paid hours — restrictions unknown'};
@@ -76,13 +77,13 @@ export function curbState(section, mins, dow) {
   if (section.publicSign && section.schedule.days == null) {
     const inHours = mins >= section.schedule.start && mins < section.schedule.end;
     return inHours
-      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${section.limitMinutes / 60}h`,status:'Public parking sign confirmed; days and exact curb limits are still unknown'}
+      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${curbLimitLabel(section.limitMinutes)}`,status:'Public parking sign confirmed; days and exact curb limits are still unknown'}
       : {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside posted time limit, per user instruction'};
   }
   if (section.publicSign && section.schedule.days != null) {
     const inHours = section.schedule.days.includes(dow) && mins >= section.schedule.start && mins < section.schedule.end;
     return inHours
-      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${section.limitMinutes / 60}h`,status:'Public parking sign confirmed in historical imagery; curb limits remain approximate'}
+      ? {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:`Free · ${curbLimitLabel(section.limitMinutes)}`,status:'Public parking sign confirmed in historical imagery; curb limits remain approximate'}
       : {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside posted time limit, per user instruction'};
   }
   if (section.bestJudgment && section.verification !== 'historical-sign-match') return {free:false,rate:null,group:'unverified',cls:'p-unknown',color:'#a16207',label:section.bestJudgment.label,status:`${section.bestJudgment.summary} Exact curb extent and current rule remain unverified`};

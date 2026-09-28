@@ -1043,6 +1043,10 @@
 .review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
 .review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
 .review-detail p { margin:5px 0; }
+.scan-history-legend { position:absolute; top:145px; left:12px; z-index:10; width:min(310px,calc(100vw - 48px)); padding:14px; border-radius:16px; font-size:13px; line-height:1.4; }
+.scan-history-legend[hidden] { display:none; }
+.scan-history-legend p { margin:7px 0 0; }
+#scanHistoryClose { float:right; width:26px; height:26px; font-size:24px; }
 </style>
 <style id="pdSplashStyle">
 #pdSplash{position:fixed;inset:0;z-index:9999;display:none;align-items:center;
@@ -1320,6 +1324,13 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div id="rlList"></div>
 </div>
 
+<section id="scanHistoryLegend" class="mat scan-history-legend" hidden aria-label="Street View scan history">
+  <button id="scanHistoryClose" class="iconbtn" type="button" aria-label="Hide scan history">×</button>
+  <strong>Street View scans</strong>
+  <p><span style="color:#15803d">●</span> Sign checked · <span style="color:#d97706">●</span> Unclear sign</p>
+  <p><span style="color:#dc2626">━</span> No continuous scan · <span style="color:#64748b">━</span> No parking seen</p>
+  <p>Dots are individual observations. Lines show only recorded scan extents or guide gaps. Blank streets are not yet inventoried. Tap a marking for its source.</p>
+</section>
 <!-- ---- menu drawer + its two destinations ---- -->
 <div class="rlpanel" id="menupanel" role="dialog" aria-modal="true" aria-label="Menu">
   <div class="rl-head">
@@ -1329,6 +1340,10 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div class="mn-section-label">Available cities</div>
   <div class="mn-cities" id="mnCities"></div>
   <div class="mn-rows">
+    <button class="mn-row" id="mnScans" type="button" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/></svg>
+      <span class="mn-txt"><span class="mn-nm">Street View scans</span><span class="mn-sub">Show recorded checks and gaps</span></span>
+    </button>
     <button class="mn-row" id="mnFeedback" type="button">
       <svg viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       <span class="mn-txt"><span class="mn-nm">Leave feedback</span><span class="mn-sub">Ideas, city requests, bugs and more!</span></span>
@@ -1610,7 +1625,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=152"></script>
+<script type="module" src="app.js?v=153"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"

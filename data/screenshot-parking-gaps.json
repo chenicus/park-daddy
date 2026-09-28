@@ -16,6 +16,11 @@
       "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VKm7sXEEdv2uaDK6mp8Myw&heading=78&pitch=0&fov=10",
       "title": "Google Street View, August 2024; east Oak south of W 21st",
       "checkedOn": "2026-09-28"
+    },
+    "cornwall-2026-09-28": {
+      "title": "Cornwall Avenue Street View sign scan",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=j_BZmCtWmcSQh3_iUcZPEQ&heading=298&pitch=0&fov=15",
+      "retrieved": "2026-09-28"
     }
   },
   "geometryNote": "Short curb portions traced beside visible signs; endpoints are approximate and avoid corners, driveways and transit stops.",
@@ -261,6 +266,72 @@
           ]
         ]
       }
+    },
+    {
+      "id": "cornwall-cypress-walnut-north-30min",
+      "street": "Cornwall Avenue",
+      "side": "north",
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 30,
+      "verification": "historical-sign-match",
+      "scheduleDaysStatus": "no-day-qualifier-visible",
+      "between": [
+        "Walnut",
+        "Cypress"
+      ],
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 540,
+        "end": 1080,
+        "label": "Every day"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.14848,
+            49.27263
+          ],
+          [
+            -123.14885,
+            49.27263
+          ]
+        ]
+      },
+      "geometryStatus": "approximate-sign-bounded",
+      "sourceIds": [
+        "cornwall-2026-09-28"
+      ],
+      "outsideSchedule": "free",
+      "outsideScheduleBasis": "User-authorized assumption: free outside posted restriction hours",
+      "notes": "Conservative inset between verified endposts, excluding bus stop and Walnut corner. Other hours free under previously authorized user assumption. No monetary rate is posted on this sign.",
+      "spotChecks": [
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=j_BZmCtWmcSQh3_iUcZPEQ&heading=298&pitch=0&fov=15",
+          "finding": "P 30 min 9AM–6PM, arrow west; no stopping arrow east",
+          "scope": "Sign-bounded short pocket with conservative inset; endpoints approximate."
+        },
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=P2K0MDYLHxUF7DrAFFxIHA&heading=297&pitch=0&fov=15",
+          "finding": "P 30 min 9AM–6PM, arrow east; no stopping arrow west",
+          "scope": "Sign-bounded short pocket with conservative inset; endpoints approximate."
+        }
+      ]
     }
   ]
 }

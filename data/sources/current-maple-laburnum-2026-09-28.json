@@ -1,0 +1,78 @@
+{
+  "checkedOn": "2026-09-28",
+  "imageryDate": "2024-08",
+  "rateVerified": false,
+  "retireGuideIds": [
+    "kits-point-165b006dc943",
+    "kits-point-7a7644b45acd",
+    "kits-point-1179d0ccc33c"
+  ],
+  "findings": [
+    {
+      "id": "maple-cornwall-midblock-scan",
+      "street": "Maple",
+      "status": "scanned-unclear",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1502104,
+            49.272779
+          ],
+          [
+            -123.1502096,
+            49.2729648
+          ],
+          [
+            -123.1502004,
+            49.2731488
+          ],
+          [
+            -123.1501938,
+            49.2733321
+          ]
+        ]
+      },
+      "side": "both-context; east poles examined",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=bfVG2xWYA15RqZOmFgzYBw&heading=150&pitch=0&fov=30",
+      "panoramas": [
+        "XerP4h1IfOQFMkX9_uivKg",
+        "atgyu4m3ijbZcnyPfJsyPw",
+        "hTqd2s7bZ3Z8IiyyHb7RTQ",
+        "bfVG2xWYA15RqZOmFgzYBw"
+      ],
+      "finding": "Moved north through four panoramas from1455Maple to1407Maple and panned south/east. Curb vehicles and sign backs visible; no dollar rate or complete paid schedule readable. Do not infer free parking from absence of visible meter heads. Retain city meter feed pricing, suppress approximate guide paid labels."
+    },
+    {
+      "id": "laburnum-cornwall-midblock-scan",
+      "street": "Laburnum",
+      "status": "scanned-unclear",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1514015,
+            49.2732393
+          ],
+          [
+            -123.1514192,
+            49.2728761
+          ],
+          [
+            -123.151435,
+            49.2727096
+          ]
+        ]
+      },
+      "side": "both-context; west sign examined",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=fqj3MOJsfZ9YNYkSsGnlCw&heading=263&pitch=4&fov=14",
+      "panoramas": [
+        "fqj3MOJsfZ9YNYkSsGnlCw",
+        "GapVtm3_IRO8E1naf0dGyA",
+        "PFczu4NgEJFiMMuZ9S9elA"
+      ],
+      "finding": "Moved south from1407Laburnum through1475 to1490 atCornwall, panned and zoomed west pole near1407. Sign partly hidden by branches; southern pole viewed from side/back. No reliable rate text read. East curb largely empty in these views; do not classify no parking without readable prohibition. Retain city meter price source; retire overlapping guide paid verify section."
+    }
+  ],
+  "scope": "Only these short traversed centreline lengths were scanned. Their drawn geometry records inspection coverage, not exact legal curb endpoints. Northern remainder toCreelman/McNicoll not traversed in this pass."
+}

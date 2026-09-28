@@ -591,9 +591,18 @@
       },
       "outsideSchedule": "unknown",
       "permitException": true,
-      "verification": "pdf-guide",
-      "spotChecks": [],
-      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.271797,-123.157929&heading=0",
+      "verification": "historical-sign-match",
+      "spotChecks": [
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=E4yV3Sz-nxnCkNhK_CVg5g&heading=315&pitch=0&fov=15",
+          "finding": "North curb sign west of Vine reads 2h 9AM–6PM MON–FRI EXCEPT WITH PERMIT, west arrow. Adjacent no-stopping arrow points east toward Vine corner. Existing guide schedule confirmed; exact western permit transition remains unmeasured.",
+          "scope": "Local sign observation, approximate guide geometry retained."
+        }
+      ],
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=E4yV3Sz-nxnCkNhK_CVg5g&heading=315&pitch=0&fov=15",
       "pdfBar": {
         "page": 1,
         "from": 0.64,
@@ -617,7 +626,8 @@
       "sourceIds": [
         "city-kits-north-pdf",
         "city-intersections"
-      ]
+      ],
+      "publicSign": true
     },
     {
       "id": "kits-north-0b0642a1510a",
