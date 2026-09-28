@@ -742,8 +742,9 @@
   .sc-rows .warn { color: #ff3b30; }
   .sc-rows .warn svg.ic { stroke: currentColor; }
   /* PayByPhone is a payment handoff: a full, branded tap target that copies the code. */
-  .sc-rows .paybyphone { min-height: 44px; padding: 8px 10px; display: flex; align-items: center;
-    gap: 9px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); text-decoration: none; }
+  .sc-rows .paybyphone { width: 100%; min-height: 44px; padding: 8px 10px; display: flex; align-items: center;
+    gap: 9px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--text);
+    font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
   .sc-rows .paybyphone:active { background: var(--chip); }
   .sc-rows .paybyphone img { width: 96px; height: auto; max-height: 24px; object-fit: contain; }
   .sc-rows .paybyphone > span { white-space: nowrap; }
@@ -1618,7 +1619,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=156"></script>
+<script type="module" src="app.js?v=157"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
