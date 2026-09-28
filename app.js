@@ -1,8 +1,8 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=21';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=22';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=48';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=34';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=35';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';

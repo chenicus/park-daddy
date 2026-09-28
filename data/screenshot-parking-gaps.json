@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "area": "screenshot-parking-gaps",
+  "sources": {
+    "w12-north-sign": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=WovWuoCdoDIrw5uP_K-VXA&heading=291&pitch=0&fov=15",
+      "title": "Google Street View, August 2024; north W 12th west of Hemlock",
+      "checkedOn": "2026-09-28"
+    },
+    "oak-w54-east-sign": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.22185,-123.1283&heading=30&pitch=0&fov=15",
+      "title": "Google Street View, August 2024; east Oak north of W 54th",
+      "checkedOn": "2026-09-28"
+    },
+    "oak-w21-east-sign": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VKm7sXEEdv2uaDK6mp8Myw&heading=78&pitch=0&fov=10",
+      "title": "Google Street View, August 2024; east Oak south of W 21st",
+      "checkedOn": "2026-09-28"
+    }
+  },
+  "geometryNote": "Short curb portions traced beside visible signs; endpoints are approximate and avoid corners, driveways and transit stops.",
+  "restrictionNote": "Free outside posted prohibitions follows the user instruction. Historical Street View signs retain their imagery dates.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "w12-1405-north-offhours-free",
+      "area": "fairview",
+      "street": "W 12th Avenue",
+      "side": "north",
+      "between": [
+        "1405 W 12th sign",
+        "short nearby frontage"
+      ],
+      "category": "free",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "free",
+      "offHoursBasis": "user-assumed outside the posted prohibition",
+      "verification": "historical-sign-match",
+      "geometryStatus": "approximate-sign-slice",
+      "sourceIds": [
+        "w12-north-sign"
+      ],
+      "spotChecks": [
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=WovWuoCdoDIrw5uP_K-VXA&heading=291&pitch=0&fov=15",
+          "finding": "North curb sign clearly shows no stopping 7AM–7PM with arrows both directions and no weekday qualifier. A second matching plate is visible westward. South curb opposite has a separate full-time prohibition and is not included.",
+          "scope": "Short north-side portion around the readable sign; not the entire block.",
+          "restrictions": [
+            {
+              "kind": "no-stopping",
+              "days": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "start": 420,
+              "end": 1140,
+              "label": "Every day"
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1372,
+            49.2609
+          ],
+          [
+            -123.13702,
+            49.2609
+          ]
+        ]
+      }
+    },
+    {
+      "id": "oak-w54-east-offhours-pocket",
+      "area": "oak-south",
+      "street": "Oak St",
+      "side": "east",
+      "between": [
+        "W 54th church-front rush sign",
+        "7007 Oak repeat sign"
+      ],
+      "category": "free",
+      "limitMinutes": null,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 0,
+        "end": 1440,
+        "label": "Every day"
+      },
+      "outsideSchedule": "free",
+      "offHoursBasis": "user-assumed outside posted prohibitions",
+      "verification": "historical-sign-match",
+      "geometryStatus": "approximate-sign-slice",
+      "sourceIds": [
+        "oak-w54-east-sign"
+      ],
+      "spotChecks": [
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=cSC6Ux_b2nUU0b6gwYn9Gw&heading=16&pitch=0&fov=15",
+          "finding": "Northward repeat pole has matching rush hours; bus-stop curb south of original sign excluded.",
+          "scope": "Only the traced conservative east-curb pocket."
+        },
+        {
+          "status": "historical-sign-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.22185,-123.1283&heading=30&pitch=0&fov=15",
+          "finding": "No stopping 7AM–9:30AM; 3PM–7PM; MON–FRI; arrows both ways",
+          "scope": "Free outside posted no-stopping periods is the user-authorized offhours assumption. Short approximate pocket north of W54, traced from church-front rush pole through 7025 Oak to hedge-front repeating rush pole at 7007 Oak. Does not extend south to bus stop. No meter or conflicting sign seen in this traced pocket; endpoints deliberately conservative and approximate.",
+          "restrictions": [
+            {
+              "kind": "no-stopping",
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "start": 420,
+              "end": 570,
+              "label": "Mon–Fri"
+            },
+            {
+              "kind": "no-stopping",
+              "days": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "start": 900,
+              "end": 1140,
+              "label": "Mon–Fri"
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1282,
+            49.2221
+          ],
+          [
+            -123.1282,
+            49.22245
+          ]
+        ]
+      }
+    },
+    {
+      "id": "oak-w21-east-1h-pocket",
+      "area": "oak-north",
+      "street": "Oak Street",
+      "side": "east",
+      "between": [
+        "W 21st corner setback",
+        "before bus-stop section"
+      ],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 60,
+      "schedule": {
+        "days": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "start": 570,
+        "end": 1080,
+        "label": "Daily (assumed)"
+      },
+      "scheduleDaysStatus": "conservative-assumption-unreadable",
+      "outsideSchedule": "free",
+      "offHoursBasis": "user-assumed outside posted prohibitions",
+      "verification": "historical-partial-match",
+      "geometryStatus": "approximate-sign-slice",
+      "sourceIds": [
+        "oak-w21-east-sign"
+      ],
+      "spotChecks": [
+        {
+          "status": "historical-partial-match",
+          "checkedOn": "2026-09-28",
+          "imageryDate": "2024-08",
+          "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VKm7sXEEdv2uaDK6mp8Myw&heading=78&pitch=0&fov=10",
+          "finding": "Hours and 1h publicly signed limit visible; weekday text unresolved. Every-day restrictions are conservative and are not claimed as fully verified weekdays.",
+          "scope": "Approximate short pocket between W21 corner setback and northern edge of the bus-stop sign near3750; does not extend into bus bay.",
+          "restrictions": [
+            {
+              "kind": "no-stopping",
+              "days": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+              ],
+              "start": 420,
+              "end": 570,
+              "label": "Daily (assumed)"
+            }
+          ]
+        }
+      ],
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -123.1273,
+            49.25246
+          ],
+          [
+            -123.1273,
+            49.25216
+          ]
+        ]
+      }
+    }
+  ]
+}

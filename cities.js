@@ -33,6 +33,7 @@ export const CITIES = {
       { url: 'data/kitsilano-south.json?v=2', kind: 'west-end' },
       { url: 'data/kitsilano-point.json?v=5', kind: 'west-end' },
       { url: 'data/kitsilano-gap-street-view.json?v=1', kind: 'west-end' },
+      { url: 'data/screenshot-parking-gaps.json?v=1', kind: 'west-end' },
       { url: 'data/mount-pleasant.json?v=1', kind: 'west-end' },
       { url: 'data/beach-pacific-street-view.json?v=2', kind: 'west-end' },
       { url: 'data/street-view-two-hour-followup.json?v=1', kind: 'west-end' },

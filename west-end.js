@@ -71,6 +71,8 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No stopping',status:'Separate posted no-stopping period'};
   if (scheduledNoParking(section).some(rule => rule.days?.includes(dow) && mins >= rule.start && mins < rule.end))
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'Separate posted no-parking period'};
+  if (section.category === 'free' && section.verification === 'historical-sign-match')
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside posted prohibitions, per user instruction'};
   if (section.publicSign && section.schedule.days == null) {
     const inHours = mins >= section.schedule.start && mins < section.schedule.end;
     return inHours
@@ -108,6 +110,7 @@ export function curbVisible(section, mins, dow, filters) {
 
 const clock = (m) => `${Math.floor(m / 60) % 12 || 12}${m % 60 ? ':' + String(m % 60).padStart(2, '0') : ''}${m < 720 ? 'am' : 'pm'}`;
 export function curbSchedule(section) {
+  if (section.category === 'free') return 'Free outside posted no-parking or no-stopping hours';
   if (section.accessOverride?.category === 'permit') return 'Permit required · hours not confirmed';
   if (section.category === 'permit' && section.verification === 'historical-conflict') return 'Conflicting permit and no-parking signs · exact curb limits unknown';
   if (section.category === 'permit') return 'Full-time permit parking · every day, all hours';
@@ -168,24 +171,38 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.accessOverride?.category === 'permit') return [{ label:'Hours not confirmed', status:'Permit required', rate:null, applies:false }, { label:'User sign check', status:section.accessOverride.checkedOn, rate:null, applies:false }, ...evidence];
+  if (section.category === 'free' && section.verification === 'historical-sign-match') {
+    const rules = [
+      ...scheduledNoStopping(section).map(rule => ({...rule, status:'No stopping'})),
+      ...scheduledNoParking(section).map(rule => ({...rule, status:'No parking'})),
+    ];
+    return [
+      ...rules.map(rule => ({from:rule.start,to:rule.end,days:rule.label || 'Every day',status:rule.status,rate:null,applies:rule.days?.includes(dow)})),
+      {label:'Other hours',status:'Free',rate:0,activeOutside:[],activeExcept:rules.filter(rule => rule.days?.includes(dow)).map(rule => [rule.start,rule.end])},
+      ...evidence,
+    ];
+  }
   if (section.bestJudgment && section.verification !== 'historical-sign-match') return [
     {label:'Best local reading',status:section.bestJudgment.summary,rate:null,applies:false},
     {label:'Reported other times',status:section.bestJudgment.otherTimes || 'Not established',rate:null,applies:false},
     {label:'Extent / current rule',status:'Check signs',rate:null,applies:false},
     ...evidence,
   ];
-  const noParkingRows = scheduledNoParking(section).map(rule => ({from:rule.start,to:rule.end,days:rule.label || 'Mon–Fri',status:'No parking',rate:null,applies:rule.days?.includes(dow)}));
+  const noParkingRows = [
+    ...scheduledNoParking(section).map(rule => ({from:rule.start,to:rule.end,days:rule.label || 'Mon–Fri',status:'No parking',rate:null,applies:rule.days?.includes(dow)})),
+    ...scheduledNoStopping(section).map(rule => ({from:rule.start,to:rule.end,days:rule.label || 'Mon–Fri',status:'No stopping',rate:null,applies:rule.days?.includes(dow)})),
+  ];
   const activeNoParking = noParkingRows.filter(row => row.applies).map(row => [row.from, row.to]);
   if (section.publicSign && section.schedule.days == null) return [
     {from:section.schedule.start,to:section.schedule.end,days:'Days unreadable',limit:section.limitMinutes,rate:0,status:'Free',applies:true},
-    {label:'Other times',status:'Free',rate:0,activeOutside:[section.schedule.start,section.schedule.end],activeExcept:activeNoParking},
     ...noParkingRows,
+    {label:'Other times',status:'Free',rate:0,activeOutside:[section.schedule.start,section.schedule.end],activeExcept:activeNoParking},
     ...evidence,
   ];
   if (section.publicSign && section.schedule.days != null) return [
     {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,limit:section.limitMinutes,rate:0,status:'Free',applies:section.schedule.days.includes(dow)},
-    {label:'Other times',status:'Free',rate:0,activeOutside:section.schedule.days.includes(dow) ? [section.schedule.start,section.schedule.end] : [],activeExcept:activeNoParking},
     ...noParkingRows,
+    {label:'Other times',status:'Free',rate:0,activeOutside:section.schedule.days.includes(dow) ? [section.schedule.start,section.schedule.end] : [],activeExcept:activeNoParking},
     ...evidence,
   ];
   if (section.category !== 'permit' && !['historical-sign-match', 'pdf-guide'].includes(section.verification)) return [{ from: 0, to: 1440, label: section.verification === 'historical-conflict' ? 'Conflicting sign evidence' : 'Restrictions unconfirmed', status: 'Check signs', rate: null }, ...evidence];

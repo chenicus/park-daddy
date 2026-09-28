@@ -1,0 +1,91 @@
+{
+  "auditDate": "2026-09-28",
+  "publishableSections": [],
+  "pendingCandidates": [
+    {
+      "location": "Oak east curb south of W21 near 3716 Oak",
+      "lat": 49.2524962,
+      "lon": -123.1275001,
+      "imageryDate": "2024-08",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=522Yh6th9W6xqlpA6qDmkQ&heading=94&pitch=0&fov=15",
+      "observation": "Green P 1h 9:30AM\u20136PM; paired red No Stopping 7AM\u20139:30AM. Repeated pole confirms these hours; earlier apparent 9\u20133/3\u20136 reading was wrong. Day line unverified.",
+      "status": "pending",
+      "reason": "Day text and southern endpoint not verified; cannot publish schedule."
+    },
+    {
+      "location": "Oak east curb near 3750\u20133760 Oak",
+      "lat": 49.2519881,
+      "lon": -123.1275228,
+      "imageryDate": "2024-08",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=gvK0ujBx8tBdSs8e6UilPA&heading=74&pitch=0&fov=15",
+      "observation": "Green P 1h 9:30AM\u20136PM; paired red No Stopping 7AM\u20139:30AM. Repeated pole confirms these hours; earlier apparent 9\u20133/3\u20136 reading was wrong. Day line unverified.",
+      "status": "pending",
+      "reason": "Precise arrow/endpoints and day line not sufficiently readable."
+    },
+    {
+      "location": "Oak east curb north of Connaught/Nanton near 4369 Oak",
+      "lat": 49.2465355,
+      "lon": -123.1277307,
+      "imageryDate": "2024-08",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=suySDdR6w0iuxNQzMvz3Yg&heading=25&pitch=0&fov=15",
+      "observation": "Timed red parking/stopping prohibition sign visible; no readable green time-limit sign in sampled view.",
+      "status": "pending",
+      "reason": "Small text/extent unverified; cars alone do not establish off-peak free regime."
+    }
+  ],
+  "coverage": "Additional close-up repeat signs at W21; both-facing views at4649/4669 Oak, hospital driveway and west bus stop; both-facing views at4881 nearW33, east bus stop and pending adjacent prohibition. W28\u201332 not exhaustively classified.",
+  "conservativeCandidates": [
+    {
+      "id": "oak-w21-east-1h-pocket",
+      "type": "free",
+      "maxMinutes": 60,
+      "side": "east",
+      "geometry": [
+        [
+          49.25246,
+          -123.1273
+        ],
+        [
+          49.25216,
+          -123.1273
+        ]
+      ],
+      "geometryNote": "Approximate short pocket between W21 corner setback and northern edge of the bus-stop sign near3750; does not extend into bus bay.",
+      "schedules": [
+        {
+          "start": "07:00",
+          "end": "09:30",
+          "status": "no_stopping",
+          "days": "all",
+          "daysAssumed": true
+        },
+        {
+          "start": "09:30",
+          "end": "18:00",
+          "status": "free",
+          "maxMinutes": 60,
+          "days": "all",
+          "daysAssumed": true
+        }
+      ],
+      "daysVerified": false,
+      "hoursVerified": true,
+      "imageryDate": "2024-08",
+      "streetViewUrl": "https://www.google.com/maps/@?api=1&map_action=pano&pano=VKm7sXEEdv2uaDK6mp8Myw&heading=78&pitch=0&fov=10",
+      "publishStatus": "parent review: everyday days conservative assumption only; not fully verified",
+      "scheduleDaysStatus": "conservative-assumption-unreadable",
+      "verification": "historical-partial-match",
+      "publicSign": true,
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "note": "Hours and 1h publicly signed limit visible; weekday text unresolved. Every-day restrictions are conservative and are not claimed as fully verified weekdays."
+    }
+  ]
+}

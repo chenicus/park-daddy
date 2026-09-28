@@ -20,6 +20,31 @@ const mountPleasant = JSON.parse(fs.readFileSync(new URL('../data/mount-pleasant
 const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-street-view.json', import.meta.url)));
 const signFollowup = JSON.parse(fs.readFileSync(new URL('../data/street-view-two-hour-followup.json', import.meta.url)));
 const kitsGaps = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-gap-street-view.json', import.meta.url)));
+const screenshotGaps = JSON.parse(fs.readFileSync(new URL('../data/screenshot-parking-gaps.json', import.meta.url)));
+
+test('signed free pockets disappear during posted prohibitions and retain their hours', () => {
+  const oak = screenshotGaps.sections.find(section => section.id === 'oak-w54-east-offhours-pocket');
+  const w12 = screenshotGaps.sections.find(section => section.id === 'w12-1405-north-offhours-free');
+  assert.equal(curbState(oak, 569, 1).label, 'No stopping');
+  assert.equal(curbState(oak, 570, 1).label, 'Free');
+  assert.equal(curbState(oak, 900, 1).label, 'No stopping');
+  assert.equal(curbState(oak, 1140, 1).label, 'Free');
+  assert.equal(curbState(oak, 900, 0).label, 'Free');
+  assert.equal(curbVisible(oak, 900, 1, {free:true,paid:true,restrictions:true}), false);
+  assert.equal(curbState(w12, 600, 0).label, 'No stopping');
+  assert.equal(curbState(w12, 1200, 0).label, 'Free');
+  assert.equal(curbTableSegments(oak, 1).filter(row => row.status === 'No stopping').length, 2);
+  assert.deepEqual(curbTableSegments(oak, 1).find(row => row.status === 'Free').activeExcept, [[420,570],[900,1140]]);
+  assert.deepEqual(curbTableSegments(oak, 0).find(row => row.status === 'Free').activeExcept, []);
+  assert.ok(curbTableSegments(oak, 1).every(row => row.limit == null));
+  const oneHour = screenshotGaps.sections.find(section => section.id === 'oak-w21-east-1h-pocket');
+  assert.equal(curbState(oneHour, 569, 0).label, 'No stopping');
+  assert.equal(curbState(oneHour, 570, 0).label, 'Free · 1h');
+  assert.equal(curbState(oneHour, 1080, 0).label, 'Free');
+  assert.match(oneHour.scheduleDaysStatus, /assumption/);
+  assert.ok(curbTableSegments(oneHour, 1).some(row => row.status === 'No stopping' && row.from === 420 && row.to === 570));
+  assert.deepEqual(curbTableSegments(oneHour, 1).find(row => row.label === 'Other times').activeExcept, [[420,570]]);
+});
 
 test('Kits gap guide publishes only the sign-backed permit curb', () => {
   assert.deepEqual(kitsGaps.sections.map(section => section.id), ['kits-west-13th-1886-north-permit']);

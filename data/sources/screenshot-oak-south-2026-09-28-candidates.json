@@ -1,0 +1,103 @@
+{
+  "reviewed": "2026-09-28",
+  "area": "Oak Street near W 54th\u2013W 55th",
+  "addable_candidates": [
+    {
+      "id": "oak-w54-east-offhours-pocket",
+      "street": "Oak St",
+      "side": "east",
+      "category": "free",
+      "verification": "historical-sign-match",
+      "geometry": [
+        [
+          49.2221,
+          -123.1282
+        ],
+        [
+          49.22245,
+          -123.1282
+        ]
+      ],
+      "schedule": [
+        {
+          "days": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "start": 0,
+          "end": 1440,
+          "limitMinutes": null
+        }
+      ],
+      "limitMinutes": null,
+      "spotChecks": {
+        "restrictions": [
+          {
+            "kind": "no-stopping",
+            "days": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "start": 420,
+            "end": 570,
+            "label": "Mon\u2013Fri"
+          },
+          {
+            "kind": "no-stopping",
+            "days": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "start": 900,
+            "end": 1140,
+            "label": "Mon\u2013Fri"
+          }
+        ]
+      },
+      "imagery_date": "2024-08",
+      "source_url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.22185,-123.1283&heading=30&pitch=0&fov=15",
+      "boundary_url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=cSC6Ux_b2nUU0b6gwYn9Gw&heading=16&pitch=0&fov=15",
+      "sign_text": "No stopping 7AM\u20139:30AM; 3PM\u20137PM; MON\u2013FRI; arrows both ways",
+      "notes": "Free outside posted no-stopping periods is the user-authorized offhours assumption. Short approximate pocket north of W54, traced from church-front rush pole through 7025 Oak to hedge-front repeating rush pole at 7007 Oak. Does not extend south to bus stop. No meter or conflicting sign seen in this traced pocket; endpoints deliberately conservative and approximate."
+    }
+  ],
+  "observations": [
+    {
+      "street": "Oak St",
+      "side": "east",
+      "viewpoint": [
+        49.22185,
+        -123.1283
+      ],
+      "imagery_date": "2024-08",
+      "sign": "No stopping 7AM\u20139:30AM; 3PM\u20137PM; MON\u2013FRI",
+      "arrows": "both ways",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.22185,-123.1283&heading=30&pitch=0&fov=15",
+      "status": "traced north to repeating rush plate at 7007 Oak; conservative pocket added, bus stop south excluded"
+    },
+    {
+      "street": "Oak St",
+      "side": "west",
+      "viewpoint": [
+        49.22122,
+        -123.1284
+      ],
+      "imagery_date": "2024-08",
+      "sign": "No stopping 3PM\u20137PM MON\u2013FRI, left arrow (south); paired no stopping except bus, right arrow (north)",
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=49.22122,-123.1284&heading=239&pitch=0&fov=10",
+      "status": "North is bus-stop restriction; south is timed restriction. Moved south to 7160 Oak and saw next lamp plate, but its text/precise extent not confirmed. No west candidate yet."
+    }
+  ],
+  "coverage": "East Oak traced north from W54 rush pole through 7025/7007 Oak to repeating restriction; one conservative pocket. West Oak paired boundary read and moved south to 7160 Oak, next lamp plate unresolved. W54 east sampled at 861 W54; no complete frontage sweep or unsigned proof. W53/W55 not completed."
+}
