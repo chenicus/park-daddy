@@ -741,6 +741,13 @@
   .sc-rows .ok { color: var(--green); }
   .sc-rows .warn { color: #ff3b30; }
   .sc-rows .warn svg.ic { stroke: currentColor; }
+  /* PayByPhone is a payment handoff: a full, branded tap target that copies the code. */
+  .sc-rows .paybyphone { min-height: 44px; padding: 8px 10px; display: flex; align-items: center;
+    gap: 9px; border: 1px solid var(--line); border-radius: 12px; color: var(--text); text-decoration: none; }
+  .sc-rows .paybyphone:active { background: var(--chip); }
+  .sc-rows .paybyphone img { width: 96px; height: auto; max-height: 24px; object-fit: contain; }
+  .sc-rows .paybyphone > span { white-space: nowrap; }
+  .sc-rows .paybyphone .pbp-open { margin-left: auto; color: var(--accent); font-size: var(--fs-body); font-weight: 600; letter-spacing: -.2px; }
   .sc-rows a { color: var(--accent); text-decoration: none; }
   /* Kirkland live availability row */
   /* baseline so the smaller .live-ago sits on the sentence's feet; gap: 0 because the
