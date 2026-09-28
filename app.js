@@ -1,7 +1,7 @@
 import { initReview, renderReviewDetail } from './review.js?v=7';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=48';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=49';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=36';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -566,6 +566,9 @@ async function geocode(q) {
 // majority of phones) instead of opening in the browser; only falls back to the website
 // when Google Maps itself isn't installed.
 const navUrl = (r) => `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lon}&travelmode=driving`;
+// PayByPhone's mobile URL is a universal-link destination: iOS can hand it to the
+// installed app, while browsers without the app stay on the mobile web flow.
+const payByPhoneUrl = (code) => `https://m.paybyphone.com/parking/start/location?location=${encodeURIComponent(code)}`;
 const NAV_SVG = '<svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>';
 // Lucide (shadcn) inline icons — inherit color via currentColor.
 const IC = {
@@ -1252,7 +1255,7 @@ function springCompass(fromBearing) {
 
 // match a ranked meter back to its label-layer block (same rate/limit tuple, nearest)
 const blockKey = (m) => [m.rate_9am_6pm, m.rate_6pm_10pm, m.flat_rate, m.time_limit_9am_6pm,
-  m.time_limit_6pm_10pm, m.direction].join('|');
+  m.time_limit_6pm_10pm, m.direction, m.mobile_payment_number].join('|');
 function blockForMeter(m) {
   const g = m.geo_point_2d, key = blockKey(m);
   let best = null, bd = Infinity;
@@ -1589,6 +1592,11 @@ function showSpotCard(b) {
   renderSchedule(b, mins);
 
   const rows = [];
+  const payByPhoneCodes = b.payByPhoneCodes || [];
+  if (payByPhoneCodes.length === 1)
+    rows.push(`<a class="paybyphone" data-pbp-code="${payByPhoneCodes[0]}" href="${payByPhoneUrl(payByPhoneCodes[0])}" target="_blank" rel="noopener" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
+      `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
+      `<span class="pbp-open">${payByPhoneCodes[0]} ↗</span></a>`);
   if (b.flat != null) rows.push(`${IC.dollar} ${money(b.flat)} flat evening rate`);
   const dow = dowNow();
   // compact clock: drop :00 and share the meridiem across a range → "3–7pm"
@@ -1631,6 +1639,30 @@ function closeSpotCard() {
   if (labelLayer) labelLayer.setSelected(null);
 }
 $('scclose').addEventListener('click', closeSpotCard);
+// Copy the location code on the same user gesture that opens PayByPhone. iOS then
+// offers its standard clipboard paste suggestion in PayByPhone's location field.
+function copyPayByPhoneCode(code) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(code);
+  const input = document.createElement('textarea');
+  input.value = code;
+  input.setAttribute('readonly', '');
+  input.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+  document.body.append(input);
+  input.select();
+  const copied = document.execCommand('copy');
+  input.remove();
+  return copied ? Promise.resolve() : Promise.reject(new Error('Copy unavailable'));
+}
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('.paybyphone[data-pbp-code]');
+  if (!link) return;
+  const code = link.dataset.pbpCode;
+  copyPayByPhoneCode(code).then(
+    () => toast(`Location code ${code} copied — paste it into PayByPhone.`),
+    () => toast(`Enter location code ${code} in PayByPhone.`),
+  );
+  track('opened_paybyphone', { city: activeCity });
+});
 // tapping the already-selected pill again closes the card instead of re-opening it
 map.on('click', 'west-end-curbs', (e) => {
   const b = blocks.find((block) => block.id === e.features?.[0]?.properties.id);
