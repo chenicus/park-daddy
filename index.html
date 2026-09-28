@@ -747,7 +747,8 @@
   .sc-rows .paybyphone:active { background: var(--chip); }
   .sc-rows .paybyphone img { width: 96px; height: auto; max-height: 24px; object-fit: contain; }
   .sc-rows .paybyphone > span { white-space: nowrap; }
-  .sc-rows .paybyphone .pbp-open { margin-left: auto; color: var(--accent); font-size: var(--fs-body); font-weight: 600; letter-spacing: -.2px; }
+  .sc-rows .paybyphone .pbp-open { margin-left: auto; color: var(--accent); font-size: var(--fs-body); font-weight: 600; letter-spacing: -.2px; text-decoration: none; }
+  .sc-rows .paybyphone, .sc-rows .paybyphone * { text-decoration: none; }
   .sc-rows a { color: var(--accent); text-decoration: none; }
   /* Kirkland live availability row */
   /* baseline so the smaller .live-ago sits on the sentence's feet; gap: 0 because the
@@ -1617,7 +1618,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=154"></script>
+<script type="module" src="app.js?v=155"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
