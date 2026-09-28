@@ -1594,7 +1594,7 @@ function showSpotCard(b) {
   const rows = [];
   const payByPhoneCodes = b.payByPhoneCodes || [];
   if (payByPhoneCodes.length === 1)
-    rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" data-pbp-url="${payByPhoneUrl(payByPhoneCodes[0])}" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
+    rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" aria-label="Copy PayByPhone location code ${payByPhoneCodes[0]}">` +
       `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
       `<span class="pbp-open">${payByPhoneCodes[0]} <svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></span></button>`);
   const dow = dowNow();
@@ -1660,8 +1660,7 @@ document.addEventListener('click', (e) => {
     () => toast(`Location code ${code} copied — paste it into PayByPhone.`),
     () => toast(`Enter location code ${code} in PayByPhone.`),
   );
-  track('opened_paybyphone', { city: activeCity });
-  window.open(link.dataset.pbpUrl, '_blank', 'noopener');
+  track('copied_paybyphone_code', { city: activeCity });
 });
 // tapping the already-selected pill again closes the card instead of re-opening it
 map.on('click', 'west-end-curbs', (e) => {
