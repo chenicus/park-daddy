@@ -1,4 +1,3 @@
-import { initScanHistory } from './scan-history.js?v=1';
 import { initReview, renderReviewDetail } from './review.js?v=7';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
@@ -268,7 +267,6 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
 // remain unverified until supported by readable curb signage.
 let freeBlocks = [];
-let scanHistory;
 
 
 // Multi-city: the current city is whichever CITIES bounds contain the map center. We
@@ -339,7 +337,6 @@ async function loadCity(key) {
     });
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
-    scanHistory?.refresh();
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
 }
 
@@ -2155,7 +2152,6 @@ function initLiveLabels() {
   labelLayer.setFilter(filters);
   if (params.get('review') === '1') labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
   initReview(map, blocks, tapBlock);
-  scanHistory = initScanHistory(map, blocks, $('mnScans'), $('scanHistoryLegend'));
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {
     const ctr = map.getCenter();
