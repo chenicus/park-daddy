@@ -1655,7 +1655,7 @@ function granvilleIslandRates() {
   const weekdayMid = summer ? 3 : 2, weekendMid = summer ? 6 : 4;
   const mins = +parts.hour * 60 + +parts.minute;
   const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
-  return { weekend, weekdayMid, weekendMid, rate };
+  return { weekend, weekdayMid, weekendMid, rate, mins };
 }
 window.granvilleIslandParkingPriceLabel = () => {
   const { rate } = granvilleIslandRates();
@@ -1664,24 +1664,27 @@ window.granvilleIslandParkingPriceLabel = () => {
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   cardBlock = null;
   closeReportList(); closeMenu(); clearSpotLine();
-  const { weekend, weekdayMid, weekendMid, rate } = granvilleIslandRates();
+  const { weekend, weekdayMid, weekendMid, rate, mins } = granvilleIslandRates();
   $('scprice').innerHTML = rate == null ? 'Paid' : `$${rate}<span class="sc-unit">/hr</span>`;
   $('scprice').classList.remove('free');
   $('scsub').textContent = '';
   $('scsub').style.display = 'none';
   const islandSchedule = weekend ? [
-    { when: 'Before 9:00am', cost: 'Free', free: true },
-    { when: '9:00am–11:00am', limit: 'Max until 10:00pm', cost: '$1/hr' },
-    { when: '11:00am–6:00pm', limit: 'Max until 10:00pm', cost: `$${weekendMid}/hr` },
-    { when: '6:00pm–10:00pm', limit: 'Max until 10:00pm', cost: '$1/hr' },
+    { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: '$1/hr' },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `$${weekendMid}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: '$1/hr' },
   ] : [
-    { when: 'Before 9:00am', cost: 'Free', free: true },
-    { when: '9:00am–11:00am', limit: 'Max until 10:00pm', cost: '$1/hr' },
-    { when: '11:00am–6:00pm', limit: 'Max until 10:00pm', cost: `$${weekdayMid}/hr` },
-    { when: '6:00pm–10:00pm', limit: 'Max until 10:00pm', cost: '$1/hr' },
+    { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: '$1/hr' },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `$${weekdayMid}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: '$1/hr' },
   ];
-  islandSchedule.push({ when: 'After 10:00pm', limit: 'Registration required', cost: 'Parkade' });
-  $('scsched').innerHTML = islandSchedule.map((segment) => `<div class="seg ${segment.free ? 'free' : ''}"><span class="when">${segment.when}${segment.limit ? `<span class="lim dot-sep">${segment.limit}</span>` : ''}</span><span class="cost">${segment.cost}</span></div>`).join('');
+  islandSchedule.push({ from: 22 * 60, to: 1440, when: 'After 10:00pm', limit: 'Registration required', cost: 'Parkade' });
+  $('scsched').innerHTML = islandSchedule.map((segment) => {
+    const active = mins >= segment.from && mins < segment.to;
+    return `<div class="seg ${segment.free ? 'free' : ''} ${active ? 'active' : ''}"><span class="when">${segment.when}${segment.limit ? `<span class="lim dot-sep">${segment.limit}</span>` : ''}</span><span class="cost">${segment.cost}</span></div>`;
+  }).join('');
   $('scsched').hidden = false;
   $('scrows').innerHTML = `<div><button class="paybyphone" type="button" data-pbp-code="1670" aria-label="Copy PayByPhone location code 1670"><img src="${PAY_BY_PHONE_LOGO}" alt="PayByPhone"><span class="pbp-open">1670 ${COPY_ICON}</span></button></div>`;
   applyPayByPhoneLogoTheme();
