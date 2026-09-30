@@ -357,12 +357,19 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     items.sort((a, b) => {
       // Keep a handful of visible Free summaries when paid pills are dense.
       if (!!a.freeArea !== !!b.freeArea) return a.freeArea ? -1 : 1;
+      if (!!a.free !== !!b.free) return a.free ? -1 : 1;
       return z === 15 ? a.rate - b.rate || a.d - b.d : a.d - b.d;
     });
 
     const kept = [], keptPx = [];
+    // Leave room for paid pills, but never let a dense meter grid erase the
+    // visual answer to “where is free parking?” from a mixed map.
+    const hasPaid = items.some((it) => !it.free);
+    const freeCap = hasPaid ? 36 : LABEL_CAP;
+    let freeKept = 0;
     for (const it of items) {
       if (kept.length >= LABEL_CAP) break;
+      if (it.free && freeKept >= freeCap) continue;
       const px = project(it.lat, it.lon);
       let clash = false;
       for (const k of keptPx) {
@@ -370,6 +377,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       }
       if (clash) continue;
       kept.push(it); keptPx.push({ ...px, width: Math.max(56, it.text.length * 6 + 18) });
+      if (it.free) freeKept++;
     }
     return kept;
   }
