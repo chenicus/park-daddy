@@ -306,7 +306,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       return kept;
     }
 
-    const items = vis.filter((bl) => !bl.noPill).map((bl) => {   // free streets: line only, no pill
+    const items = vis.filter((bl) => !bl.noPill).map((bl) => {
       const r = rateFor(bl, mins, dow);
       if (bl.curb || bl.unverified) return {
         sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
@@ -332,7 +332,33 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
     }).filter((it) => it.block.unverified ? filter.unverified !== false : it.block.curb ? curbVisible(it.block.curb, mins, dow, filter) : keep(it.free));
-    items.sort(z === 15 ? (a, b) => a.rate - b.rate || a.d - b.d : (a, b) => a.d - b.d);
+
+    // Unrestricted residential streets deliberately have no per-block pill: at
+    // city scale, thousands of identical "Free" labels would hide the map. But
+    // blue dots alone are too subtle to communicate that free parking exists.
+    // Add one tappable Free pill per nearby area, anchored to a real free block.
+    if (filter.free) {
+      const freeAreas = new Map();
+      const cellLat = z >= 17 ? 0.0022 : 0.0044;
+      const cellLon = z >= 17 ? 0.0034 : 0.0068;
+      for (const bl of vis) {
+        if (!bl.noPill) continue;
+        const r = rateFor(bl, mins, dow);
+        if (!r.free) continue;
+        const key = Math.floor(bl.lat / cellLat) + ',' + Math.floor(bl.lon / cellLon);
+        if (!freeAreas.has(key)) freeAreas.set(key, bl);
+      }
+      for (const [key, bl] of freeAreas) items.push({
+        sig: 'free-area|' + key, lat: bl.lat, lon: bl.lon, text: 'Free',
+        free: true, cls: 'p-free', block: bl, rate: -1, freeArea: true,
+        d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
+      });
+    }
+    items.sort((a, b) => {
+      // Keep a handful of visible Free summaries when paid pills are dense.
+      if (!!a.freeArea !== !!b.freeArea) return a.freeArea ? -1 : 1;
+      return z === 15 ? a.rate - b.rate || a.d - b.d : a.d - b.d;
+    });
 
     const kept = [], keptPx = [];
     for (const it of items) {
