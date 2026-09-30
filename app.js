@@ -14,6 +14,8 @@ const TOPN = 5;
 let meters = [];
 const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
+const GRANVILLE_ISLAND_BLOCK = { id: 'granville-island-parking', lat: 49.27070, lon: -123.13455 };
+let granvilleIslandPill = null;
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
 const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
 let payByPhoneDarkLogoUrl = null;
@@ -1527,6 +1529,7 @@ function flashSpotContent() {
 }
 function showSpotCard(b) {
   const wasOpen = !$('spotcard').hidden;
+  if (b.id !== GRANVILLE_ISLAND_BLOCK.id) clearGranvilleIslandSelection();
   cardBlock = b;
   $('scstart').hidden = false;
   $('scstart').style.display = '';
@@ -1641,6 +1644,7 @@ function showSpotCard(b) {
 }
 function closeSpotCard() {
   $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); closeReportList();
+  clearGranvilleIslandSelection();
   if (labelLayer) labelLayer.setSelected(null);
 }
 // Granville Island is an operator-managed parking system, not a blockface in
@@ -1665,6 +1669,7 @@ function addGranvilleIslandMarker() {
   if (!map || map.__granvilleIslandParkingPill) return;
   map.__granvilleIslandParkingPill = true;
   const pill = document.createElement('button');
+  granvilleIslandPill = pill;
   pill.type = 'button'; pill.className = 'plabel p2';
   const updateLabel = () => {
     const detailed = map.getZoom() >= 16;
@@ -1674,27 +1679,41 @@ function addGranvilleIslandMarker() {
   updateLabel();
   map.on('zoomend', updateLabel);
   pill.setAttribute('aria-label', 'Granville Island paid parking details');
-  pill.addEventListener('click', () => window.openGranvilleIslandParking());
+  pill.addEventListener('click', () => tapGranvilleIslandParking());
   new maplibregl.Marker({ element: pill, anchor: 'bottom' }).setLngLat([-123.13455, 49.27070]).addTo(map);
 }
+function clearGranvilleIslandSelection() {
+  granvilleIslandPill?.classList.remove('sel');
+  if (granvilleIslandPill?.parentElement) granvilleIslandPill.parentElement.style.zIndex = '';
+}
+function tapGranvilleIslandParking() {
+  if (!$('spotcard').hidden && cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) {
+    closeSpotCard();
+    return;
+  }
+  granvilleIslandPill?.classList.add('sel');
+  if (granvilleIslandPill?.parentElement) granvilleIslandPill.parentElement.style.zIndex = '500';
+  window.openGranvilleIslandParking();
+}
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
-  cardBlock = null;
+  const wasOpen = !$('spotcard').hidden;
+  cardBlock = GRANVILLE_ISLAND_BLOCK;
   closeReportList(); closeMenu(); clearSpotLine();
   const { weekend, weekdayMid, weekendMid, rate, mins } = granvilleIslandRates();
-  $('scprice').innerHTML = rate == null ? 'Paid' : `$${rate}<span class="sc-unit">/hr</span>`;
+  $('scprice').innerHTML = rate == null ? 'Paid' : `${money(rate)}<span class="sc-unit">/hr</span>`;
   $('scprice').classList.remove('free');
   $('scsub').textContent = '';
   $('scsub').style.display = 'none';
   const islandSchedule = weekend ? [
     { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
-    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: '$1/hr' },
-    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `$${weekendMid}/hr` },
-    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: '$1/hr' },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: `${money(1)}/hr` },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `${money(weekendMid)}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: `${money(1)}/hr` },
   ] : [
     { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
-    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: '$1/hr' },
-    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `$${weekdayMid}/hr` },
-    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: '$1/hr' },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: `${money(1)}/hr` },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `${money(weekdayMid)}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: `${money(1)}/hr` },
   ];
   islandSchedule.push({ from: 22 * 60, to: 1440, when: 'After 10:00pm', limit: 'Registration required', cost: 'Parkade' });
   $('scsched').innerHTML = islandSchedule.map((segment) => {
@@ -1709,6 +1728,7 @@ window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   $('scstart').hidden = false;
   $('scstart').style.display = '';
   $('scstart').onclick = () => window.open('https://www.google.com/maps/dir/?api=1&destination=Granville%20Island%20Vancouver', '_blank', 'noopener');
+  if (wasOpen) flashSpotContent();
   $('spotcard').hidden = false;
 };
 $('scclose').addEventListener('click', closeSpotCard);
