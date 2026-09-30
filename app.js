@@ -16,6 +16,7 @@ const filters = { free: true, paid: true, restrictions: false, unverified: false
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 const GRANVILLE_ISLAND_BLOCK = { id: 'granville-island-parking', lat: 49.27070, lon: -123.13455 };
 let granvilleIslandPill = null;
+let refreshGranvilleIslandMarker = () => {};
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
 const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
 let payByPhoneDarkLogoUrl = null;
@@ -1023,7 +1024,9 @@ function syncSeg() {
 function syncTrip() {
   updatePill(); syncSeg();
   if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
-  if (cardBlock) showSpotCard(cardBlock);         // spot card totals reflect arrival + duration
+  refreshGranvilleIslandMarker();
+  if (cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) window.openGranvilleIslandParking();
+  else if (cardBlock) showSpotCard(cardBlock);    // spot card totals reflect arrival + duration
 }
 // on the desktop row layout, anchor the dropdown under the pill instead of under the search bar
 function positionTripcard() {
@@ -1652,12 +1655,13 @@ function closeSpotCard() {
 // the same bottom-sheet surface used for normal parking details.
 function granvilleIslandRates() {
   const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Vancouver', month: 'numeric', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+    timeZone: 'America/Vancouver', month: 'numeric',
   }).formatToParts(new Date()).reduce((out, part) => (out[part.type] = part.value, out), {});
-  const weekend = parts.weekday === 'Sat' || parts.weekday === 'Sun';
-  const summer = +parts.month >= 5 && +parts.month <= 9;
+  const selectedMonth = trip.mode === 'set' && trip.setDate ? +trip.setDate.slice(5, 7) : +parts.month;
+  const weekend = isWeekend();
+  const summer = selectedMonth >= 5 && selectedMonth <= 9;
   const weekdayMid = summer ? 3 : 2, weekendMid = summer ? 6 : 4;
-  const mins = +parts.hour * 60 + +parts.minute;
+  const mins = nowMins();
   const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
   return { weekend, weekdayMid, weekendMid, rate, mins };
 }
@@ -1681,6 +1685,7 @@ function addGranvilleIslandMarker() {
     pill.innerHTML = detailed && price !== 'Paid' ? `${price}<span class="plim">/hr</span>` : price;
   };
   updateLabel();
+  refreshGranvilleIslandMarker = updateLabel;
   map.on('zoomend', updateLabel);
   pill.setAttribute('aria-label', 'Granville Island paid parking details');
   pill.addEventListener('click', () => tapGranvilleIslandParking());
@@ -1776,7 +1781,9 @@ function tapBlock(b) {
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
 document.addEventListener('click', (e) => {
   if ($('spotcard').hidden) return;
-  if (e.target.closest('#spotcard') || e.target.closest('.maplibregl-marker')) return;
+  // Changing the planned arrival is a refinement of the open parking result,
+  // not an outside-map dismissal. Keep the shared sheet open and refresh it.
+  if (e.target.closest('#spotcard') || e.target.closest('#tripcard') || e.target.closest('#tripPill') || e.target.closest('.maplibregl-marker')) return;
   closeSpotCard();
 }, true);
 
