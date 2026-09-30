@@ -1668,6 +1668,10 @@ window.granvilleIslandParkingPriceLabel = (withUnit = true) => {
 function addGranvilleIslandMarker() {
   if (!map || map.__granvilleIslandParkingPill) return;
   map.__granvilleIslandParkingPill = true;
+  // Keep MapLibre's placement transform on an otherwise empty wrapper, exactly
+  // like the regular label layer. The visible pill owns its own lift/scale
+  // transform, so selection can bounce without moving its map coordinate.
+  const markerEl = document.createElement('div');
   const pill = document.createElement('button');
   granvilleIslandPill = pill;
   pill.type = 'button'; pill.className = 'plabel p2';
@@ -1680,7 +1684,8 @@ function addGranvilleIslandMarker() {
   map.on('zoomend', updateLabel);
   pill.setAttribute('aria-label', 'Granville Island paid parking details');
   pill.addEventListener('click', () => tapGranvilleIslandParking());
-  new maplibregl.Marker({ element: pill, anchor: 'bottom' }).setLngLat([-123.13455, 49.27070]).addTo(map);
+  markerEl.append(pill);
+  new maplibregl.Marker({ element: markerEl, anchor: 'center' }).setLngLat([-123.13455, 49.27070]).addTo(map);
 }
 function clearGranvilleIslandSelection() {
   granvilleIslandPill?.classList.remove('sel');
