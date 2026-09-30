@@ -1,4 +1,4 @@
-import { initReview, renderReviewDetail } from './review.js?v=7';
+import { initReview, renderReviewDetail } from './review.js?v=30';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=49';
@@ -12,8 +12,30 @@ import { track } from './analytics.js?v=3';
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true, restrictions: true, unverified: false };
+const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
+const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
+const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
+let payByPhoneDarkLogoUrl = null;
+
+// The vendor asset has green brand paths plus dark-ink wordmark paths. A CSS
+// filter cannot change only the ink without also recolouring green, so create
+// a dark-theme SVG variant that replaces the ink fill and preserves the green.
+async function applyPayByPhoneLogoTheme() {
+  const logos = [...document.querySelectorAll('.paybyphone img')];
+  if (!logos.length) return;
+  if (document.documentElement.dataset.theme !== 'dark') {
+    logos.forEach((logo) => { logo.src = PAY_BY_PHONE_LOGO; });
+    return;
+  }
+  if (!payByPhoneDarkLogoUrl) {
+    try {
+      const svg = await fetch(PAY_BY_PHONE_LOGO).then((response) => response.text());
+      payByPhoneDarkLogoUrl = URL.createObjectURL(new Blob([svg.replaceAll('#524c48', '#ffffff')], { type: 'image/svg+xml' }));
+    } catch { return; }
+  }
+  if (document.documentElement.dataset.theme === 'dark') logos.forEach((logo) => { logo.src = payByPhoneDarkLogoUrl; });
+}
 
 const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
@@ -1506,6 +1528,10 @@ function flashSpotContent() {
 function showSpotCard(b) {
   const wasOpen = !$('spotcard').hidden;
   cardBlock = b;
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = null;
+  $('scmaps').textContent = 'Open in Maps ↗';
   closeReportList();
   closeMenu();
   const p = driving && driving.lastPos();
@@ -1596,28 +1622,7 @@ function showSpotCard(b) {
   if (payByPhoneCodes.length === 1)
     rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" aria-label="Copy PayByPhone location code ${payByPhoneCodes[0]}">` +
       `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
-      `<span class="pbp-open">${payByPhoneCodes[0]} <svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></span></button>`);
-  const dow = dowNow();
-  // compact clock: drop :00 and share the meridiem across a range → "3–7pm"
-  const short = (m) => {
-    const h = Math.floor(m / 60) % 24, mm = m % 60;
-    return { t: (h % 12 || 12) + (mm ? ':' + String(mm).padStart(2, '0') : ''), ap: h >= 12 ? 'pm' : 'am' };
-  };
-  const fmtWin = (a, z) => { const s = short(a), e = short(z); return (s.ap === e.ap ? s.t : s.t + s.ap) + '–' + e.t + e.ap; };
-  // A prohibition active right now — rare via a pill tap (those are hidden while active) but
-  // reachable by search; call it out plainly.
-  if (pNow) rows.push(`<span class="warn">${IC.alert} No parking now · ${zoneLabel(pNow)}</span>`);
-  // Upcoming no-park within the ~2h stay: a rush tow-away OR a prohibition zone. The full-day
-  // schedule already lists every window; this is the urgency nudge you can't scroll past.
-  const STAY = 120;
-  let soonest = null;   // [start, end, zoneOrNull]
-  for (const r of (b.rushes || [])) if (r[0] > mins && r[0] - mins <= STAY && (!soonest || r[0] < soonest[0])) soonest = [r[0], r[1], null];
-  for (const w of prohibitionWindowsForDay(b, dow)) if (w[0] > mins && w[0] - mins <= STAY && (!soonest || w[0] < soonest[0])) soonest = w;
-  if (soonest && !pNow) {
-    const reason = soonest[2] ? zoneLabel(soonest[2]) : 'tow-away';
-    const soon = soonest[0] - mins <= 90 ? ` starts in ${soonest[0] - mins} min` : '';
-    rows.push(`<span class="warn">${IC.alert} No parking ${fmtWin(soonest[0], soonest[1])} · ${reason}${soon}</span>`);
-  }
+      `<span class="pbp-open">${payByPhoneCodes[0]} ${COPY_ICON}</span></button>`);
   // Kirkland: live stall-sensor availability, pinned to the top of the rows
   if (b.kirk) {
     const a = b.avail;
@@ -1628,6 +1633,7 @@ function showSpotCard(b) {
       : `${IC.info} Live availability unavailable right now`);
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
+  applyPayByPhoneLogoTheme();
   $('scmaps').href = navUrl(b);
   if (wasOpen) flashSpotContent();
   $('spotcard').hidden = false;
@@ -1637,6 +1643,55 @@ function closeSpotCard() {
   $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); closeReportList();
   if (labelLayer) labelLayer.setSelected(null);
 }
+// Granville Island is an operator-managed parking system, not a blockface in
+// the municipal meter feed. The map shows one familiar price pill; this opens
+// the same bottom-sheet surface used for normal parking details.
+function granvilleIslandRates() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Vancouver', month: 'numeric', weekday: 'short', hour: 'numeric', minute: 'numeric', hourCycle: 'h23',
+  }).formatToParts(new Date()).reduce((out, part) => (out[part.type] = part.value, out), {});
+  const weekend = parts.weekday === 'Sat' || parts.weekday === 'Sun';
+  const summer = +parts.month >= 5 && +parts.month <= 9;
+  const weekdayMid = summer ? 3 : 2, weekendMid = summer ? 6 : 4;
+  const mins = +parts.hour * 60 + +parts.minute;
+  const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
+  return { weekend, weekdayMid, weekendMid, rate };
+}
+window.granvilleIslandParkingPriceLabel = () => {
+  const { rate } = granvilleIslandRates();
+  return rate == null ? 'Paid' : `$${rate}/hr`;
+};
+window.openGranvilleIslandParking = function openGranvilleIslandParking() {
+  cardBlock = null;
+  closeReportList(); closeMenu(); clearSpotLine();
+  const { weekend, weekdayMid, weekendMid, rate } = granvilleIslandRates();
+  $('scprice').innerHTML = rate == null ? 'Paid' : `$${rate}<span class="sc-unit">/hr</span>`;
+  $('scprice').classList.remove('free');
+  $('scsub').textContent = '';
+  $('scsub').style.display = 'none';
+  const islandSchedule = weekend ? [
+    { when: 'Before 9:00am', cost: 'Free', free: true },
+    { when: '9:00am–11:00am', limit: 'Max until 10:00pm', cost: '$1/hr' },
+    { when: '11:00am–6:00pm', limit: 'Max until 10:00pm', cost: `$${weekendMid}/hr` },
+    { when: '6:00pm–10:00pm', limit: 'Max until 10:00pm', cost: '$1/hr' },
+  ] : [
+    { when: 'Before 9:00am', cost: 'Free', free: true },
+    { when: '9:00am–11:00am', limit: 'Max until 10:00pm', cost: '$1/hr' },
+    { when: '11:00am–6:00pm', limit: 'Max until 10:00pm', cost: `$${weekdayMid}/hr` },
+    { when: '6:00pm–10:00pm', limit: 'Max until 10:00pm', cost: '$1/hr' },
+  ];
+  islandSchedule.push({ when: 'After 10:00pm', limit: 'Registration required', cost: 'Parkade' });
+  $('scsched').innerHTML = islandSchedule.map((segment) => `<div class="seg ${segment.free ? 'free' : ''}"><span class="when">${segment.when}${segment.limit ? `<span class="lim dot-sep">${segment.limit}</span>` : ''}</span><span class="cost">${segment.cost}</span></div>`).join('');
+  $('scsched').hidden = false;
+  $('scrows').innerHTML = `<div><button class="paybyphone" type="button" data-pbp-code="1670" aria-label="Copy PayByPhone location code 1670"><img src="${PAY_BY_PHONE_LOGO}" alt="PayByPhone"><span class="pbp-open">1670 ${COPY_ICON}</span></button></div>`;
+  applyPayByPhoneLogoTheme();
+  $('scmaps').href = 'https://www.google.com/maps/search/?api=1&query=Granville%20Island%20Vancouver';
+  $('scmaps').textContent = 'Open in Maps ↗';
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = () => window.open('https://www.google.com/maps/dir/?api=1&destination=Granville%20Island%20Vancouver', '_blank', 'noopener');
+  $('spotcard').hidden = false;
+};
 $('scclose').addEventListener('click', closeSpotCard);
 // Copy the location code on the same user gesture that opens PayByPhone. iOS then
 // offers its standard clipboard paste suggestion in PayByPhone's location field.
@@ -2181,7 +2236,10 @@ function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
   labelLayer.setFilter(filters);
-  if (params.get('review') === '1') labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
+  // The audit-only view hides live parking layers; the overlay workspace keeps
+  // the normal Park Daddy paid/free context visible beneath review lines.
+  if (params.get('review') === '1' && params.get('overlay') !== '1')
+    labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
   initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {

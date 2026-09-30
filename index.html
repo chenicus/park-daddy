@@ -778,7 +778,7 @@
      globally, so the border costs no height and both buttons stay on 46px. */
   .sc-actions .ghost { flex: 1.7; height: 46px; display: grid; place-items: center;
     border-radius: 14px; background: var(--chip); border: 1px solid var(--line); color: var(--accent);
-    text-decoration: none; font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.3px; }
+    text-decoration: none; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.15px; }
   .sc-actions .ghost:active { filter: brightness(.96); }
 
   /* ---- crowd reports on the spot card ---- */
@@ -1049,6 +1049,14 @@
 .review-legend p { margin:5px 0; }
 .review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
 .review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
+.review-highlight { width:100%; margin-top:8px; padding:8px; border:1px solid var(--line-strong); border-radius:8px; color:inherit; background:var(--chip); font:inherit; font-weight:700; cursor:pointer; }
+.review-highlight[aria-pressed="true"] { color:#111827; background:#facc15; border-color:#ca8a04; }
+.audit-toolbar { position:absolute; left:12px; bottom:24px; z-index:10; display:flex; align-items:center; gap:8px; max-width:calc(100vw - 24px); padding:8px; border-radius:12px; font-size:13px; }
+.audit-tool,.audit-go { border:0; border-radius:9px; padding:9px 11px; color:var(--text); background:var(--chip); font:inherit; font-weight:700; cursor:pointer; white-space:nowrap; }
+.audit-go { color:var(--on-accent); background:var(--accent); }.audit-go:disabled { opacity:.45; cursor:default; }
+.audit-status { max-width:180px; color:var(--muted-strong); line-height:1.25; }
+.audit-area-handle { width:18px; height:18px; border:3px solid #fff; border-radius:50%; background:#2563eb; box-shadow:0 1px 5px #0008; cursor:grab; }
+.audit-area-delete { width:28px; height:28px; border:2px solid #fff; border-radius:50%; color:#fff; background:#dc2626; box-shadow:0 1px 5px #0008; font:700 22px/20px system-ui; cursor:pointer; }
 .review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
 .review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
 .review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
@@ -1227,7 +1235,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 <div class="chips">
   <button class="chip mat on" id="chipFree" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
   <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
-  <button class="chip mat on" id="chipRestrictions" type="button" aria-pressed="true" title="Show permit parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit</button>
+  <button class="chip mat" id="chipRestrictions" type="button" aria-pressed="false" title="Show permit parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
