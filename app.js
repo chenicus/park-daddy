@@ -1661,6 +1661,22 @@ window.granvilleIslandParkingPriceLabel = (withUnit = true) => {
   const { rate } = granvilleIslandRates();
   return rate == null ? 'Paid' : `$${rate}${withUnit ? '/hr' : ''}`;
 };
+function addGranvilleIslandMarker() {
+  if (!map || map.__granvilleIslandParkingPill) return;
+  map.__granvilleIslandParkingPill = true;
+  const pill = document.createElement('button');
+  pill.type = 'button'; pill.className = 'plabel p2';
+  const updateLabel = () => {
+    const detailed = map.getZoom() >= 16;
+    const price = window.granvilleIslandParkingPriceLabel(false);
+    pill.innerHTML = detailed && price !== 'Paid' ? `${price}<span class="plim">/hr</span>` : price;
+  };
+  updateLabel();
+  map.on('zoomend', updateLabel);
+  pill.setAttribute('aria-label', 'Granville Island paid parking details');
+  pill.addEventListener('click', () => window.openGranvilleIslandParking());
+  new maplibregl.Marker({ element: pill, anchor: 'bottom' }).setLngLat([-123.13455, 49.27070]).addTo(map);
+}
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   cardBlock = null;
   closeReportList(); closeMenu(); clearSpotLine();
@@ -2243,6 +2259,9 @@ function initLiveLabels() {
   // the normal Park Daddy paid/free context visible beneath review lines.
   if (params.get('review') === '1' && params.get('overlay') !== '1')
     labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
+  // Granville Island is operator-managed, so it has no municipal block-face
+  // record. Keep its single paid-parking marker on the ordinary map as well.
+  addGranvilleIslandMarker();
   initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {
