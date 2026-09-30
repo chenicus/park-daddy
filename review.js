@@ -125,8 +125,16 @@ export async function initReview(map, blocks, onTap) {
     if (!map.__granvilleIslandParkingPill) {
       map.__granvilleIslandParkingPill = true;
       const pill = document.createElement('button');
-      pill.type = 'button'; pill.className = 'plabel'; pill.style.setProperty('--c', '#d97706');
-      pill.textContent = window.granvilleIslandParkingPriceLabel?.() || 'Paid'; pill.setAttribute('aria-label', 'Granville Island paid parking details');
+      pill.type = 'button'; pill.className = 'plabel p2';
+      const updatePillLabel = () => {
+        // Match ordinary price pills: clusters use a compact price, while closer
+        // block-face labels show a visually subdued per-hour suffix.
+        const detailed = map.getZoom() >= 16;
+        const price = window.granvilleIslandParkingPriceLabel?.(false) || 'Paid';
+        pill.innerHTML = detailed && price !== 'Paid' ? `${price}<span class="plim">/hr</span>` : price;
+      };
+      updatePillLabel(); map.on('zoomend', updatePillLabel);
+      pill.setAttribute('aria-label', 'Granville Island paid parking details');
       pill.addEventListener('click', () => window.openGranvilleIslandParking?.());
       new maplibregl.Marker({ element: pill, anchor: 'bottom' }).setLngLat([-123.13455, 49.27070]).addTo(map);
     }

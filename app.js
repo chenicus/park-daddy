@@ -1,4 +1,4 @@
-import { initReview, renderReviewDetail } from './review.js?v=30';
+import { initReview, renderReviewDetail } from './review.js?v=31';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=49';
@@ -1657,9 +1657,9 @@ function granvilleIslandRates() {
   const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
   return { weekend, weekdayMid, weekendMid, rate, mins };
 }
-window.granvilleIslandParkingPriceLabel = () => {
+window.granvilleIslandParkingPriceLabel = (withUnit = true) => {
   const { rate } = granvilleIslandRates();
-  return rate == null ? 'Paid' : `$${rate}/hr`;
+  return rate == null ? 'Paid' : `$${rate}${withUnit ? '/hr' : ''}`;
 };
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   cardBlock = null;
