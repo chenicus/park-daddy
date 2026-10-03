@@ -1729,9 +1729,10 @@ function openEasyParkLot(b) {
     ? `<div class="seg free active"><span class="when">Now<span class="lim dot-sep">First ${d.freeDuration / 60} hours</span></span><span class="cost">Free</span></div>` +
       `<div class="seg"><span class="when">${d.hours}<span class="lim dot-sep">After ${d.freeDuration / 60} hours</span></span><span class="cost">${money(d.rate)}/hr</span></div>`
     : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
-  $('scsched').innerHTML = scheduleRows + (d.noOvernight ? `<div class="schedule-caption">No overnight parking.</div>` : '');
+  $('scsched').innerHTML = scheduleRows;
   $('scsched').hidden = false;
-  $('scrows').innerHTML = `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>` +
+  $('scrows').innerHTML = (d.noOvernight ? `<div class="operator-caption">No overnight parking.</div>` : '') +
+    `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>` +
     `<div class="operator-caption">${d.caption}</div>`;
   $('scmaps').href = navUrl(b);
   $('scmaps').textContent = 'Open in Maps ↗';
