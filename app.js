@@ -1712,7 +1712,7 @@ function easyParkLotDetails(lot) {
     ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' }
     : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' };
   return winter
-    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', caption: '$3.00/hr after the first 2 free hours. Rates can change for events; confirm before paying.' }
+    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', caption: 'Rates can change for events; confirm before paying.' }
     : { rate: 4.25, hours: '6:00am–10:00pm', caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
 }
 function openEasyParkLot(b) {
@@ -1726,7 +1726,8 @@ function openEasyParkLot(b) {
   $('scsub').style.display = '';
   const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
   $('scsched').innerHTML = d.freeDuration
-    ? `<div class="seg active"><span class="when">${d.hours}</span><span class="cost">${money(d.rate)}/hr</span></div>`
+    ? `<div class="seg free active"><span class="when">Now<span class="lim dot-sep">First ${d.freeDuration / 60} hours</span></span><span class="cost">Free</span></div>` +
+      `<div class="seg"><span class="when">${d.hours}<span class="lim dot-sep">After ${d.freeDuration / 60} hours</span></span><span class="cost">${money(d.rate)}/hr</span></div>`
     : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
   $('scsched').hidden = false;
   $('scrows').innerHTML = `<div class="operator-caption">${d.caption}</div>` +
