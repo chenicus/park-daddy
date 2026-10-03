@@ -106,11 +106,13 @@ export function buildSeattleFreeBlocks(records, idBase = 3e6) {
 // Current rate for a block, dispatching on shape: Seattle blockfaces carry `bands`,
 // Vancouver meters/free carry rate1/rate2.
 function rateFor(bl, mins, dow) {
+  if (bl.operatorRate) return bl.operatorRate(mins, dow);
   if (bl.unverified) return { free: false, rate: null, label: 'Check signs', cls: 'p-unknown', color: '#a16207' };
   if (bl.curb) return curbState(bl.curb, mins, dow);
   return bl.bands ? bandRateNow(bl.bands, mins, dow) : rateNow(bl.rate1, bl.rate2, mins);
 }
 function limitFor(bl, mins, dow, wknd) {
+  if (bl.operatorRate) return null;
   if (bl.bands) {   // Seattle: paid limit while metered; free-but-capped (time-limited) otherwise
     return rateFor(bl, mins, dow).free ? (bl.freeLimit || null) : bl.limitMin;
   }
@@ -252,7 +254,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       bl.lat > s - dLat && bl.lat < n + dLat &&
       bl.lon > w - dLon && bl.lon < e + dLon && !towActive(bl, mins) &&
       !prohibitionNow(bl, mins, dow) &&   // NO STOPPING / loading / permit-only active now → not parkable
-      !flags(bl).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
+      !flags(bl).hidden && !rateFor(bl, mins, dow).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
   }
 
   function pillDesired(z, mins, wknd, dow) {

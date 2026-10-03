@@ -1,7 +1,7 @@
-import { initReview, renderReviewDetail } from './review.js?v=31';
+import { initReview, renderReviewDetail } from './review.js?v=32';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=51';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=52';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=36';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -14,9 +14,17 @@ const TOPN = 5;
 let meters = [];
 const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
-const GRANVILLE_ISLAND_BLOCK = { id: 'granville-island-parking', lat: 49.27070, lon: -123.13455 };
-let granvilleIslandPill = null;
-let refreshGranvilleIslandMarker = () => {};
+// This is deliberately shaped like a normal block-face. It lives in the shared
+// label layer, so its dot, clusters, zoom threshold, tap target and selection
+// animation are identical to every other parking result.
+const GRANVILLE_ISLAND_BLOCK = {
+  id: 'granville-island-parking', lat: 49.27070, lon: -123.13455,
+  pts: [], rushes: [], prohibitions: [], card: false,
+  operatorRate(mins) {
+    const { rate } = granvilleIslandRates();
+    return rate == null ? { hidden: true, free: false, rate: 0 } : { free: false, rate };
+  },
+};
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
 const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
 let payByPhoneDarkLogoUrl = null;
@@ -1024,7 +1032,6 @@ function syncSeg() {
 function syncTrip() {
   updatePill(); syncSeg();
   if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
-  refreshGranvilleIslandMarker();
   if (cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) window.openGranvilleIslandParking();
   else if (cardBlock) showSpotCard(cardBlock);    // spot card totals reflect arrival + duration
 }
@@ -1532,7 +1539,6 @@ function flashSpotContent() {
 }
 function showSpotCard(b) {
   const wasOpen = !$('spotcard').hidden;
-  if (b.id !== GRANVILLE_ISLAND_BLOCK.id) clearGranvilleIslandSelection();
   cardBlock = b;
   $('scstart').hidden = false;
   $('scstart').style.display = '';
@@ -1647,7 +1653,6 @@ function showSpotCard(b) {
 }
 function closeSpotCard() {
   $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); closeReportList();
-  clearGranvilleIslandSelection();
   if (labelLayer) labelLayer.setSelected(null);
 }
 // Granville Island is an operator-managed parking system, not a blockface in
@@ -1664,46 +1669,6 @@ function granvilleIslandRates() {
   const mins = nowMins();
   const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
   return { weekend, weekdayMid, weekendMid, rate, mins };
-}
-window.granvilleIslandParkingPriceLabel = (withUnit = true) => {
-  const { rate } = granvilleIslandRates();
-  return rate == null ? 'Paid' : `$${rate}${withUnit ? '/hr' : ''}`;
-};
-function addGranvilleIslandMarker() {
-  if (!map || map.__granvilleIslandParkingPill) return;
-  map.__granvilleIslandParkingPill = true;
-  // Keep MapLibre's placement transform on an otherwise empty wrapper, exactly
-  // like the regular label layer. The visible pill owns its own lift/scale
-  // transform, so selection can bounce without moving its map coordinate.
-  const markerEl = document.createElement('div');
-  const pill = document.createElement('button');
-  granvilleIslandPill = pill;
-  pill.type = 'button'; pill.className = 'plabel p2';
-  const updateLabel = () => {
-    const detailed = map.getZoom() >= 16;
-    const price = window.granvilleIslandParkingPriceLabel(false);
-    pill.innerHTML = detailed && price !== 'Paid' ? `${price}<span class="plim">/hr</span>` : price;
-  };
-  updateLabel();
-  refreshGranvilleIslandMarker = updateLabel;
-  map.on('zoomend', updateLabel);
-  pill.setAttribute('aria-label', 'Granville Island paid parking details');
-  pill.addEventListener('click', () => tapGranvilleIslandParking());
-  markerEl.append(pill);
-  new maplibregl.Marker({ element: markerEl, anchor: 'center' }).setLngLat([-123.13455, 49.27070]).addTo(map);
-}
-function clearGranvilleIslandSelection() {
-  granvilleIslandPill?.classList.remove('sel');
-  if (granvilleIslandPill?.parentElement) granvilleIslandPill.parentElement.style.zIndex = '';
-}
-function tapGranvilleIslandParking() {
-  if (!$('spotcard').hidden && cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) {
-    closeSpotCard();
-    return;
-  }
-  granvilleIslandPill?.classList.add('sel');
-  if (granvilleIslandPill?.parentElement) granvilleIslandPill.parentElement.style.zIndex = '500';
-  window.openGranvilleIslandParking();
 }
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   const wasOpen = !$('spotcard').hidden;
@@ -1740,6 +1705,7 @@ window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   $('scstart').onclick = () => window.open('https://www.google.com/maps/dir/?api=1&destination=Granville%20Island%20Vancouver', '_blank', 'noopener');
   if (wasOpen) flashSpotContent();
   $('spotcard').hidden = false;
+  if (labelLayer) labelLayer.setSelected(GRANVILLE_ISLAND_BLOCK.id);
 };
 $('scclose').addEventListener('click', closeSpotCard);
 // Copy the location code on the same user gesture that opens PayByPhone. iOS then
@@ -1776,6 +1742,7 @@ map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''
 
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
+  if (b.id === GRANVILLE_ISLAND_BLOCK.id) { window.openGranvilleIslandParking(); return; }
   showSpotCard(b);
 }
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
@@ -2285,15 +2252,13 @@ function updateRecenter() {
 
 function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
+  if (!blocks.some((block) => block.id === GRANVILLE_ISLAND_BLOCK.id)) blocks.push(GRANVILLE_ISLAND_BLOCK);
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
   labelLayer.setFilter(filters);
   // The audit-only view hides live parking layers; the overlay workspace keeps
   // the normal Park Daddy paid/free context visible beneath review lines.
   if (params.get('review') === '1' && params.get('overlay') !== '1')
     labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
-  // Granville Island is operator-managed, so it has no municipal block-face
-  // record. Keep its single paid-parking marker on the ordinary map as well.
-  addGranvilleIslandMarker();
   initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {

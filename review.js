@@ -120,24 +120,8 @@ export async function initReview(map, blocks, onTap) {
       layout: { 'line-cap': 'round', 'line-join': 'round' },
       paint: { 'line-color': '#dc2626', 'line-width': ['step', ['zoom'], 4, 15, 6], 'line-opacity': 0.9 },
     });
-    // One ordinary Park Daddy-style price pill represents the Island-wide
-    // operator parking rule. It is a discovery shortcut, not a claimed curb face.
-    if (!map.__granvilleIslandParkingPill) {
-      map.__granvilleIslandParkingPill = true;
-      const pill = document.createElement('button');
-      pill.type = 'button'; pill.className = 'plabel p2';
-      const updatePillLabel = () => {
-        // Match ordinary price pills: clusters use a compact price, while closer
-        // block-face labels show a visually subdued per-hour suffix.
-        const detailed = map.getZoom() >= 16;
-        const price = window.granvilleIslandParkingPriceLabel?.(false) || 'Paid';
-        pill.innerHTML = detailed && price !== 'Paid' ? `${price}<span class="plim">/hr</span>` : price;
-      };
-      updatePillLabel(); map.on('zoomend', updatePillLabel);
-      pill.setAttribute('aria-label', 'Granville Island paid parking details');
-      pill.addEventListener('click', () => window.openGranvilleIslandParking?.());
-      new maplibregl.Marker({ element: pill, anchor: 'bottom' }).setLngLat([-123.13455, 49.27070]).addTo(map);
-    }
+    // Granville Island is injected by app.js as a synthetic block in the shared
+    // label layer, rather than as a review-only custom marker.
     // The circle/queue experiment was removed: it intercepted map gestures and
     // was not a reliable way to submit audits. In overlay mode retain only the
     // completed red audit trails and the normal parking map beneath them.
