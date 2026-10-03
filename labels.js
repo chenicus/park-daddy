@@ -315,6 +315,13 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         text: r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
         flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
+      // Operator-managed locations can use the ordinary marker component with
+      // a truthful non-price label (for example, Granville Island's Parkade).
+      if (r.label) return {
+        sig: 'b' + bl.id + '|' + r.label, lat: bl.lat, lon: bl.lon,
+        text: r.label, free: r.free, cls: r.cls || bucket(r.rate, r.free), block: bl, rate: r.rate,
+        flagged: false, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
+      };
       const lim = z >= 16 ? limitFor(bl, mins, dow, wknd) : null;
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
       // Kirkland pills append a live "· N free" count, so a plain "Free" price would read

@@ -22,7 +22,12 @@ const GRANVILLE_ISLAND_BLOCK = {
   pts: [], rushes: [], prohibitions: [], card: false,
   operatorRate(mins) {
     const { rate } = granvilleIslandRates();
-    return rate == null ? { hidden: true, free: false, rate: 0 } : { free: false, rate };
+    if (rate != null) return { free: false, rate };
+    // The Island's own schedule is free before 9am. Keep the same shared-dot
+    // behaviour rather than dropping the location from the map between rates.
+    if (mins < 9 * 60) return { free: true, rate: 0 };
+    // After 10pm, retain a truthful discovery marker for the overnight Parkade.
+    return { free: false, rate: 1, label: 'Parkade', cls: 'p2' };
   },
 };
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
