@@ -411,7 +411,7 @@
   #spotcard { max-height: 75dvh; overflow-y: auto; overscroll-behavior: contain; }
   #scrows details > div { margin-top: 10px; }
   #scrows summary { cursor: pointer; font-weight: 600; }
-  #scrows a { color: inherit; text-decoration: underline; }
+  #scrows a { color: inherit; text-decoration: none; }
   .plabel.p-free { --c: #2563eb; }
   .plabel.p1 { --c: #16a34a; }
   .plabel.p2 { --c: #d97706; }
@@ -755,6 +755,7 @@
      the left, a single clear handoff on the right, then explanatory text below. */
   .sc-rows .operator-source-row { width: 100%; min-height: 44px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--text); text-decoration: none; }
   .sc-rows .operator-source-row:active { background: var(--chip); }
+  #scrows .operator-source-row, #scrows .operator-source-row * { text-decoration: none; }
   .sc-rows .operator-meta { color: var(--muted); font-size: var(--fs-caption); font-weight: 500; }
   .sc-rows .operator-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
   .sc-rows .operator-caption { color: var(--muted); font-size: var(--fs-caption); line-height: 1.4; padding: 8px 2px 0; }
@@ -1635,7 +1636,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=175"></script>
+<script type="module" src="app.js?v=176"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
