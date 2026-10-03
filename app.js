@@ -1702,11 +1702,11 @@ function parkingSelectedMonth() {
 function easyParkLotDetails(lot) {
   const winter = parkingSelectedMonth() >= 10 || parkingSelectedMonth() <= 3;
   if (lot.kind === 'jericho') return winter
-    ? { rate: 3.12, max: 8.58, note: '6:00am–10:00pm · No overnight parking' }
-    : { rate: 4.25, max: 15.75, note: '6:00am–10:00pm · No overnight parking' };
+    ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' };
   return winter
-    ? { rate: 3, note: 'First 2 hours free · then $3.00/hr · 6:00am–10:00pm' }
-    : { rate: 4.25, note: 'Seasonal EasyPark rate · 6:00am–10:00pm' };
+    ? { rate: 3, hours: '6:00am–10:00pm', caption: 'First 2 hours free. Then $3.00/hr. Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, hours: '6:00am–10:00pm', caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
 }
 function openEasyParkLot(b) {
   const wasOpen = !$('spotcard').hidden;
@@ -1718,12 +1718,11 @@ function openEasyParkLot(b) {
   $('scsub').textContent = b.address;
   $('scsub').style.display = '';
   const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
-  $('scsched').innerHTML = `<div class="seg active"><span class="when">${d.note}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
+  $('scsched').innerHTML = `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
   $('scsched').hidden = false;
   const spaces = b.spaces ? `<span class="dot-sep">${b.spaces} stalls</span>` : '';
-  $('scrows').innerHTML = `<div class="live"><span class="live-dot ok"></span><span class="live-txt"><b>EasyPark</b></span><span class="live-ago">${spaces}<span class="dot-sep">Official operator</span></span></div>` +
-    `<div><a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer">View EasyPark source ↗</a></div>` +
-    `<div class="live-ago">Rates can change for events; confirm the posted rate before paying.</div>`;
+  $('scrows').innerHTML = `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b><span class="operator-meta">${spaces}<span class="dot-sep">Official operator</span></span></span><span class="operator-link">View source ↗</span></a></div>` +
+    `<div class="operator-caption">${d.caption}</div>`;
   $('scmaps').href = navUrl(b);
   $('scmaps').textContent = 'Open in Maps ↗';
   $('scstart').hidden = false;

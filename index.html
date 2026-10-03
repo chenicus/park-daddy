@@ -751,6 +751,13 @@
   .sc-rows .paybyphone .pbp-open { margin-left: auto; color: var(--accent); font-size: var(--fs-body); font-weight: 600; letter-spacing: -.2px; text-decoration: none; }
   .sc-rows .paybyphone .pbp-copy-icon { width: 18px; height: 18px; margin-left: 4px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .sc-rows .paybyphone, .sc-rows .paybyphone * { text-decoration: none; }
+  /* Operator source row deliberately mirrors the PayByPhone treatment: operator on
+     the left, a single clear handoff on the right, then explanatory text below. */
+  .sc-rows .operator-source-row { width: 100%; min-height: 44px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--text); text-decoration: none; }
+  .sc-rows .operator-source-row:active { background: var(--chip); }
+  .sc-rows .operator-meta { color: var(--muted); font-size: var(--fs-caption); font-weight: 500; }
+  .sc-rows .operator-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  .sc-rows .operator-caption { color: var(--muted); font-size: var(--fs-caption); line-height: 1.4; padding: 8px 2px 0; }
   .sc-rows a { color: var(--accent); text-decoration: none; }
   /* Kirkland live availability row */
   /* baseline so the smaller .live-ago sits on the sentence's feet; gap: 0 because the
@@ -1628,7 +1635,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=173"></script>
+<script type="module" src="app.js?v=174"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
