@@ -332,7 +332,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       // Kirkland stalls carry live sensor counts → append " · N free" (drives the sig, so the
       // pill re-renders as the count changes); no unit collision since it follows the max-stay.
       const liveTxt = bl.kirk && bl.avail ? ` · ${bl.avail.free} free` : '';
-      const suffix = (r.free ? '' : '/hr') + limTxt + liveTxt;
+      // Some operator lots lead with a free introductory duration. Keep that
+      // duration visible on the shared map pill ("Free · 2h") rather than
+      // displaying the later paid rate as the primary result.
+      const suffix = (r.free ? '' : '/hr') + (r.mapSuffix || limTxt) + liveTxt;
       const text = price + suffix;
       const flagged = !!flags(bl).flagged;
       return {

@@ -47,7 +47,14 @@ const EASY_PARK_LOTS = [
 ].map(([id, name, address, lat, lon, spaces, kind]) => ({
   id, name, address, lat, lon, spaces, kind, provider: 'EasyPark', sourceUrl: EASY_PARK_SOURCE,
   pts: [], rushes: [], prohibitions: [], card: false, operatorLot: true,
-  operatorRate() { return { free: false, rate: easyParkLotDetails(this).rate }; },
+  operatorRate() {
+    const details = easyParkLotDetails(this);
+    // A free introductory duration is the decision-driving price, so it gets
+    // priority in the shared map marker rather than burying it behind "then".
+    return details.freeDuration
+      ? { free: true, rate: 0, mapSuffix: ` · ${details.freeDuration / 60}h` }
+      : { free: false, rate: details.rate };
+  },
 }));
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
 const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
@@ -1705,7 +1712,7 @@ function easyParkLotDetails(lot) {
     ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' }
     : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' };
   return winter
-    ? { rate: 3, hours: '6:00am–10:00pm', caption: 'First 2 hours free. Then $3.00/hr. Rates can change for events; confirm before paying.' }
+    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', caption: '6:00am–10:00pm · $3.00/hr after the first 2 free hours. Rates can change for events; confirm before paying.' }
     : { rate: 4.25, hours: '6:00am–10:00pm', caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
 }
 function openEasyParkLot(b) {
@@ -1713,12 +1720,15 @@ function openEasyParkLot(b) {
   const d = easyParkLotDetails(b);
   cardBlock = b;
   closeReportList(); closeMenu(); clearSpotLine();
-  $('scprice').innerHTML = `${money(d.rate)}<span class="sc-unit">/hr</span>`;
-  $('scprice').classList.remove('free');
+  $('scprice').innerHTML = d.freeDuration ? 'Free' : `${money(d.rate)}<span class="sc-unit">/hr</span>`;
+  $('scprice').classList.toggle('free', !!d.freeDuration);
   $('scsub').textContent = b.address;
   $('scsub').style.display = '';
   const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
-  $('scsched').innerHTML = `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
+  $('scsched').innerHTML = d.freeDuration
+    ? `<div class="seg free active"><span class="when">First ${d.freeDuration / 60} hours</span><span class="cost">Free</span></div>` +
+      `<div class="seg"><span class="when">After ${d.freeDuration / 60} hours</span><span class="cost">${money(d.rate)}/hr</span></div>`
+    : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
   $('scsched').hidden = false;
   const spaces = b.spaces ? `<span class="dot-sep">${b.spaces} stalls</span>` : '';
   $('scrows').innerHTML = `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b><span class="operator-meta">${spaces}<span class="dot-sep">Official operator</span></span></span><span class="operator-link">View source ↗</span></a></div>` +
