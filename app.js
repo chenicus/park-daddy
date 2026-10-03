@@ -1726,13 +1726,11 @@ function openEasyParkLot(b) {
   $('scsub').style.display = '';
   const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
   $('scsched').innerHTML = d.freeDuration
-    ? `<div class="seg free active"><span class="when">First ${d.freeDuration / 60} hours</span><span class="cost">Free</span></div>` +
-      `<div class="seg"><span class="when">After ${d.freeDuration / 60} hours</span><span class="cost">${money(d.rate)}/hr</span></div>` +
-      `<div class="seg"><span class="when">Hours</span><span class="cost">${d.hours}</span></div>`
+    ? `<div class="seg active"><span class="when">${d.hours}</span><span class="cost">${money(d.rate)}/hr</span></div>`
     : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
   $('scsched').hidden = false;
-  $('scrows').innerHTML = `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>` +
-    `<div class="operator-caption">${d.caption}</div>`;
+  $('scrows').innerHTML = `<div class="operator-caption">${d.caption}</div>` +
+    `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>`;
   $('scmaps').href = navUrl(b);
   $('scmaps').textContent = 'Open in Maps ↗';
   $('scstart').hidden = false;
