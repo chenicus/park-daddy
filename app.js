@@ -1709,11 +1709,11 @@ function parkingSelectedMonth() {
 function easyParkLotDetails(lot) {
   const winter = parkingSelectedMonth() >= 10 || parkingSelectedMonth() <= 3;
   if (lot.kind === 'jericho') return winter
-    ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' }
-    : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', caption: 'No overnight parking. Rates can change for events; confirm before paying.' };
+    ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' };
   return winter
-    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', caption: 'Rates can change for events; confirm before paying.' }
-    : { rate: 4.25, hours: '6:00am–10:00pm', caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
+    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
 }
 function openEasyParkLot(b) {
   const wasOpen = !$('spotcard').hidden;
@@ -1725,13 +1725,14 @@ function openEasyParkLot(b) {
   $('scsub').textContent = b.address;
   $('scsub').style.display = '';
   const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
-  $('scsched').innerHTML = d.freeDuration
+  const scheduleRows = d.freeDuration
     ? `<div class="seg free active"><span class="when">Now<span class="lim dot-sep">First ${d.freeDuration / 60} hours</span></span><span class="cost">Free</span></div>` +
       `<div class="seg"><span class="when">${d.hours}<span class="lim dot-sep">After ${d.freeDuration / 60} hours</span></span><span class="cost">${money(d.rate)}/hr</span></div>`
     : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
+  $('scsched').innerHTML = scheduleRows + (d.noOvernight ? `<div class="schedule-caption">No overnight parking.</div>` : '');
   $('scsched').hidden = false;
-  $('scrows').innerHTML = `<div class="operator-caption">${d.caption}</div>` +
-    `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>`;
+  $('scrows').innerHTML = `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>` +
+    `<div class="operator-caption">${d.caption}</div>`;
   $('scmaps').href = navUrl(b);
   $('scmaps').textContent = 'Open in Maps ↗';
   $('scstart').hidden = false;
