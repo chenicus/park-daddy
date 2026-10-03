@@ -30,6 +30,25 @@ const GRANVILLE_ISLAND_BLOCK = {
     return { free: false, rate: 1, label: 'Parkade', cls: 'p2' };
   },
 };
+// Official EasyPark lot locations within a roughly ten-minute walk of Locarno.
+// These are lots, not City curb meters: payment/source wording must never say
+// PayByPhone. Rates are season-aware and the sheet keeps the operator source visible.
+const EASY_PARK_SOURCE = 'https://www.easypark.ca/find-parking/locations-and-lot-information';
+const EASY_PARK_LOTS = [
+  ['easypark-jericho-locarno', 'Jericho Locarno Park', '1448 Discovery St', 49.273083, -123.202629, 97, 'jericho'],
+  ['easypark-jericho-beach', 'Jericho Beach', '1451 Discovery St', 49.273330, -123.204843, 46, 'jericho'],
+  ['easypark-jericho-sailing', 'Jericho Sailing Centre', '1451 Discovery St', 49.271800, -123.198900, 215, 'jericho'],
+  ['easypark-jericho-east', 'Jericho East', '3900 Point Grey Rd', 49.272293, -123.186557, 166, 'jericho'],
+  ['easypark-spanish-4604', 'Spanish Banks', '4604 NW Marine Dr', 49.274800, -123.210272, null, 'spanish'],
+  ['easypark-spanish-4612', 'Spanish Banks', '4612 NW Marine Dr', 49.274500, -123.211050, null, 'spanish'],
+  ['easypark-spanish-4656', 'Spanish Banks', '4656 NW Marine Dr', 49.276078, -123.215436, null, 'spanish'],
+  ['easypark-spanish-4670', 'Spanish Banks', '4670 NW Marine Dr', 49.276900, -123.217500, null, 'spanish'],
+  ['easypark-spanish-4707', 'Spanish Banks', '4707 NW Marine Dr', 49.277639, -123.219197, null, 'spanish'],
+].map(([id, name, address, lat, lon, spaces, kind]) => ({
+  id, name, address, lat, lon, spaces, kind, provider: 'EasyPark', sourceUrl: EASY_PARK_SOURCE,
+  pts: [], rushes: [], prohibitions: [], card: false, operatorLot: true,
+  operatorRate() { return { free: false, rate: easyParkLotDetails(this).rate }; },
+}));
 const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
 const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
 let payByPhoneDarkLogoUrl = null;
@@ -1675,6 +1694,45 @@ function granvilleIslandRates() {
   const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
   return { weekend, weekdayMid, weekendMid, rate, mins };
 }
+function parkingSelectedMonth() {
+  if (trip.mode === 'set' && trip.setDate) return +trip.setDate.slice(5, 7);
+  return +(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Vancouver', month: 'numeric' })
+    .formatToParts(new Date()).find((part) => part.type === 'month')?.value || 1);
+}
+function easyParkLotDetails(lot) {
+  const winter = parkingSelectedMonth() >= 10 || parkingSelectedMonth() <= 3;
+  if (lot.kind === 'jericho') return winter
+    ? { rate: 3.12, max: 8.58, note: '6:00am–10:00pm · No overnight parking' }
+    : { rate: 4.25, max: 15.75, note: '6:00am–10:00pm · No overnight parking' };
+  return winter
+    ? { rate: 3, note: 'First 2 hours free · then $3.00/hr · 6:00am–10:00pm' }
+    : { rate: 4.25, note: 'Seasonal EasyPark rate · 6:00am–10:00pm' };
+}
+function openEasyParkLot(b) {
+  const wasOpen = !$('spotcard').hidden;
+  const d = easyParkLotDetails(b);
+  cardBlock = b;
+  closeReportList(); closeMenu(); clearSpotLine();
+  $('scprice').innerHTML = `${money(d.rate)}<span class="sc-unit">/hr</span>`;
+  $('scprice').classList.remove('free');
+  $('scsub').textContent = b.address;
+  $('scsub').style.display = '';
+  const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
+  $('scsched').innerHTML = `<div class="seg active"><span class="when">${d.note}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
+  $('scsched').hidden = false;
+  const spaces = b.spaces ? `<span class="dot-sep">${b.spaces} stalls</span>` : '';
+  $('scrows').innerHTML = `<div class="live"><span class="live-dot ok"></span><span class="live-txt"><b>EasyPark</b></span><span class="live-ago">${spaces}<span class="dot-sep">Official operator</span></span></div>` +
+    `<div><a href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer">View EasyPark source ↗</a></div>` +
+    `<div class="live-ago">Rates can change for events; confirm the posted rate before paying.</div>`;
+  $('scmaps').href = navUrl(b);
+  $('scmaps').textContent = 'Open in Maps ↗';
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = () => window.open(navUrl(b), '_blank', 'noopener');
+  if (wasOpen) flashSpotContent();
+  $('spotcard').hidden = false;
+  if (labelLayer) labelLayer.setSelected(b.id);
+}
 window.openGranvilleIslandParking = function openGranvilleIslandParking() {
   const wasOpen = !$('spotcard').hidden;
   cardBlock = GRANVILLE_ISLAND_BLOCK;
@@ -1748,6 +1806,7 @@ map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
   if (b.id === GRANVILLE_ISLAND_BLOCK.id) { window.openGranvilleIslandParking(); return; }
+  if (b.operatorLot) { openEasyParkLot(b); return; }
   showSpotCard(b);
 }
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
@@ -2257,7 +2316,8 @@ function updateRecenter() {
 
 function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
-  if (!blocks.some((block) => block.id === GRANVILLE_ISLAND_BLOCK.id)) blocks.push(GRANVILLE_ISLAND_BLOCK);
+  for (const operatorBlock of [GRANVILLE_ISLAND_BLOCK, ...EASY_PARK_LOTS])
+    if (!blocks.some((block) => block.id === operatorBlock.id)) blocks.push(operatorBlock);
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
   labelLayer.setFilter(filters);
   // The audit-only view hides live parking layers; the overlay workspace keeps
