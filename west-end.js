@@ -32,6 +32,7 @@ const scheduledNoStopping = section => section.spotChecks?.flatMap(check => chec
   .filter(rule => rule.kind === 'no-stopping' && Number.isFinite(rule.start) && Number.isFinite(rule.end)) || [];
 const scheduledNoParking = section => section.spotChecks?.flatMap(check => check.restrictions || [])
   .filter(rule => rule.kind === 'no-parking' && Number.isFinite(rule.start) && Number.isFinite(rule.end)) || [];
+const signedFree = section => section.category === 'free' && ['historical-sign-match', 'user-photo-match', 'user-supplied-map-match'].includes(section.verification);
 
 export function curbState(section, mins, dow) {
   if (section.category === 'no-parking') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'PDF shows a no-parking restriction; check posted signs for its exact limits'};
@@ -72,8 +73,8 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No stopping',status:'Separate posted no-stopping period'};
   if (scheduledNoParking(section).some(rule => rule.days?.includes(dow) && mins >= rule.start && mins < rule.end))
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'Separate posted no-parking period'};
-  if (section.category === 'free' && section.verification === 'historical-sign-match')
-    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'Free outside posted prohibitions, per user instruction'};
+  if (signedFree(section))
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:section.verification === 'user-supplied-map-match' ? 'User-supplied map reports this rule; follow the posted sign' : 'Free outside posted prohibitions, per user instruction'};
   if (section.publicSign && section.schedule.days == null) {
     const inHours = mins >= section.schedule.start && mins < section.schedule.end;
     return inHours
@@ -172,7 +173,7 @@ export function curbTableSegments(section, dow) {
     ...evidence,
   ];
   if (section.accessOverride?.category === 'permit') return [{ label:'Hours not confirmed', status:'Permit required', rate:null, applies:false }, { label:'User sign check', status:section.accessOverride.checkedOn, rate:null, applies:false }, ...evidence];
-  if (section.category === 'free' && section.verification === 'historical-sign-match') {
+  if (signedFree(section)) {
     const rules = [
       ...scheduledNoStopping(section).map(rule => ({...rule, status:'No stopping'})),
       ...scheduledNoParking(section).map(rule => ({...rule, status:'No parking'})),

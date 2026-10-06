@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "area": "kitsilano-cornwall-balsam-vine",
+  "sources": {
+    "user-photos-2026-10-04": {
+      "title": "User photographs of Cornwall Avenue parking signs",
+      "checkedOn": "2026-10-04"
+    },
+    "street-view-2024-08": {
+      "url": "https://www.google.com/maps/@49.27265,-123.15700,3a,75y,95h,85t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192",
+      "title": "Google Street View, August 2024",
+      "checkedOn": "2026-10-05"
+    },
+    "spotangels-2040-cornwall-2026-10-05": {
+      "url": "https://www.spotangels.com/map?lng=-123.15132826566696&lat=49.272488756178504&zoom=15.967692209993702&arrival=1791241200000&departure=1791248400000&spLng=-123.1207375&spLat=49.2827291&spAddress=Vancouver&product=parking#id=401130102",
+      "title": "User-supplied SpotAngels curb entry for 2040 Cornwall Avenue",
+      "checkedOn": "2026-10-05"
+    }
+  },
+  "geometryNote": "Approximate sign-bounded curb sections traced from the supplied photographs and Street View landmarks. The sign boundary at 2268 Cornwall Avenue is used as the split; endpoints are not surveyed.",
+  "restrictionNote": "Current user photographs show a morning no-parking restriction on the building-side curb west of 2268 Cornwall and a permit-only sign pointing east from that boundary. The City default for unsigned public curb parking is a three-hour limit from 8am to 6pm; always follow the sign beside the space.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "cornwall-2040-morning-free-spotangels",
+      "area": "kitsilano-cornwall-balsam-vine",
+      "street": "Cornwall",
+      "side": "sign side not established",
+      "between": ["2040 Cornwall sign", "nearest sign boundary"],
+      "category": "free",
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 0, "end": 1440, "label": "Mon–Fri"},
+      "outsideSchedule": "free",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "short-map-pin-slice",
+      "splitBoundaryNote": "The user-supplied map exposes the rule at 2040 Cornwall but not the sign arrows or the next boundary. This is intentionally a short 20 m candidate slice centered on the pin, not a block-wide inference.",
+      "sourceIds": ["spotangels-2040-cornwall-2026-10-05"],
+      "spotChecks": [{
+        "status": "user-supplied-map-match",
+        "checkedOn": "2026-10-05",
+        "finding": "The linked SpotAngels entry identifies 2040 Cornwall Avenue as free outside a No Stopping period, Monday–Friday, 7am–9:30am. August 2024 Street View at the pin shows a curb sign but its text is not readable enough to establish its direction or extent.",
+        "restrictions": [{"kind": "no-stopping", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri"}],
+        "scope": "Third-party map claim retained at pin precision only. Follow the posted sign."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15145, 49.27255], [-123.15116, 49.27255]]}
+    },
+    {
+      "id": "cornwall-balsam-vine-north-morning-free",
+      "area": "kitsilano-cornwall-balsam-vine",
+      "street": "Cornwall",
+      "side": "north",
+      "between": ["Balsam", "2268 Cornwall"],
+      "category": "free",
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 0, "end": 1440, "label": "Mon–Fri"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-sign-split",
+      "splitBoundaryNote": "The 2268 Cornwall sign points west for the 7am–9:30am Mon–Fri no-parking restriction. Only the photographed, building-side portion west of the sign is included.",
+      "sourceIds": ["user-photos-2026-10-04", "street-view-2024-08"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-04",
+        "imageryDate": "2026-10",
+        "url": "https://www.google.com/maps/@49.27265,-123.15700,3a,75y,95h,85t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192",
+        "finding": "User photo at 2268 Cornwall shows a no-parking sign reading 7am–9:30am, Mon–Fri, with its arrow pointing west toward Balsam. The same sign family is visible in August 2024 Street View.",
+        "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri"}],
+        "scope": "Approximate curb extent only; individual space signs and temporary restrictions still control."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15925, 49.27260], [-123.15665, 49.27256]]}
+    },
+    {
+      "id": "cornwall-2268-vine-north-permit",
+      "area": "kitsilano-cornwall-balsam-vine",
+      "street": "Cornwall",
+      "side": "north",
+      "between": ["2268 Cornwall", "Vine"],
+      "category": "permit",
+      "limitMinutes": null,
+      "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": 0, "end": 1440, "label": "Every day"},
+      "outsideSchedule": "not-applicable",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-sign-split",
+      "splitBoundaryNote": "The 2268 Cornwall permit-only sign points east. Only the short, sign-directed curb portion to Vine is included.",
+      "sourceIds": ["user-photos-2026-10-04", "street-view-2024-08"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-04",
+        "imageryDate": "2026-10",
+        "url": "https://www.google.com/maps/@49.27265,-123.15700,3a,75y,95h,85t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192",
+        "finding": "User photo at Beach House, 2268 Cornwall, shows a separate NO PARKING EXCEPT WITH PERMIT sign with its arrow pointing east toward Vine.",
+        "scope": "Approximate curb extent only; individual space signs and temporary restrictions still control."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15662, 49.27256], [-123.15585, 49.27255]]}
+    }
+  ]
+}

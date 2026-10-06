@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "area": "industrial-avenue",
+  "sources": {
+    "user-photos-2026-10-04": {
+      "title": "User photographs of Industrial Avenue parking signs",
+      "checkedOn": "2026-10-04"
+    },
+    "street-view-2022": {
+      "url": "https://www.google.com/maps/@49.2691718,-123.0938533,3a,75y,95h,85t/data=!3m7!1e1!3m5!1s5BxAfANkYxpvU2k7pgtKOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D5%26panoid%3D5BxAfANkYxpvU2k7pgtKOg%26yaw%3D95!7i16384!8i8192",
+      "title": "Google Street View near 455 Industrial Avenue, April 2022",
+      "checkedOn": "2026-10-05"
+    }
+  },
+  "geometryNote": "A short, approximate curb section begins at the photographed sign near 455 Industrial Avenue. It follows the sign arrow only; the next sign boundary is not surveyed.",
+  "restrictionNote": "The user photo shows public two-hour parking, 8am–6pm Monday through Saturday, in the arrowed direction. A separate nearby photo shows commercial loading and no-parking signs; that direction is deliberately excluded from this public-parking section.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "industrial-455-south-2h-east",
+      "area": "industrial-avenue",
+      "street": "Industrial",
+      "side": "south",
+      "between": ["455 Industrial", "east of sign"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 480, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "unknown",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-sign-slice",
+      "splitBoundaryNote": "The 2h sign's arrow points east. This maps only about one short curb segment east of the sign; do not infer the rule farther along Industrial Avenue.",
+      "sourceIds": ["user-photos-2026-10-04", "street-view-2022"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-04",
+        "imageryDate": "2026-10",
+        "url": "https://www.google.com/maps/@49.2691718,-123.0938533,3a,75y,95h,85t/data=!3m7!1e1!3m5!1s5BxAfANkYxpvU2k7pgtKOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D5%26panoid%3D5BxAfANkYxpvU2k7pgtKOg%26yaw%3D95!7i16384!8i8192",
+        "finding": "User photo shows P 2h, 8AM–6PM, Mon–Sat with an arrow east. The opposite direction has a no-parking sign. A separate nearby photo shows commercial loading 7AM–6PM Mon–Fri and a no-parking direction, neither of which is mapped as public parking.",
+        "scope": "Only the arrowed, sign-adjacent portion is included. Adjacent industrial loading and temporary restrictions still control."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09384, 49.26910], [-123.09318, 49.26910]]}
+    }
+  ]
+}
