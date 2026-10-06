@@ -306,21 +306,22 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,4);
     assert.equal(sources.get('blockface-lines').data.features.length,1);
-    assert.equal(sources.get('meter-dots').data.features.length,0);
+    assert.equal(sources.get('meter-dots').data.features.length,5);
     layer.setFilter({free:true,paid:false,restrictions:false,unverified:false});
     assert.equal(sources.get('west-end-curbs').data.features.length,3);
-    assert.equal(sources.get('meter-dots').data.features.length,0);
+    assert.equal(sources.get('meter-dots').data.features.length,4);
     day=0; layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,3);
     layer.setFilter({free:false,paid:false,restrictions:true,unverified:true});
     assert.equal(sources.get('west-end-curbs').data.features.length,1);
     assert.equal(sources.get('blockface-lines').data.features.length,0);
-    assert.equal(sources.get('meter-dots').data.features.length,1);
+    assert.equal(sources.get('meter-dots').data.features.length,2);
     sources.set('west-end-curbs',{setData(d){this.data=d;}}); layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,1);
-    for (const z of [14,13,12.99,13,14,16]) {
+    for (const z of [14,13,12.99,11,10.99,11,13,14,16]) {
       zoom=z; layer.refresh();
       assert.equal(sources.get('west-end-curbs').data.features.length,z >= 13 ? 1 : 0);
+      assert.equal(sources.get('meter-dots').data.features.length,z >= 11 ? 2 : 0);
     }
   } finally {layer.destroy();}
 });

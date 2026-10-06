@@ -359,7 +359,10 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     for (const bl of visibleActive(mins, dow)) {
       const r = rateFor(bl, mins, dow);
       if (bl.curb) {
-        if (z >= 13 && curbVisible(bl.curb, mins, dow, filter)) curbs.push({
+        if (!curbVisible(bl.curb, mins, dow, filter)) continue;
+        dots.push({ type: 'Feature', properties: { color: r.color },
+          geometry: { type: 'Point', coordinates: [bl.lon, bl.lat] } });
+        if (z >= 13) curbs.push({
           type: 'Feature', properties: { id: bl.id, color: r.color },
           geometry: { type: 'LineString', coordinates: bl.curb.geometry.coordinates },
         });
@@ -372,7 +375,8 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
           const c = st.s === 'vacant' ? '#16a34a' : st.s === 'occupied' ? '#9ca3af' : col;   // unknown → price color
           dots.push({ type: 'Feature', properties: { color: c }, geometry: { type: 'Point', coordinates: [st.lon, st.lat] } });
         }
-      } else if (bl.line) {   // Seattle blockface — draw the side of the street, colored by rate ([lat,lon]→[lon,lat])
+      } else if (bl.line) {
+        dots.push({ type: 'Feature', properties: { color: col }, geometry: { type: 'Point', coordinates: [bl.lon, bl.lat] } });   // Seattle blockface — draw the side of the street, colored by rate ([lat,lon]→[lon,lat])
         lines.push({ type: 'Feature', properties: { color: col },
           geometry: { type: 'LineString', coordinates: bl.line.map(([la, lo]) => [lo, la]) } });
       } else {
@@ -450,6 +454,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     applySel();
     firstPaint = false;             // cold load done — every later refresh renders pills instantly
     layer.lastRefreshMs = performance.now() - t0;
+    map.fire?.('parkinglabelsupdated');
   }
 
   map.on('moveend', refresh);

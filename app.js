@@ -1,7 +1,7 @@
 import { initReview, renderReviewDetail } from './review.js?v=32';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=54';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=55';
 import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=36';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
@@ -211,7 +211,7 @@ const EMPTY_FC = { type: 'FeatureCollection', features: [] };
 function installLayers() {
   if (!map.getSource('west-end-curbs')) map.addSource('west-end-curbs', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('west-end-curbs')) map.addLayer({
-    id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 14.5,
+    id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 13,
     layout: { 'line-cap': 'round' },
     paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.8, 'line-dasharray': [0.1, 2.2] },
   });
@@ -229,11 +229,10 @@ function installLayers() {
   });
   if (!map.getSource('ev-chargers')) map.addSource('ev-chargers', { type: 'geojson', data: evChargerData });
   if (!map.getLayer('ev-chargers')) map.addLayer({
-    id: 'ev-chargers', type: 'circle', source: 'ev-chargers', minzoom: 11, maxzoom: 13,
-    paint: { 'circle-color': '#67e8f9', 'circle-radius': 5, 'circle-opacity': evVisible ? 0.62 : 0,
-      'circle-opacity-transition': { duration: 200, delay: 0 }, 'circle-stroke-color': '#111318',
-      'circle-stroke-width': 1, 'circle-stroke-opacity': evVisible ? 0.72 : 0,
-      'circle-stroke-opacity-transition': { duration: 200, delay: 0 } },
+    id: 'ev-chargers', type: 'circle', source: 'ev-chargers', minzoom: 11,
+    paint: { 'circle-color': document.documentElement.dataset.theme === 'dark' ? '#67e8f9' : '#0891b2', 'circle-radius': ['step', ['zoom'], 3, 15, 2.5, 16, 3.5],
+      'circle-opacity': evVisible ? ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9] : 0,
+      'circle-stroke-width': 0 },
   });
   if (!map.getSource('spot-line')) map.addSource('spot-line', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('spot-line')) map.addLayer({
@@ -260,11 +259,14 @@ function refreshEvLayer({ animate = false } = {}) {
   const source = map.getSource('ev-chargers');
   if (source) source.setData(evChargerData);
   if (map.getLayer('ev-chargers')) {
-    map.setPaintProperty('ev-chargers', 'circle-opacity', evVisible ? 0.62 : 0);
-    map.setPaintProperty('ev-chargers', 'circle-stroke-opacity', evVisible ? 0.72 : 0);
+    map.setPaintProperty('ev-chargers', 'circle-opacity', evVisible ? ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9] : 0);
+    map.setPaintProperty('ev-chargers', 'circle-color', document.documentElement.dataset.theme === 'dark' ? '#67e8f9' : '#0891b2');
+
   }
   refreshEvMarkers({ animate });
 }
+
+map.on('parkinglabelsupdated', () => refreshEvMarkers());
 
 function refreshEvMarkers({ animate = false } = {}) {
   for (const marker of evMarkers) {
@@ -280,9 +282,17 @@ function refreshEvMarkers({ animate = false } = {}) {
   // Match the parking/permit label ladder: z<13 gets context dots, z>=13 gets real tappable pills.
   if (!evVisible || !map || map.getZoom() < 13) return;
   const bounds = map.getBounds();
+  const occupied = [];
+  const origin = map.getContainer().getBoundingClientRect();
+  const parkingRects = [...map.getContainer().querySelectorAll('.plabel:not(.p-ev):not(.out)')].map(el => el.getBoundingClientRect());
   for (const feature of evChargerData.features) {
     const [lon, lat] = feature.geometry.coordinates;
     if (!bounds.contains([lon, lat])) continue;
+    const px = map.project([lon, lat]);
+    if (occupied.length >= 150 || occupied.some(p => Math.abs(p.x-px.x) < 56 && Math.abs(p.y-px.y) < 30)) continue;
+    const left = origin.left + px.x - 28, top = origin.top + px.y - 37;
+    if (parkingRects.some(r => left < r.right + 4 && left + 56 > r.left - 4 && top < r.bottom + 4 && top + 30 > r.top - 4)) continue;
+    occupied.push(px);
     const el = document.createElement('div');
     el.innerHTML = '<div class="plabel p-ev">EV</div>';
     if (animate) el.firstElementChild.classList.add('in');

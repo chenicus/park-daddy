@@ -419,7 +419,8 @@
   .plabel.p2 { --c: #d97706; }
   .plabel.p3 { --c: #ea580c; }
   .plabel.p4 { --c: #dc2626; }
-  .plabel.p-ev { --c: #06b6d4; color: #07151a; }
+  .plabel.p-ev { --c: #0891b2; }
+  :root[data-theme="dark"] .plabel.p-ev { --c: #67e8f9; }
   /* selected: the fill stays EXACTLY its tier's colour — the thicker ring, the 1.15 scale, the
      deeper shadow and the z-lift carry the state instead. Selection used to darken the fill, but
      the tiers are a price ramp, so darkening walked a pill into its pricier neighbour's colour
@@ -1663,7 +1664,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=192"></script>
+<script type="module" src="app.js?v=193"></script>
 <script type="module" src="theme-sheet.js?v=2"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
