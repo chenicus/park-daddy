@@ -297,18 +297,16 @@
   body.nav .menubtn { display: none; }
   .chips { position: absolute; z-index: 500; top: calc(env(safe-area-inset-top, 0px) + 68px);
     left: 16px; display: flex; gap: 8px; }
-  @media (max-width: 759px) { .chips { right: 16px; flex-wrap: wrap; } }
   .chip { height: 32px; padding: 0 11px; border-radius: 12px; border: 1px solid var(--stroke);
     color: var(--text); font-family: inherit; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.2px;
     display: flex; align-items: center; gap: 6px; box-shadow: var(--shadow); cursor: pointer;
     transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-press) var(--ease-press); }
-  .seg .cost a { color: inherit; text-underline-offset: 3px; }
   .chip:active { transform: scale(.965); }
-  .chip:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .chip.on { background: var(--chip-sel); color: var(--text); border-color: var(--stroke); box-shadow: var(--shadow); }
+  .chip.on::before { display: none; }
   .chip svg { width: 1.1em; height: 1.1em; }
   .chip .chk { width: 1em; height: 1em; margin-left: -2px; display: none; }
   .chip.on .chk { display: block; }
-  @media (max-width: 759px) { .chip { min-height: 40px; } }
 
   /* ---- trip pill (arrival) ---- */
   .chip.trip { gap: 5px; }
@@ -408,18 +406,11 @@
     margin: 0 4px 0 -2px; border-radius: 50%; background: #fff; color: #b45309;
     font-size: var(--fs-micro); font-weight: 700; line-height: 1; vertical-align: 1px; }
   .plabel .plim { opacity: .75; }   /* unit + max-stay (/hr · 2h) recedes via opacity only; keeps the price's 500 weight so it stays legible */
-  .plabel.p-permit { --c: #7c3aed; }
-  .plabel.p-unknown { --c: #a16207; }
-  #spotcard { max-height: 75dvh; overflow-y: auto; overscroll-behavior: contain; }
-  #scrows details > div { margin-top: 10px; }
-  #scrows summary { cursor: pointer; font-weight: 600; }
-  #scrows a { color: inherit; text-decoration: none; }
   .plabel.p-free { --c: #2563eb; }
   .plabel.p1 { --c: #16a34a; }
   .plabel.p2 { --c: #d97706; }
   .plabel.p3 { --c: #ea580c; }
   .plabel.p4 { --c: #dc2626; }
-  .plabel.p-ev { --c: #06b6d4; color: #07151a; }
   /* selected: the fill stays EXACTLY its tier's colour — the thicker ring, the 1.15 scale, the
      deeper shadow and the z-lift carry the state instead. Selection used to darken the fill, but
      the tiers are a price ramp, so darkening walked a pill into its pricier neighbour's colour
@@ -457,8 +448,6 @@
   .plabel.out { animation: pillOut 200ms var(--ease-standard) forwards; pointer-events: none; }
   /* dark mode: brighter, more saturated tiers so pills pop against the black map.
      Selected reuses the same tier colour — see the .sel note above. */
-  :root[data-theme="dark"] .plabel.p-permit { --c: #b49aff; }
-  :root[data-theme="dark"] .plabel.p-unknown { --c: #dfb568; }
   :root[data-theme="dark"] .plabel.p-free { --c: #5b91f5; }
   :root[data-theme="dark"] .plabel.p1 { --c: #22c55e; }
   :root[data-theme="dark"] .plabel.p2 { --c: #f59e0b; }
@@ -562,23 +551,25 @@
     transition: transform var(--dur-press) var(--ease-press); }
   body.driving #recenter { right: auto; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
   /* during turn-by-turn, recenter + compass + theme toggle float as a right-side stack above the full-width ETA bar */
-  body.nav #recenter { left: auto; right: 16px; bottom: max(calc(env(safe-area-inset-bottom, 0px) + 210px), calc(var(--sheet-clearance, 0px) + 116px)); z-index: 1201; }
+  body.nav #recenter { left: auto; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 210px); }
   /* compass — heading-up (POV) ⇄ north-up in drive/nav, north-reset in browse. JS rotates the
      needle by -bearing on every map 'rotate' so its point always holds true north. */
-  #compass { position: absolute; z-index: 1201; right: 16px; bottom: max(calc(env(safe-area-inset-bottom, 0px) + 82px), calc(var(--sheet-clearance, 0px) + 58px));
+  #compass { position: absolute; z-index: 600; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
-    display: grid; place-items: center; color: var(--text); cursor: pointer; }
-  /* Keep navigation orientation available in every map mode. */
+    display: none; place-items: center; color: var(--text); cursor: pointer; }
+  /* shown in drive/nav (heading-up toggle) and, like Google Maps, whenever the map is rotated
+     off north in plain browse mode (body.rotated, set by JS on the map 'rotate' event). */
+  body.nav #compass, body.driving #compass, body.rotated #compass { display: grid; }
   /* Nav bar takes the bottom, so the whole right-side stack lifts together — but keeps
      the drive-mode order (theme lowest, compass above it, recenter on top). */
-  body.nav #compass { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 146px), calc(var(--sheet-clearance, 0px) + 58px)); }
+  body.nav #compass { bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
   #compass:active { filter: brightness(.94); }
   /* JS rotates the needle by -bearing on every map 'rotate' so its point always holds true north. */
   #compass svg { width: 26px; height: 26px; }
   /* theme toggle (light/dark) — always right-aligned with recenter/compass, so it moves straight
      up the same column in drive/nav mode instead of jumping across the screen. */
-  #themetoggle { position: absolute; z-index: 1201; right: 16px;
-    bottom: max(calc(env(safe-area-inset-bottom, 0px) + 24px), var(--sheet-clearance, 0px));
+  #themetoggle { position: absolute; z-index: 600; right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
     color: var(--text); display: grid; place-items: center; cursor: pointer; }
   #themetoggle svg { width: 22px; height: 22px; transition: transform var(--dur-slow) var(--ease-standard); }
@@ -599,7 +590,7 @@
   }
   /* during turn-by-turn, theme stays the lowest icon (matching drive mode); compass and
      recenter stack above it. */
-  body.nav #themetoggle { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 82px), var(--sheet-clearance, 0px)); }
+  body.nav #themetoggle { bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); }
 
   /* ---- turn-by-turn chrome ---- */
   #navbanner { position: absolute; z-index: 640; top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -650,9 +641,6 @@
      makes it read as the sheet obeying. Same curve, so it's still recognisably one motion. */
   .spotcard[hidden] { transform: translateY(110%); visibility: hidden; pointer-events: none;
     transition: transform var(--dur-base) var(--ease-sheet), visibility 0s var(--dur-base); }
-  /* A charger and a parking pin are alternate views of the same map interaction. Swap their
-     content in place instead of making one sheet leave before the other arrives. */
-  .spotcard.sheet-swap, .spotcard.sheet-swap[hidden] { transition: none; }
 
   /* ---- grab handle: the "you can push me down" bar every sheet wears ----
      The standard 36x5 iOS grabber, on --tertiary — already the token for furniture at
@@ -720,12 +708,12 @@
   #scsub { line-height: 1.25; min-height: 1.25em; }
   .sc-sched { margin-top: 14px; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .sc-sched[hidden] { display: none; }
-  .sc-sched .seg { display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  .sc-sched .seg { display: flex; justify-content: space-between; align-items: center;
     padding: 14px; font-size: var(--fs-body); letter-spacing: -.2px; border-top: 1px solid var(--line); }
   .sc-sched .seg:first-child { border-top: none; }
   /* baseline, not center: .lim is a smaller size and centering floats it off the text's feet */
-  .sc-sched .seg .when { color: var(--muted-strong); display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
-  .sc-sched .seg .cost { flex-shrink: 0; text-align: right; font-weight: 600; color: var(--text); }
+  .sc-sched .seg .when { color: var(--muted-strong); display: flex; align-items: baseline; }
+  .sc-sched .seg .cost { font-weight: 600; color: var(--text); }
   .sc-sched .seg.free .cost { color: var(--free); }
   .sc-sched .seg.tow .cost { color: #ff3b30; }
   .sc-sched .seg.active { background: var(--chip); }
@@ -733,26 +721,18 @@
   /* the max stay is a footnote on the window, not half of it — at row size the two read as
      one long label and the time range stopped being the thing you scan for */
   .sc-sched .seg .lim { font-size: var(--fs-caption); color: var(--muted); font-weight: 400; }
-  /* Keep the max-stay separator close to the days label. */
-  .dot-sep::before { content: '·'; margin: 0 2px; }
-  @media (max-width: 400px) {
-    .sc-sched .seg .lim { flex-basis: 100%; }
-    .sc-sched .seg .lim.dot-sep::before { display: none; }
-  }
+  /* Shared "·" footnote separator: it carries its own equal margins so the dot sits
+     equidistant from both labels. A flex `gap` can't do this — it pads only the dot's
+     leading side and leaves the narrower word-space after it. */
+  .dot-sep::before { content: '·'; margin: 0 6px; }
   .sc-rows { margin-top: 14px; font-size: var(--fs-body); line-height: 1.45; letter-spacing: -.2px; color: var(--text); }
-  .ev-table { width:100%; margin-top:14px; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--line); border-radius:12px; font-size:var(--fs-body); table-layout:fixed; }
-  .ev-table th, .ev-table td { padding:12px 14px; border-top:1px solid var(--line); vertical-align:top; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .ev-table tr:first-child th, .ev-table tr:first-child td { border-top:0; }
-  .ev-table th { width:38%; color:var(--muted); font-weight:500; text-align:left; }
-  .ev-table td { color:var(--text); text-align:right; }
-  .ev-table a { display:block; overflow:hidden; text-overflow:ellipsis; color:var(--accent); text-decoration:none; font-weight:600; }
-  .ev-port-note { margin-left:6px; color:var(--muted); font-size:var(--fs-caption); font-weight:500; }
   .sc-rows > div { padding: 4px 0; }
   .sc-rows svg.ic { stroke: var(--muted); margin-right: .35em; }
   .sc-rows .ok { color: var(--green); }
   .sc-rows .warn { color: #ff3b30; }
   .sc-rows .warn svg.ic { stroke: currentColor; }
-  /* PayByPhone is a payment handoff: a full, branded tap target that copies the code. */
+  /* PayByPhone is a payment handoff, not a fact to read: give it a full, familiar
+     tap target and use the provider's wordmark instead of a generic information icon. */
   .sc-rows .paybyphone { width: 100%; min-height: 44px; padding: 8px 10px; display: flex; align-items: center;
     gap: 9px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--text);
     font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
@@ -760,16 +740,7 @@
   .sc-rows .paybyphone img { width: 96px; height: auto; max-height: 24px; object-fit: contain; }
   .sc-rows .paybyphone > span { white-space: nowrap; }
   .sc-rows .paybyphone .pbp-open { margin-left: auto; color: var(--accent); font-size: var(--fs-body); font-weight: 600; letter-spacing: -.2px; text-decoration: none; }
-  .sc-rows .paybyphone .pbp-copy-icon { width: 18px; height: 18px; margin-left: 4px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .sc-rows .paybyphone, .sc-rows .paybyphone * { text-decoration: none; }
-  /* Operator source row deliberately mirrors the PayByPhone treatment: operator on
-     the left, a single clear handoff on the right, then explanatory text below. */
-  .sc-rows .operator-source-row { width: 100%; min-height: 44px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--line); border-radius: 12px; background: transparent; color: var(--text); text-decoration: none; }
-  .sc-rows .operator-source-row:active { background: var(--chip); }
-  #scrows .operator-source-row, #scrows .operator-source-row * { text-decoration: none; }
-  .sc-rows .operator-meta { color: var(--muted); font-size: var(--fs-caption); font-weight: 500; }
-  .sc-rows .operator-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
-  .sc-rows .operator-caption { color: var(--muted); font-size: var(--fs-caption); line-height: 1.4; padding: 8px 2px 0; }
   .sc-rows a { color: var(--accent); text-decoration: none; }
   /* Kirkland live availability row */
   /* baseline so the smaller .live-ago sits on the sentence's feet; gap: 0 because the
@@ -797,7 +768,7 @@
      globally, so the border costs no height and both buttons stay on 46px. */
   .sc-actions .ghost { flex: 1.7; height: 46px; display: grid; place-items: center;
     border-radius: 14px; background: var(--chip); border: 1px solid var(--line); color: var(--accent);
-    text-decoration: none; font-size: var(--fs-body); font-weight: 500; letter-spacing: -.15px; }
+    text-decoration: none; font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.3px; }
   .sc-actions .ghost:active { filter: brightness(.96); }
 
   /* ---- crowd reports on the spot card ---- */
@@ -1060,25 +1031,6 @@
        no bottom to push them down to, and the drag is touch-only anyway. */
     .spotcard::before, .rlpanel::before { content: none; }
   }
-
-.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
-#reviewToggle { text-decoration:none; color:inherit; }
-.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
-.review-legend p { margin:5px 0; }
-.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
-.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
-.review-highlight { width:100%; margin-top:8px; padding:8px; border:1px solid var(--line-strong); border-radius:8px; color:inherit; background:var(--chip); font:inherit; font-weight:700; cursor:pointer; }
-.review-highlight[aria-pressed="true"] { color:#111827; background:#facc15; border-color:#ca8a04; }
-.audit-toolbar { position:absolute; left:12px; bottom:24px; z-index:10; display:flex; align-items:center; gap:8px; max-width:calc(100vw - 24px); padding:8px; border-radius:12px; font-size:13px; }
-.audit-tool,.audit-go { border:0; border-radius:9px; padding:9px 11px; color:var(--text); background:var(--chip); font:inherit; font-weight:700; cursor:pointer; white-space:nowrap; }
-.audit-go { color:var(--on-accent); background:var(--accent); }.audit-go:disabled { opacity:.45; cursor:default; }
-.audit-status { max-width:180px; color:var(--muted-strong); line-height:1.25; }
-.audit-area-handle { width:18px; height:18px; border:3px solid #fff; border-radius:50%; background:#2563eb; box-shadow:0 1px 5px #0008; cursor:grab; }
-.audit-area-delete { width:28px; height:28px; border:2px solid #fff; border-radius:50%; color:#fff; background:#dc2626; box-shadow:0 1px 5px #0008; font:700 22px/20px system-ui; cursor:pointer; }
-.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
-.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
-.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
-.review-detail p { margin:5px 0; }
 </style>
 <style id="pdSplashStyle">
 #pdSplash{position:fixed;inset:0;z-index:9999;display:none;align-items:center;
@@ -1158,17 +1110,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   /* the fade-in above is animation-driven, so restore the end state directly */
   #pdSplash.pd-stalled #pdSplashMsg{opacity:1}
 }
-
-.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
-#reviewToggle { text-decoration:none; color:inherit; }
-.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
-.review-legend p { margin:5px 0; }
-.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
-.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
-.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
-.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
-.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
-.review-detail p { margin:5px 0; }
 </style>
 </head>
 <body>
@@ -1251,10 +1192,8 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="iconbtn" id="here" type="button" aria-label="Use my location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></button>
 </form>
 <div class="chips">
-  <button class="chip mat on" id="chipFree" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
-  <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
-  <button class="chip mat" id="chipRestrictions" type="button" aria-pressed="false" title="Show permit parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit</button>
-  <button class="chip mat" id="chipEV" type="button" aria-pressed="false" title="Show public EV chargers"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>EV</button>
+  <button class="chip mat on" id="chipFree" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
+  <button class="chip mat on" id="chipPaid" type="button"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time" aria-controls="tripcard" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
@@ -1329,22 +1268,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
     </button>
     <a class="ghost" id="scmaps" target="_blank" rel="noopener">Open in Maps ↗</a>
   </div>
-</div>
-
-<div class="spotcard mat" id="evsheet" hidden>
-  <div class="sc-head">
-    <div>
-      <div class="sc-price sheet-title" id="evTitle">EV charging</div>
-      <div class="sc-sub meta" id="evSub"></div>
-    </div>
-    <div class="sc-tools">
-      <button class="iconbtn mini" id="evShare" type="button" aria-label="Share this charger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" x2="15.4" y1="10.5" y2="6.5"/><line x1="8.6" x2="15.4" y1="13.5" y2="17.5"/></svg></button>
-      <button class="iconbtn mini" id="evReport" type="button" aria-label="Report incorrect info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></button>
-      <button class="iconbtn dismiss" id="evClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-    </div>
-  </div>
-  <table class="ev-table" id="evRows"></table>
-  <div class="sc-actions"><button class="primary" id="evStart" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Navigate</button><a class="ghost" id="evMaps" target="_blank" rel="noopener">Open in Maps ↗</a></div>
 </div>
 
 <div class="spotcard mat" id="reportsheet" hidden>
@@ -1521,17 +1444,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
        app.js, which no CSS rule can reach. It checks the same media query itself and swaps
        instantly — see the themetoggle handler. */
   }
-
-.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
-#reviewToggle { text-decoration:none; color:inherit; }
-.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
-.review-legend p { margin:5px 0; }
-.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
-.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
-.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
-.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
-.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
-.review-detail p { margin:5px 0; }
 </style>
 
 <!-- ---- Start-nav disclaimer (one-time) ---- -->
@@ -1561,17 +1473,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   .nw-primary:active { filter: brightness(.96); }
   .nw-secondary { background: var(--chip); color: var(--text); }
   .nw-secondary:active { filter: brightness(.96); }
-
-.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
-#reviewToggle { text-decoration:none; color:inherit; }
-.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
-.review-legend p { margin:5px 0; }
-.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
-.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
-.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
-.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
-.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
-.review-detail p { margin:5px 0; }
 </style>
 <div id="navwarn" role="dialog" aria-modal="true" aria-labelledby="nwTitle">
   <div class="wc-card">
@@ -1641,17 +1542,6 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   .wc-chev svg { width: 18px; height: 18px; }
   .wc-note { font-size: var(--fs-caption); line-height: 1.5; color: var(--muted);
     margin-top: 20px; }
-
-.review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
-#reviewToggle { text-decoration:none; color:inherit; }
-.review-legend { position:absolute; top:125px; left:12px; z-index:10; width:min(330px,calc(100vw - 24px)); padding:12px; border-radius:14px; font-size:12px; line-height:1.5; background:var(--bg,#fff); }
-.review-legend p { margin:5px 0; }
-.review-key { display:inline-block; width:11px; height:11px; border-radius:50%; margin-right:7px; }
-.review-legend select { width:100%; margin-top:8px; padding:7px; color:inherit; background:inherit; }
-.review-dot { width:30px; height:30px; border:2px solid white; border-radius:50%; color:white; font-weight:800; box-shadow:0 1px 5px #0008; cursor:pointer; }
-.review-dot:focus-visible { outline:3px solid #111; outline-offset:3px; }
-.review-detail { padding:10px 12px; font-size:12px; line-height:1.45; }
-.review-detail p { margin:5px 0; }
 </style>
 <div id="welcome" role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wc-sheet">
@@ -1663,8 +1553,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=184"></script>
-<script type="module" src="theme-sheet.js?v=2"></script>
+<script type="module" src="app.js?v=182"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
