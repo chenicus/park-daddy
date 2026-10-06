@@ -620,6 +620,7 @@ async function pollKirkLive() {
     map.jumpTo({ center: [startupPos.lon, startupPos.lat], zoom: 16 });
     await loadCity(startupKey);
     mapContainer.style.visibility = '';
+    if (driving && !driving.isActive()) driving.start({ passive: true });
     return;
   }
   if (savedKey) { mapContainer.style.visibility = ''; return; }
@@ -1184,6 +1185,7 @@ $('here').addEventListener('click', async () => {
   if (driving?.isActive() && driving.lastPos()) { driving.setFollow(true); return; }
   const pos = await getPosition();
   if (!pos) { toast('Could not get your location.'); return; }
+  if (driving && !driving.isActive()) driving.start({ passive: true });
   driving?.setFollow(true);              // arm follow for incoming fixes
   map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
 });
