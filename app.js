@@ -14,6 +14,15 @@ const TOPN = 5;
 let meters = [];
 const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
+const VANCOUVER_EV_SOURCE = 'https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/electric-vehicle-charging-stations/records?limit=100';
+const NRCAN_VANCOUVER_EV_SOURCE = "https://services.arcgis.com/wjcPoefzjpzCgffS/arcgis/rest/services/Electric_Charging_Stations_in_Canada/FeatureServer/0/query?where=City%3D%27Vancouver%27%20AND%20State%3D%27BC%27%20AND%20Status_Code%3D%27E%27%20AND%20Access_Code%3D%27public%27&outFields=Station_Name%2CStreet_Address%2CEV_Level2_EVSE_Num%2CEV_DC_Fast_Count%2CEV_Network%2CEV_Network_Web%2CEV_Connector_Types%2CEV_Pricing%2CAccess_Days_Time%2CID&returnGeometry=true&outSR=4326&f=geojson";
+let evChargerData = { type: 'FeatureCollection', features: [] };
+let evChargersLoaded = false;
+let evVisible = false;
+let evMarkers = [];
+let activeEvMarker = null;
+let activeEvCharger = null;
+let activeEvPoint = null;
 // This is deliberately shaped like a normal block-face. It lives in the shared
 // label layer, so its dot, clusters, zoom threshold, tap target and selection
 // animation are identical to every other parking result.
@@ -153,6 +162,13 @@ const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
+const LAST_CITY_KEY = 'pd_last_city';
+const GEO_PERMISSION_KEY = 'pd_geo_permission';
+function storedCity() {
+  const key = store.get(LAST_CITY_KEY);
+  return key && CITIES[key] ? key : DEFAULT_CITY;
+}
+function rememberCity(key) { if (CITIES[key]) store.set(LAST_CITY_KEY, key); }
 // CARTO's free, no-API-key VECTOR styles — Positron (light) / Dark Matter (dark). Vector so the
 // map can truly rotate/pitch and MapLibre keeps street labels upright; near-identical muted look
 // to the old raster basemaps. Attribution rides inside each style's sources → shown by the
@@ -204,6 +220,14 @@ function installLayers() {
     paint: { 'circle-color': ['get', 'color'], 'circle-radius': ['step', ['zoom'], 3, 15, 2.5, 16, 3.5],
       'circle-opacity': ['step', ['zoom'], 0.6, 15, 0.4, 16, 0.9] },
   });
+  if (!map.getSource('ev-chargers')) map.addSource('ev-chargers', { type: 'geojson', data: evChargerData });
+  if (!map.getLayer('ev-chargers')) map.addLayer({
+    id: 'ev-chargers', type: 'circle', source: 'ev-chargers', minzoom: 11, maxzoom: 13,
+    paint: { 'circle-color': '#67e8f9', 'circle-radius': 5, 'circle-opacity': evVisible ? 0.62 : 0,
+      'circle-opacity-transition': { duration: 200, delay: 0 }, 'circle-stroke-color': '#111318',
+      'circle-stroke-width': 1, 'circle-stroke-opacity': evVisible ? 0.72 : 0,
+      'circle-stroke-opacity-transition': { duration: 200, delay: 0 } },
+  });
   if (!map.getSource('spot-line')) map.addSource('spot-line', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('spot-line')) map.addLayer({
     // round join matters now the line bends around corners — a miter would spike at tight turns
@@ -223,6 +247,98 @@ function installLayers() {
     paint: { 'line-color': '#1e1e20', 'line-width': 6 },
   });
   brightenDarkPaths();
+}
+
+function refreshEvLayer({ animate = false } = {}) {
+  const source = map.getSource('ev-chargers');
+  if (source) source.setData(evChargerData);
+  if (map.getLayer('ev-chargers')) {
+    map.setPaintProperty('ev-chargers', 'circle-opacity', evVisible ? 0.62 : 0);
+    map.setPaintProperty('ev-chargers', 'circle-stroke-opacity', evVisible ? 0.72 : 0);
+  }
+  refreshEvMarkers({ animate });
+}
+
+function refreshEvMarkers({ animate = false } = {}) {
+  for (const marker of evMarkers) {
+    const pill = marker.getElement()?.firstElementChild;
+    if (animate && pill) {
+      pill.classList.remove('in');
+      pill.classList.add('out');
+      setTimeout(() => marker.remove(), 240);
+    } else marker.remove();
+  }
+  evMarkers = [];
+  activeEvMarker = null;
+  // Match the parking/permit label ladder: z<13 gets context dots, z>=13 gets real tappable pills.
+  if (!evVisible || !map || map.getZoom() < 13) return;
+  const bounds = map.getBounds();
+  for (const feature of evChargerData.features) {
+    const [lon, lat] = feature.geometry.coordinates;
+    if (!bounds.contains([lon, lat])) continue;
+    const el = document.createElement('div');
+    el.innerHTML = '<div class="plabel p-ev">EV</div>';
+    if (animate) el.firstElementChild.classList.add('in');
+    const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+      .setLngLat([lon, lat]).addTo(map);
+    el.addEventListener('click', () => {
+      if (activeEvMarker && activeEvMarker !== marker)
+        activeEvMarker.getElement()?.firstElementChild?.classList.remove('sel');
+      activeEvMarker = marker;
+      el.firstElementChild.classList.remove('in', 'out');
+      el.firstElementChild.classList.add('sel');
+      openEvSheet(feature.properties, [lon, lat]);
+    });
+    evMarkers.push(marker);
+  }
+}
+
+async function loadVancouverEvChargers() {
+  if (evChargersLoaded) return;
+  try {
+    const cityRequest = fetch(VANCOUVER_EV_SOURCE).then((response) => {
+      if (!response.ok) throw new Error(`EV data request failed: ${response.status}`);
+      return response.json();
+    });
+    const federalRequest = fetch(NRCAN_VANCOUVER_EV_SOURCE).then((response) => {
+      if (!response.ok) throw new Error(`National EV data request failed: ${response.status}`);
+      return response.json();
+    });
+    const [cityPayload, federalPayload] = await Promise.all([cityRequest, federalRequest]);
+    const cityFeatures = (cityPayload.results || []).filter((row) => row.status === 'Active' && row.geom?.geometry?.coordinates).map((row) => ({
+      type: 'Feature', geometry: row.geom.geometry,
+      properties: { address: row.address, location: row.location, connectors: row.connectors, ports: row.ports,
+        cost: row.cost, access: row.access, operator: row.operator, lotType: row.lot_type, mapId: row.map_id,
+        hours: null, operatorUrl: null, level2: row.level_1, fast: null, source: 'City of Vancouver Open Data' },
+    }));
+    const federalFeatures = (federalPayload.features || []).filter((feature) => feature.geometry?.coordinates).map((feature) => {
+      const row = feature.properties || {};
+      const ports = (Number(row.EV_Level2_EVSE_Num) || 0) + (Number(row.EV_DC_Fast_Count) || 0);
+      return {
+        type: 'Feature', geometry: feature.geometry,
+      properties: { address: row.Street_Address, location: row.Station_Name, connectors: row.EV_Connector_Types,
+          ports: ports || null, cost: row.EV_Pricing, access: 'Public', hours: row.Access_Days_Time, operator: row.EV_Network,
+          operatorUrl: row.EV_Network_Web, level2: row.EV_Level2_EVSE_Num, fast: row.EV_DC_Fast_Count, mapId: row.ID, source: 'Natural Resources Canada' },
+      };
+    });
+    const seen = new Set();
+    const uniqueFeatures = [...cityFeatures, ...federalFeatures].filter((feature) => {
+      const [lon, lat] = feature.geometry.coordinates;
+      const key = `${lon.toFixed(5)},${lat.toFixed(5)}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    evChargerData = {
+      type: 'FeatureCollection',
+      features: uniqueFeatures,
+    };
+    evChargersLoaded = true;
+    refreshEvLayer();
+  } catch {
+    $('chipEV').disabled = true;
+    $('chipEV').title = 'Public EV-charger data is unavailable right now';
+  }
 }
 // CARTO's dark-matter basemap draws footpaths (road_path/tunnel_path/bridge_path) at #262626 —
 // a dashed line that all but disappears against the map's #0e0e0e background. Positron (light)
@@ -336,7 +452,7 @@ let freeBlocks = [];
 // Multi-city: the current city is whichever CITIES bounds contain the map center. We
 // lazy-load a city's feeds the first time you're there (on open via geolocation, or on
 // pan/search into it), pushing its blocks into the shared `blocks` array.
-let activeCity = DEFAULT_CITY;
+let activeCity = storedCity();
 // Set once the first-visit picker sends us somewhere: it suppresses the best-effort geolocation
 // recenter below so an incoming GPS fix can't yank the map off the city the user just tapped.
 let cityChosen = false;
@@ -360,6 +476,7 @@ async function goToCity(key) {
   const c = CITIES[key];
   if (!c) return;
   cityChosen = true;
+  rememberCity(key);
   track('city_switched', { city: key });
   activeCity = key;
   await mapLoaded;
@@ -399,6 +516,7 @@ async function loadCity(key) {
       else if (d.kind === 'sanjose') { pushBlocks(buildSanJoseBlocks(data)); }
       else if (d.kind === 'kirkland') { const kb = buildKirklandBlocks(data); pushBlocks(kb); startKirkLive(kb, c.live); }
     });
+    if (key === 'vancouver') loadVancouverEvChargers();
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
@@ -518,10 +636,11 @@ async function pollKirkLive() {
   // Paint the default city now so pills show right away. Passive drive mode (see
   // initLiveLabels) recenters the camera on the user once GPS warms up; here we only detect +
   // load the RIGHT city's data. c.center is Leaflet [lat, lon]; MapLibre wants [lng, lat].
-  const c = CITIES[DEFAULT_CITY];
-  activeCity = DEFAULT_CITY;
+  const initialCity = storedCity();
+  const c = CITIES[initialCity];
+  activeCity = initialCity;
   map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
-  await loadCity(DEFAULT_CITY);
+  await loadCity(initialCity);
 
   if (params.get('dest')) { run(null, true); return; }   // text-search deep link
 
@@ -545,12 +664,13 @@ async function pollKirkLive() {
   // Best-effort recenter, capped at 5s so a slow or ignored permission prompt never stalls boot.
   const pos = await Promise.race([
     getPosition().catch(() => null),
-    new Promise((r) => setTimeout(() => r(null), 5000)),
+    new Promise((r) => setTimeout(() => r(null), 15000)),
   ]);
   if (!pos) return;
   if (cityChosen) return;                                // user picked a city in the welcome — respect it
   const key = cityAt(pos.lat, pos.lon);
   if (!key) return;                                      // outside coverage — stay on the default city
+  rememberCity(key);
   if (key !== activeCity) { activeCity = key; await loadCity(key); }
   map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
 })();
@@ -563,8 +683,13 @@ function getPosition() {
     if (cachedPos) return res(cachedPos);
     if (!navigator.geolocation) return res(null);
     navigator.geolocation.getCurrentPosition(
-      (p) => { cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude }; res(cachedPos); },
-      () => res(null), { timeout: 8000, maximumAge: 60000 }
+      (p) => {
+        store.set(GEO_PERMISSION_KEY, 'granted');
+        cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude };
+        res(cachedPos);
+      },
+      (e) => { if (e?.code === 1) store.set(GEO_PERMISSION_KEY, 'denied'); res(null); },
+      { timeout: 20000, maximumAge: 300000 }
     );
   });
 }
@@ -1024,6 +1149,12 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
+$('chipEV').addEventListener('click', () => {
+  evVisible = !evVisible;
+  $('chipEV').classList.toggle('on', evVisible);
+  $('chipEV').setAttribute('aria-pressed', String(evVisible));
+  refreshEvLayer({ animate: !matchMedia('(prefers-reduced-motion: reduce)').matches });
+});
 $('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
@@ -1338,6 +1469,7 @@ async function startNav(target) {
   // counts every navigation start, not just a user's very first one — see nwStart below.
   track('navigation_started', { city: activeCity });
   closeSpotCard();   // full teardown (spot line + pill highlight), not just hide
+  closeEvSheet();
   const dest = { lat: target.lat, lon: target.lon };
   const from = driving.lastPos() || (params.get('sim') ? SIM_START : await getPosition());
   if (!from) { toast('Could not get your location — opening Google Maps.'); window.open(navUrl(dest)); return; }
@@ -1568,7 +1700,19 @@ function flashSpotContent() {
       { duration: 190, easing: 'cubic-bezier(.32,.72,0,1)' });
   });
 }
+function swapBottomSheet(from, to, closeFrom) {
+  if (from.hidden) return false;
+  from.classList.add('sheet-swap');
+  to.classList.add('sheet-swap');
+  closeFrom();
+  requestAnimationFrame(() => {
+    from.classList.remove('sheet-swap');
+    to.classList.remove('sheet-swap');
+  });
+  return true;
+}
 function showSpotCard(b) {
+  if (!swapBottomSheet($('evsheet'), $('spotcard'), closeEvSheet)) closeEvSheet();
   const wasOpen = !$('spotcard').hidden;
   cardBlock = b;
   $('scstart').hidden = false;
@@ -1813,6 +1957,94 @@ map.on('click', 'west-end-curbs', (e) => {
 map.on('mouseenter', 'west-end-curbs', () => { map.getCanvas().style.cursor = 'pointer'; });
 map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''; });
 
+function compactEvHours(value) {
+  if (!value) return { hours: null, portNote: null };
+  const parts = String(value).split(/[.;]+/).map((part) => part.trim()).filter(Boolean);
+  const vehiclePart = parts.find((part) => /\btesla/i.test(part));
+  const portNote = vehiclePart
+    ? vehiclePart.replace(/^open to\s+/i, '').replace(/\bteslas\b/i, 'Tesla').replace(/\s+only\.?$/i, ' only')
+    : null;
+  const hours = (parts[0] || '').replace(/\bdaily\b/i, '').replace(/\s+/g, ' ').trim();
+  return { hours: hours || null, portNote };
+}
+
+function compactEvPrice(value) {
+  if (!value) return { price: null, maxStay: null };
+  const raw = String(value).trim();
+  const maxMatch = raw.match(/(\d+(?:\.\d+)?)\s*hours?\s+maximum charge time/i);
+  const maxStay = maxMatch ? `${maxMatch[1]}h` : null;
+  let price = raw
+    .replace(/\bper hour\b/gi, '/hr')
+    .replace(/\bper kwh\b/gi, '/kWh')
+    .replace(/\s+\/(hr|kWh)\b/g, '/$1')
+    .replace(/\bfor first (\d+) hours?\b/gi, 'first $1h')
+    .replace(/\bfor (\d+) hours?\b/gi, 'first $1h')
+    .replace(/;?\s*\d+(?:\.\d+)?\s*hours?\s+maximum charge time\s*;?/i, '')
+    .replace(/(?:;|,)\s*(\d+) minute grace period then (\$[\d.]+)\/hr idle fee/i, ' · idle $2/hr after $1m')
+    .replace(/(?:,\s*idle fee,?\s*)(\d+) min(?:ute)? grace period,?\s*(\$[\d.]+)\/hr thereafter/i, ' · idle $2/hr after $1m')
+    .replace(/\bFree for first (\d+) hours?;?\s*(\$[\d.]+)\/hr thereafter/i, 'Free first $1h, then $2/hr')
+    .replace(/\bFree for guest use only;?\s*see front desk for access;?\s*parking fee required/i, 'Free guests · parking fee')
+    .replace(/\bFree;?\s*parking fee required for non-guests/i, 'Free guests · parking fee')
+    .replace(/\bFree;?\s*parking fee required/i, 'Free · parking fee')
+    .replace(/\bPlease download (.+?) app for current pricing\.?/i, 'See $1 app')
+    .trim();
+  price = price
+    .replace(/^(\$[\d.]+\/hr) first (\d+h),\s*(\$[\d.]+\/hr) after$/i, '$1 · first $2, then $3')
+    .replace(/^(\$[\d.]+\/hr) first hour,\s*(\$[\d.]+\/hr) after$/i, '$1 · first 1h, then $2')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^;|;$/g, '')
+    .trim();
+  return { price: price || null, maxStay };
+}
+
+function renderEvDetails() {
+  if (!activeEvCharger) return;
+  const { hours, portNote } = compactEvHours(activeEvCharger.hours);
+  const { price, maxStay } = compactEvPrice(activeEvCharger.cost);
+  const portValue = activeEvCharger.ports && `${esc(String(activeEvCharger.ports))}${portNote ? `<span class="ev-port-note">· ${esc(portNote)}</span>` : ''}`;
+  const rows = [
+    ['Ports', portValue],
+    ['Hours', hours && esc(hours)],
+    ['Maximum stay', (activeEvCharger.maxStay || maxStay) && esc(activeEvCharger.maxStay || maxStay)],
+    ['Connectors', activeEvCharger.connectors && esc(activeEvCharger.connectors)],
+    ['Network', activeEvCharger.operator && (/^https:\/\//.test(activeEvCharger.operatorUrl || '')
+      ? `<a href="${esc(activeEvCharger.operatorUrl)}" target="_blank" rel="noopener">${esc(activeEvCharger.operator)} ↗</a>`
+      : esc(activeEvCharger.operator))],
+    ['Price', price && esc(price)],
+  ].filter(([, value]) => value);
+  $('evRows').innerHTML = `<tbody>${rows.map(([label, value]) => `<tr><th scope="row">${label}</th><td>${value}</td></tr>`).join('')}</tbody>`;
+}
+
+function openEvSheet(charger, coordinates) {
+  activeEvCharger = charger;
+  activeEvPoint = coordinates ? { lon: coordinates[0], lat: coordinates[1] } : null;
+  if (!swapBottomSheet($('spotcard'), $('evsheet'), closeSpotCard)) closeSpotCard();
+  closeReportList(); closeMenu();
+  if (!$('reportsheet').hidden) closeReport(false);
+  if (!$('fbsheet').hidden) closeFbSheet();
+  if (!$('nasheet').hidden) closeNaSheet();
+  $('evTitle').textContent = 'EV charging';
+  $('evSub').textContent = '';
+  $('evSub').style.display = 'none';
+  $('evMaps').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([charger.location, charger.address, 'Vancouver BC'].filter(Boolean).join(', '))}`;
+  renderEvDetails();
+  $('evsheet').hidden = false;
+}
+
+function closeEvSheet() {
+  $('evsheet').hidden = true;
+  activeEvMarker?.getElement()?.firstElementChild?.classList.remove('sel');
+  activeEvMarker = null;
+  activeEvCharger = null;
+  activeEvPoint = null;
+}
+$('evClose').addEventListener('click', closeEvSheet);
+$('evStart').addEventListener('click', () => {
+  if (!activeEvPoint) return;
+  const target = activeEvPoint;
+  closeEvSheet();
+  startNav(target);
+});
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
   if (b.id === GRANVILLE_ISLAND_BLOCK.id) { window.openGranvilleIslandParking(); return; }
@@ -1826,6 +2058,11 @@ document.addEventListener('click', (e) => {
   // not an outside-map dismissal. Keep the shared sheet open and refresh it.
   if (e.target.closest('#spotcard') || e.target.closest('#tripcard') || e.target.closest('#tripPill') || e.target.closest('.maplibregl-marker')) return;
   closeSpotCard();
+}, true);
+document.addEventListener('click', (e) => {
+  if ($('evsheet').hidden) return;
+  if (e.target.closest('#evsheet') || e.target.closest('.maplibregl-marker')) return;
+  closeEvSheet();
 }, true);
 
 // same outside-tap dismissal for the menu drawer + its sub-panels: tapping the map,
@@ -1860,6 +2097,7 @@ function buildReasons(isFree) {
   ).join('');
 }
 function openReport(b) {
+  closeEvSheet();
   closeReportList();
   reportBlock = b; reportReason = null;
   buildReasons(!!b.isFree);
@@ -1888,6 +2126,23 @@ function shareSpot(b) {
   window.open(url, '_blank', 'noopener');
 }
 $('scshare').addEventListener('click', () => { if (cardBlock) shareSpot(cardBlock); });
+function shareEvCharger() {
+  if (!activeEvCharger || !activeEvPoint) return;
+  const { location, address } = activeEvCharger;
+  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([location, address, 'Vancouver BC'].filter(Boolean).join(', '))}`;
+  const label = [location, address].filter(Boolean).join(' · ') || 'this EV charger';
+  if (navigator.share) { navigator.share({ title: 'Park Daddy', text: `EV charging at ${label}`, url }).catch(() => {}); return; }
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(() => toast('Link copied to clipboard.'), () => window.open(url, '_blank', 'noopener')); return; }
+  window.open(url, '_blank', 'noopener');
+}
+function reportEvCharger() {
+  if (!activeEvCharger) return;
+  const label = [activeEvCharger.location, activeEvCharger.address].filter(Boolean).join(' · ') || 'this EV charger';
+  openFeedback({ text: `EV charging information may be incorrect: ${label}\n\n`, focus: 'text' });
+}
+$('evShare').addEventListener('click', shareEvCharger);
+$('evReport').addEventListener('click', reportEvCharger);
+$('evMaps').addEventListener('click', () => track('opened_in_maps', { city: activeCity, from: 'evsheet' }));
 $('rsClose').addEventListener('click', () => closeReport(true));
 $('rsReasons').addEventListener('click', (e) => {
   const btn = e.target.closest('.rs-reason');
@@ -2086,6 +2341,7 @@ function dismissableSheet(el, close) {
 // rather than stepping back to it, and the report list hands off to closeSpotCard so the
 // card doesn't pop back in behind it.
 dismissableSheet($('spotcard'), closeSpotCard);
+dismissableSheet($('evsheet'), closeEvSheet);
 dismissableSheet($('reportsheet'), () => closeReport(true));
 dismissableSheet($('fbsheet'), closeFbSheet);
 dismissableSheet($('nasheet'), closeNaSheet);
@@ -2101,7 +2357,7 @@ dismissableSheet($('privacy'), closeMenu);
 // Privacy now match it instead of sliding in from the right over a menu still sitting
 // there. Tapping the map still closes the whole family outright — see the scrim and the
 // outside-tap handler; only the header's back arrow puts the menu back.
-function openMenu() { closeSpotCard(); $('menupanel').classList.add('open'); }
+function openMenu() { closeSpotCard(); closeEvSheet(); $('menupanel').classList.add('open'); }
 function openDrilldown(id) { $('menupanel').classList.remove('open'); $(id).classList.add('open'); }
 function closeDrilldown(id) { $(id).classList.remove('open'); openMenu(); }
 function closeMenu() {
@@ -2181,6 +2437,7 @@ function closeFbSheet() {
 // `backTo` is what the header chevron returns to — null when there's nothing behind it.
 // `onClose` runs once on the way out, whichever exit they take (back, scrim, Esc, send).
 function openFeedback({ text = '', backTo = null, focus = 'text', onClose = null } = {}) {
+  closeEvSheet();
   fbOnClose = onClose;
   $('fbText').value = text;
   $('fbContact').value = '';
@@ -2265,6 +2522,7 @@ function openNaSheet(p) {
   $('naTitle').textContent = city ? `No data for ${city} yet.` : 'No data for that area yet.';
   $('naSub').textContent = `Park Daddy currently works in ${coverageSentence()}.`;
   closeSpotCard();
+  closeEvSheet();
   $('nasheet').hidden = false;
 }
 function showNoCoverage(p) {
@@ -2340,7 +2598,8 @@ function initLiveLabels() {
     const ctr = map.getCenter();
     const k = cityAt(ctr.lat, ctr.lng);
     if (k && !loadedCities.has(k)) loadCity(k);
-    if (k) activeCity = k;
+    if (k) { activeCity = k; rememberCity(k); }
+    refreshEvMarkers();
   });
   // real pills are on the map now — fade the boot skeleton out and drop it
   const skel = $('skel');
@@ -2450,7 +2709,11 @@ function initLiveLabels() {
   // But starting it fires getCurrentPosition/watchPosition, i.e. the permission prompt — so it
   // waits on the same boot gate as the recenter, or the prompt lands *over* the welcome picker.
   if (params.get('sim')) driving.start();
-  else bootUISettled.then(() => driving.start({ passive: true }));
+  else bootUISettled.then(() => {
+    if (store.get(GEO_PERMISSION_KEY) !== 'granted' && store.get(GEO_PERMISSION_KEY) !== 'denied') {
+      driving.start({ passive: true });
+    }
+  });
 }
 
 // ---- first-visit city picker -----------------------------------------------

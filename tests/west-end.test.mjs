@@ -21,6 +21,49 @@ const beachPacific = JSON.parse(fs.readFileSync(new URL('../data/beach-pacific-s
 const signFollowup = JSON.parse(fs.readFileSync(new URL('../data/street-view-two-hour-followup.json', import.meta.url)));
 const kitsGaps = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-gap-street-view.json', import.meta.url)));
 const screenshotGaps = JSON.parse(fs.readFileSync(new URL('../data/screenshot-parking-gaps.json', import.meta.url)));
+const cornwallPhotos = JSON.parse(fs.readFileSync(new URL('../data/cornwall-balsam-vine-user-photos.json', import.meta.url)));
+const industrialPhotos = JSON.parse(fs.readFileSync(new URL('../data/industrial-user-photos.json', import.meta.url)));
+const kitsilanoSpotAngels = JSON.parse(fs.readFileSync(new URL('../data/kitsilano-spotangels-user-supplied.json', import.meta.url)));
+
+test('Cornwall user photos split the north curb into morning-free and permit-only sections', () => {
+  const free = cornwallPhotos.sections.find(section => section.id === 'cornwall-balsam-vine-north-morning-free');
+  const permit = cornwallPhotos.sections.find(section => section.id === 'cornwall-2268-vine-north-permit');
+  assert.equal(curbState(free, 420, 1).label, 'No parking');
+  assert.equal(curbState(free, 570, 1).label, 'Free');
+  assert.equal(curbState(free, 480, 0).label, 'Free');
+  assert.equal(curbVisible(free, 480, 1, {free:true,paid:true,restrictions:true}), false);
+  assert.equal(curbState(permit, 600, 1).label, 'Permit');
+  assert.equal(curbState(permit, 600, 0).label, 'Permit');
+  assert.ok(curbTableSegments(free, 1).some(row => row.status === 'No parking' && row.from === 420 && row.to === 570));
+});
+
+test('the user-supplied 2040 Cornwall map pin stays deliberately short and respects its morning restriction', () => {
+  const pin = cornwallPhotos.sections.find(section => section.id === 'cornwall-2040-morning-free-spotangels');
+  assert.equal(pin.geometry.coordinates.length, 2);
+  assert.equal(curbState(pin, 420, 1).label, 'No stopping');
+  assert.equal(curbState(pin, 570, 1).label, 'Free');
+  assert.match(curbState(pin, 570, 1).status, /User-supplied map/);
+});
+
+test('SpotAngels Kitsilano entries preserve their weekday two-hour rule and permit exception', () => {
+  assert.equal(kitsilanoSpotAngels.sections.length, 2);
+  for (const section of kitsilanoSpotAngels.sections) {
+    assert.equal(section.limitMinutes, 120);
+    assert.equal(section.spotChecks[0].permitException, true);
+    assert.equal(curbState(section, 600, 1).label, 'Free · 2h');
+    assert.equal(curbState(section, 600, 0).label, 'Free');
+    assert.equal(section.geometry.coordinates.length, 2);
+  }
+});
+
+test('Industrial user photo maps only the arrowed two-hour public curb', () => {
+  const [section] = industrialPhotos.sections;
+  assert.equal(section.side, 'south');
+  assert.equal(curbState(section, 600, 1).label, 'Free · 2h');
+  assert.equal(curbState(section, 600, 0).label, 'Free');
+  assert.equal(curbState(section, 1140, 1).label, 'Free');
+  assert.match(section.spotChecks[0].finding, /commercial loading/);
+});
 
 test('signed free pockets disappear during posted prohibitions and retain their hours', () => {
   const oak = screenshotGaps.sections.find(section => section.id === 'oak-w54-east-offhours-pocket');

@@ -37,6 +37,9 @@ export const CITIES = {
       { url: 'data/mount-pleasant.json?v=1', kind: 'west-end' },
       { url: 'data/beach-pacific-street-view.json?v=2', kind: 'west-end' },
       { url: 'data/street-view-two-hour-followup.json?v=1', kind: 'west-end' },
+      { url: 'data/cornwall-balsam-vine-user-photos.json?v=1', kind: 'west-end' },
+      { url: 'data/industrial-user-photos.json?v=1', kind: 'west-end' },
+      { url: 'data/kitsilano-spotangels-user-supplied.json?v=1', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)

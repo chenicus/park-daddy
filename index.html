@@ -417,6 +417,7 @@
   .plabel.p2 { --c: #d97706; }
   .plabel.p3 { --c: #ea580c; }
   .plabel.p4 { --c: #dc2626; }
+  .plabel.p-ev { --c: #06b6d4; color: #07151a; }
   /* selected: the fill stays EXACTLY its tier's colour — the thicker ring, the 1.15 scale, the
      deeper shadow and the z-lift carry the state instead. Selection used to darken the fill, but
      the tiers are a price ramp, so darkening walked a pill into its pricier neighbour's colour
@@ -649,6 +650,9 @@
      makes it read as the sheet obeying. Same curve, so it's still recognisably one motion. */
   .spotcard[hidden] { transform: translateY(110%); visibility: hidden; pointer-events: none;
     transition: transform var(--dur-base) var(--ease-sheet), visibility 0s var(--dur-base); }
+  /* A charger and a parking pin are alternate views of the same map interaction. Swap their
+     content in place instead of making one sheet leave before the other arrives. */
+  .spotcard.sheet-swap, .spotcard.sheet-swap[hidden] { transition: none; }
 
   /* ---- grab handle: the "you can push me down" bar every sheet wears ----
      The standard 36x5 iOS grabber, on --tertiary — already the token for furniture at
@@ -736,6 +740,13 @@
     .sc-sched .seg .lim.dot-sep::before { display: none; }
   }
   .sc-rows { margin-top: 14px; font-size: var(--fs-body); line-height: 1.45; letter-spacing: -.2px; color: var(--text); }
+  .ev-table { width:100%; margin-top:14px; border-collapse:separate; border-spacing:0; overflow:hidden; border:1px solid var(--line); border-radius:12px; font-size:var(--fs-body); table-layout:fixed; }
+  .ev-table th, .ev-table td { padding:12px 14px; border-top:1px solid var(--line); vertical-align:top; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ev-table tr:first-child th, .ev-table tr:first-child td { border-top:0; }
+  .ev-table th { width:38%; color:var(--muted); font-weight:500; text-align:left; }
+  .ev-table td { color:var(--text); text-align:right; }
+  .ev-table a { display:block; overflow:hidden; text-overflow:ellipsis; color:var(--accent); text-decoration:none; font-weight:600; }
+  .ev-port-note { margin-left:6px; color:var(--muted); font-size:var(--fs-caption); font-weight:500; }
   .sc-rows > div { padding: 4px 0; }
   .sc-rows svg.ic { stroke: var(--muted); margin-right: .35em; }
   .sc-rows .ok { color: var(--green); }
@@ -1244,6 +1255,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="chip mat on" id="chipFree" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free</button>
   <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
   <button class="chip mat" id="chipRestrictions" type="button" aria-pressed="false" title="Show permit parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit</button>
+  <button class="chip mat" id="chipEV" type="button" aria-pressed="false" title="Show public EV chargers"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>EV</button>
   <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
@@ -1318,6 +1330,22 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
     </button>
     <a class="ghost" id="scmaps" target="_blank" rel="noopener">Open in Maps ↗</a>
   </div>
+</div>
+
+<div class="spotcard mat" id="evsheet" hidden>
+  <div class="sc-head">
+    <div>
+      <div class="sc-price sheet-title" id="evTitle">EV charging</div>
+      <div class="sc-sub meta" id="evSub"></div>
+    </div>
+    <div class="sc-tools">
+      <button class="iconbtn mini" id="evShare" type="button" aria-label="Share this charger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" x2="15.4" y1="10.5" y2="6.5"/><line x1="8.6" x2="15.4" y1="13.5" y2="17.5"/></svg></button>
+      <button class="iconbtn mini" id="evReport" type="button" aria-label="Report incorrect info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg></button>
+      <button class="iconbtn dismiss" id="evClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+    </div>
+  </div>
+  <table class="ev-table" id="evRows"></table>
+  <div class="sc-actions"><button class="primary" id="evStart" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>Navigate</button><a class="ghost" id="evMaps" target="_blank" rel="noopener">Open in Maps ↗</a></div>
 </div>
 
 <div class="spotcard mat" id="reportsheet" hidden>

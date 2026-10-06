@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "area": "kitsilano-cornwall-nearby",
+  "sources": {
+    "spotangels-kitsilano-2026-10-05": {
+      "url": "https://www.spotangels.com/map?lng=-123.15132826566696&lat=49.272488756178504&zoom=15.967692209993702&arrival=1791241200000&departure=1791248400000&spLng=-123.1207375&spLat=49.2827291&spAddress=Vancouver&product=parking",
+      "title": "User-supplied SpotAngels Kitsilano map entries",
+      "checkedOn": "2026-10-05"
+    }
+  },
+  "geometryNote": "Each line is a 20 m map-pin slice, not a block-wide curb claim. SpotAngels exposed the rule and address but not sign arrows, curb side, or the next sign boundary.",
+  "restrictionNote": "Rules below are transcribed from the user-supplied SpotAngels entry. Follow the posted sign, including any permit exception, temporary restriction, or more restrictive adjacent sign.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "yew-1555-2h-weekday-spotangels",
+      "area": "kitsilano-cornwall-nearby",
+      "street": "Yew",
+      "side": "sign side not established",
+      "between": ["1555 Yew pin", "nearest sign boundary"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 540, "end": 1080, "label": "Mon–Fri"},
+      "outsideSchedule": "free",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "short-map-pin-slice",
+      "sourceIds": ["spotangels-kitsilano-2026-10-05"],
+      "spotChecks": [{
+        "status": "user-supplied-map-match",
+        "checkedOn": "2026-10-05",
+        "finding": "SpotAngels lists 1555 Yew Street as a two-hour maximum from 9am–6pm Monday–Friday, except permit holders.",
+        "permitException": true,
+        "scope": "Pin precision only; sign side and adjacent boundaries are not established."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15510, 49.27196], [-123.15482, 49.27196]]}
+    },
+    {
+      "id": "york-2181-2h-weekday-spotangels",
+      "area": "kitsilano-cornwall-nearby",
+      "street": "York",
+      "side": "sign side not established",
+      "between": ["2181 York pin", "nearest sign boundary"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5], "start": 540, "end": 1080, "label": "Mon–Fri"},
+      "outsideSchedule": "free",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "short-map-pin-slice",
+      "sourceIds": ["spotangels-kitsilano-2026-10-05"],
+      "spotChecks": [{
+        "status": "user-supplied-map-match",
+        "checkedOn": "2026-10-05",
+        "finding": "SpotAngels lists 2181 York Avenue as a two-hour maximum from 9am–6pm Monday–Friday, except permit holders.",
+        "permitException": true,
+        "scope": "Pin precision only; sign side and adjacent boundaries are not established."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15437, 49.27171], [-123.15409, 49.27171]]}
+    }
+  ]
+}

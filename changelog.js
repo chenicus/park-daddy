@@ -2,6 +2,10 @@
 // Keep entries in plain language — this is for drivers, not a git log. Add a new block at the
 // top when you ship something people can actually notice; skip refactors and data refreshes.
 export const CHANGELOG = [
+  { date: 'October 5, 2026', items: [
+    '<b>EV charging</b> added — find public chargers, with connector, hours, pricing, and navigation details.',
+    '<b>Permit parking</b> is now easier to spot on the map, alongside expanded sign-checked parking in Kitsilano.',
+  ] },
   { date: 'July 22, 2026', items: [
     "Can't find your city? Ask for it right from the picker.",
   ] },
