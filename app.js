@@ -1,17 +1,83 @@
+import { initReview, renderReviewDetail } from './review.js?v=32';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildSurreyBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=37';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=11';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=52';
+import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=36';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
-import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=4';
+import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true };
+const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
+// This is deliberately shaped like a normal block-face. It lives in the shared
+// label layer, so its dot, clusters, zoom threshold, tap target and selection
+// animation are identical to every other parking result.
+const GRANVILLE_ISLAND_BLOCK = {
+  id: 'granville-island-parking', lat: 49.27070, lon: -123.13455,
+  pts: [], rushes: [], prohibitions: [], card: false,
+  operatorRate(mins) {
+    const { rate } = granvilleIslandRates();
+    if (rate != null) return { free: false, rate };
+    // The Island's own schedule is free before 9am. Keep the same shared-dot
+    // behaviour rather than dropping the location from the map between rates.
+    if (mins < 9 * 60) return { free: true, rate: 0 };
+    // After 10pm, retain a truthful discovery marker for the overnight Parkade.
+    return { free: false, rate: 1, label: 'Parkade', cls: 'p2' };
+  },
+};
+// Official EasyPark lot locations within a roughly ten-minute walk of Locarno.
+// These are lots, not City curb meters: payment/source wording must never say
+// PayByPhone. Rates are season-aware and the sheet keeps the operator source visible.
+const EASY_PARK_SOURCE = 'https://www.easypark.ca/find-parking/locations-and-lot-information';
+const EASY_PARK_LOTS = [
+  ['easypark-jericho-locarno', 'Jericho Locarno Park', '1448 Discovery St', 49.273083, -123.202629, 97, 'jericho'],
+  ['easypark-jericho-beach', 'Jericho Beach', '1451 Discovery St', 49.273330, -123.204843, 46, 'jericho'],
+  ['easypark-jericho-sailing', 'Jericho Sailing Centre', '1451 Discovery St', 49.271800, -123.198900, 215, 'jericho'],
+  ['easypark-jericho-east', 'Jericho East', '3900 Point Grey Rd', 49.272293, -123.186557, 166, 'jericho'],
+  ['easypark-spanish-4604', 'Spanish Banks', '4604 NW Marine Dr', 49.274800, -123.210272, null, 'spanish'],
+  ['easypark-spanish-4612', 'Spanish Banks', '4612 NW Marine Dr', 49.274500, -123.211050, null, 'spanish'],
+  ['easypark-spanish-4656', 'Spanish Banks', '4656 NW Marine Dr', 49.276078, -123.215436, null, 'spanish'],
+  ['easypark-spanish-4670', 'Spanish Banks', '4670 NW Marine Dr', 49.276900, -123.217500, null, 'spanish'],
+  ['easypark-spanish-4707', 'Spanish Banks', '4707 NW Marine Dr', 49.277639, -123.219197, null, 'spanish'],
+].map(([id, name, address, lat, lon, spaces, kind]) => ({
+  id, name, address, lat, lon, spaces, kind, provider: 'EasyPark', sourceUrl: EASY_PARK_SOURCE,
+  pts: [], rushes: [], prohibitions: [], card: false, operatorLot: true,
+  operatorRate() {
+    const details = easyParkLotDetails(this);
+    // A free introductory duration is the decision-driving price, so it gets
+    // priority in the shared map marker rather than burying it behind "then".
+    return details.freeDuration
+      ? { free: true, rate: 0, mapSuffix: ` · ${details.freeDuration / 60}h` }
+      : { free: false, rate: details.rate };
+  },
+}));
+const PAY_BY_PHONE_LOGO = 'https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg';
+const COPY_ICON = '<svg class="pbp-copy-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>';
+let payByPhoneDarkLogoUrl = null;
+
+// The vendor asset has green brand paths plus dark-ink wordmark paths. A CSS
+// filter cannot change only the ink without also recolouring green, so create
+// a dark-theme SVG variant that replaces the ink fill and preserves the green.
+async function applyPayByPhoneLogoTheme() {
+  const logos = [...document.querySelectorAll('.paybyphone img')];
+  if (!logos.length) return;
+  if (document.documentElement.dataset.theme !== 'dark') {
+    logos.forEach((logo) => { logo.src = PAY_BY_PHONE_LOGO; });
+    return;
+  }
+  if (!payByPhoneDarkLogoUrl) {
+    try {
+      const svg = await fetch(PAY_BY_PHONE_LOGO).then((response) => response.text());
+      payByPhoneDarkLogoUrl = URL.createObjectURL(new Blob([svg.replaceAll('#524c48', '#ffffff')], { type: 'image/svg+xml' }));
+    } catch { return; }
+  }
+  if (document.documentElement.dataset.theme === 'dark') logos.forEach((logo) => { logo.src = payByPhoneDarkLogoUrl; });
+}
 
 const params = new URLSearchParams(location.search);
 if (params.get('dest')) $('dest').value = params.get('dest');
@@ -89,10 +155,7 @@ const store = {
 };
 const LAST_CITY_KEY = 'pd_last_city';
 const GEO_PERMISSION_KEY = 'pd_geo_permission';
-function storedCity() {
-  const key = store.get(LAST_CITY_KEY);
-  return key && CITIES[key] ? key : DEFAULT_CITY;
-}
+function storedCity() { const key = store.get(LAST_CITY_KEY); return key && CITIES[key] ? key : DEFAULT_CITY; }
 function rememberCity(key) { if (CITIES[key]) store.set(LAST_CITY_KEY, key); }
 // CARTO's free, no-API-key VECTOR styles — Positron (light) / Dark Matter (dark). Vector so the
 // map can truly rotate/pitch and MapLibre keeps street labels upright; near-identical muted look
@@ -127,6 +190,12 @@ const EMPTY_FC = { type: 'FeatureCollection', features: [] };
 // All custom sources/layers live here. setStyle (theme swap) wipes them, so this is re-run on
 // every 'style.load'. HTML markers (pills/pin/car) are NOT part of the style and survive.
 function installLayers() {
+  if (!map.getSource('west-end-curbs')) map.addSource('west-end-curbs', { type: 'geojson', data: EMPTY_FC });
+  if (!map.getLayer('west-end-curbs')) map.addLayer({
+    id: 'west-end-curbs', type: 'line', source: 'west-end-curbs', minzoom: 14.5,
+    layout: { 'line-cap': 'round' },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 3, 'line-opacity': 0.8, 'line-dasharray': [0.1, 2.2] },
+  });
   if (!map.getSource('blockface-lines')) map.addSource('blockface-lines', { type: 'geojson', data: EMPTY_FC });
   if (!map.getLayer('blockface-lines')) map.addLayer({
     id: 'blockface-lines', type: 'line', source: 'blockface-lines', layout: { 'line-cap': 'round' },
@@ -264,20 +333,9 @@ document.getElementById('themetoggle')?.addEventListener('click', (e) => {
 });
 
 // free-parking blocks derived from enforcement data (build-free.py) → pseudo-blocks
-// that ride the same pill/filter/card machinery as meters, but always read as FREE.
+// remain unverified until supported by readable curb signage.
 let freeBlocks = [];
-function buildFreeBlocks(arr) {
-  return arr.map((f, i) => ({
-    id: 1e6 + i, lat: f.lat, lon: f.lon, isFree: true, hblock: f.h, tickets: f.n,
-    rate1: null, rate2: null, flat: null,
-    limits: { day: 180, eve: null, wkndDay: 180, wkndEve: null },
-    // Field-verified records can identify one curb face and override the
-    // enforcement-derived residential default with their posted schedule.
-    freeSchedule: f.schedule || null,
-    line: f.line || null,
-    rushes: [], pts: [], count: 0, spaces: 0, card: false,
-  }));
-}
+
 
 // Multi-city: the current city is whichever CITIES bounds contain the map center. We
 // lazy-load a city's feeds the first time you're there (on open via geolocation, or on
@@ -336,14 +394,14 @@ async function loadCity(key) {
     const feeds = await Promise.all(c.data.map((d) => fetch(d.url).then((r) => r.json()).catch(() => [])));
     c.data.forEach((d, i) => {
       const data = feeds[i] || [];
-      if (d.kind === 'meters') { meters = data; pushBlocks(buildBlocks(data)); }
-      else if (d.kind === 'free') { freeBlocks = buildFreeBlocks(data); pushBlocks(freeBlocks); }
+      if (d.kind === 'meters') { meters = filterMetersCoveredByCurbs(data, feeds); pushBlocks(buildBlocks(meters)); }
+      else if (d.kind === 'free') { freeBlocks = buildInferredBlocks(filterInferredFree(data, feeds)); pushBlocks(freeBlocks); }
+      else if (d.kind === 'west-end') { if (data.sections) pushBlocks(buildWestEndBlocks(data)); }
       else if (d.kind === 'seattle') { pushBlocks(buildSeattleBlocks(data)); }
       else if (d.kind === 'seattle-free') { pushBlocks(buildSeattleFreeBlocks(data)); }
       else if (d.kind === 'sf') { pushBlocks(buildSFBlocks(data)); }
       else if (d.kind === 'sf-free') { pushBlocks(buildSeattleFreeBlocks(data, 7e6)); }
       else if (d.kind === 'sanjose') { pushBlocks(buildSanJoseBlocks(data)); }
-      else if (d.kind === 'surrey') { pushBlocks(buildSurreyBlocks(data)); }
       else if (d.kind === 'kirkland') { const kb = buildKirklandBlocks(data); pushBlocks(kb); startKirkLive(kb, c.live); }
     });
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
@@ -437,7 +495,7 @@ async function pollKirkLive() {
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
-    const b = blocks.find((x) => x.id === parseInt(rawSpot, 10));
+    const b = blocks.find((x) => String(x.id) === rawSpot);
     if (b) {
       showSpotCard(b);
       // Below 760px the card is a full-width sheet pinned to the bottom (see the .spotcard
@@ -490,10 +548,7 @@ async function pollKirkLive() {
   // the cityChosen guard regardless — so don't spend a permission prompt on it.
   if (cityChosen) return;
 
-  // Best-effort recenter, capped so a slow GPS fix never stalls boot indefinitely.
-  // Once permission has been granted, a one-shot read is safe and lets us open directly at the
-  // user's current city. Avoid starting the live watcher here: some iOS webviews re-show their
-  // prompt when a fresh watcher starts.
+  // Best-effort recenter, capped at 5s so a slow or ignored permission prompt never stalls boot.
   const pos = await Promise.race([
     getPosition().catch(() => null),
     new Promise((r) => setTimeout(() => r(null), 15000)),
@@ -514,14 +569,8 @@ function getPosition() {
   return new Promise((res) => {
     if (cachedPos) return res(cachedPos);
     if (!navigator.geolocation) return res(null);
-    // Do not short-circuit from our own cached denial: the user may have since enabled
-    // location in browser settings. The browser's permission state is authoritative.
     navigator.geolocation.getCurrentPosition(
-      (p) => {
-        store.set(GEO_PERMISSION_KEY, 'granted');
-        cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude };
-        res(cachedPos);
-      },
+      (p) => { store.set(GEO_PERMISSION_KEY, 'granted'); cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude }; res(cachedPos); },
       (e) => { if (e?.code === 1) store.set(GEO_PERMISSION_KEY, 'denied'); res(null); },
       { timeout: 20000, maximumAge: 300000 }
     );
@@ -606,7 +655,13 @@ function clearMap() { markers.forEach((m) => m.remove()); markers = []; }
 // flags: rptKey -> { count, items[] }. Drives the pill warning badge / auto-hide
 // (labels.js) and the spot-card report banner + list.
 let flags = new Map();
-function flagFor(b) { return flags.get(rptKey(b)); }
+function flagFor(b) {
+  const f = flags.get(rptKey(b));
+  if (!f || !b.curb?.reviewedReportsThrough) return f;
+  const reviewedAt = Date.parse(b.curb.reviewedReportsThrough);
+  const items = f.items.filter(item => Date.parse(item.created_at) > reviewedAt);
+  return items.length ? {count:items.length,items} : undefined;
+}
 function flagState(b) {
   const c = flagFor(b)?.count || 0;
   return { flagged: c >= FLAG_MIN, hidden: c >= HIDE_MIN };
@@ -977,10 +1032,12 @@ $('searchform').addEventListener('submit', (e) => { e.preventDefault(); $('dest'
 function applyFilters() {
   if (labelLayer) labelLayer.setFilter(filters);
 }
-$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); applyFilters(); });
+$('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
+$('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
   filters.paid = !filters.paid;
   $('chipPaid').classList.toggle('on', filters.paid);
+  $('chipPaid').setAttribute('aria-pressed', String(filters.paid));
   applyFilters();
   // First time someone hides paid to look at free-only, warn that free data is thin.
   if (!filters.paid && !store.get('freeWarnSeen')) {
@@ -1014,7 +1071,8 @@ function syncSeg() {
 function syncTrip() {
   updatePill(); syncSeg();
   if (labelLayer) labelLayer.refresh();           // pills reflect the arrival rate window
-  if (cardBlock) showSpotCard(cardBlock);         // spot card totals reflect arrival + duration
+  if (cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) window.openGranvilleIslandParking();
+  else if (cardBlock) showSpotCard(cardBlock);    // spot card totals reflect arrival + duration
 }
 // on the desktop row layout, anchor the dropdown under the pill instead of under the search bar
 function positionTripcard() {
@@ -1427,7 +1485,7 @@ function daySegments(b, wknd, dow) {
 const ZONE_LABEL = {
   'TOW-AWAY': 'Tow-away',
   'NO STOPPING': 'No stopping', 'LOADING ZONE': 'Loading zone', 'CVLZ': 'Commercial loading',
-  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit only', 'TAXI ZONE': 'Taxi only',
+  'PASSENGER ZONE': 'Passenger only', 'PERMIT PARKING ONLY': 'Permit', 'TAXI ZONE': 'Taxi only',
   'MILITARY ZONE': 'Military only', 'POLICE ZONE': 'Police only', 'TOUR BUS ZONE': 'Tour bus only',
   'AUTHORIZED VEHICLES ONLY': 'Authorized only',
 };
@@ -1488,16 +1546,25 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
+  const segs = b.unverified ? [
+    { from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null },
+    ...(b.streetViewUrl ? [{ from: 0, to: 1440, label: 'Nearby Street View · side unverified', status: 'Open', url: b.streetViewUrl, linkLabel: 'Open nearby Street View; check both curb sides', applies: false }] : []),
+  ] : b.curb ? curbTableSegments(b.curb, dowNow())
+    : b.isFree ? [{ from: 0, to: 480, rate: 0 }, { from: 480, to: 1080, rate: 0, limit: 180 }, { from: 1080, to: 1440, rate: 0 }]
+    : b.bands ? seattleDaySegments(b, dowNow()) : daySegments(b, isWeekend(), dowNow());
   el.innerHTML = segs.map((s) => {
-    const active = mins >= s.from && mins < s.to;
+    const active = s.activeOutside ? !(mins >= s.activeOutside[0] && mins < s.activeOutside[1]) &&
+        !(s.activeExcept || []).some(([start, end]) => mins >= start && mins < end)
+      : s.applies !== false && mins >= s.from && mins < s.to;
     const free = !s.tow && s.rate === 0;
-    const cost = s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`);
+    const cost = s.status || (s.tow ? (s.zone ? zoneLabel(s.zone) : 'No parking') : (free ? 'Free' : `${money(s.rate)}/hr`));
+    const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.linkLabel || `Open Street View imagery from ${cost}`)}">${esc(cost)} ↗</a>` : cost;
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
     return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
-      `<span class="when">${segLabel(s)}${lim}</span><span class="cost">${cost}</span></div>`;
+      `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${costText}</span></div>`;
   }).join('');
+  renderReviewDetail(b, el);
   el.hidden = false;
 }
 
@@ -1512,6 +1579,10 @@ function flashSpotContent() {
 function showSpotCard(b) {
   const wasOpen = !$('spotcard').hidden;
   cardBlock = b;
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = null;
+  $('scmaps').textContent = 'Open in Maps ↗';
   closeReportList();
   closeMenu();
   const p = driving && driving.lastPos();
@@ -1530,6 +1601,30 @@ function showSpotCard(b) {
   // crowd reports (if any) — banner + detail list; also stamp a label for reports
   b._label = blockLabel(b);
   renderFlag(b);
+
+  $('scprice').classList.remove('free');
+  if (b.unverified) {
+    $('scprice').textContent = 'Check signs';
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
+    $('scmaps').href = navUrl(b);
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
+  if (b.curb) {
+    const state = curbState(b.curb, mins, dowNow());
+    $('scprice').textContent = state.label;
+    $('scprice').classList.toggle('free', state.free);
+    renderSchedule(b, mins);
+    $('scrows').replaceChildren();
+    $('scmaps').href = navUrl(b);
+    track('spot_opened', { city: activeCity, free: state.free, spot_type: b.curb.category, from_search: !!lastLoc });
+    if (wasOpen) flashSpotContent();
+    $('spotcard').hidden = false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
 
   // Rate is resolved before the isFree early-return below so the one analytics call
   // covers both card shapes — free-residential blocks return early and would otherwise
@@ -1553,17 +1648,10 @@ function showSpotCard(b) {
 
   // free residential block: unmetered, bylaw 3h limit — its own clean card
   if (b.isFree) {
-    $('scsched').hidden = true;
+    renderSchedule(b, mins);
     $('scprice').textContent = 'Free';
     $('scprice').classList.add('free');
-    const sch = b.freeSchedule;
-    const stay = sch
-      ? `Max stay <b>${fmtLimit(sch.limit)}</b> · ${sch.label}`
-      : `Up to <b>3h</b> · City default`;
-    $('scrows').innerHTML = [
-      `${IC.clock} ${stay}`,
-      `${IC.info} ${sch ? 'Sign-verified curbside — free outside the posted window.' : 'Inferred from enforcement history — always check the posted signs.'}`,
-    ].map((h) => `<div>${h}</div>`).join('');
+    $('scrows').replaceChildren();
     $('scmaps').href = navUrl(b);
     if (wasOpen) flashSpotContent();
     $('spotcard').hidden = false;
@@ -1573,21 +1661,19 @@ function showSpotCard(b) {
 
   // just "Free" — the schedule below lists the paid windows, so "right now" was
   // spelling out something the reader can already see
-  $('scprice').innerHTML = r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
+  const pNow = prohibitionNow(b, mins, dowNow());
+  const rushNow = (b.rushes || []).some(([start, end]) => mins >= start && mins < end);
+  $('scprice').innerHTML = pNow || rushNow ? 'No parking now' : r.free ? 'Free' : `${money(r.rate)}<span class="sc-unit">/hr</span>`;
 
   // full-day price breakdown so a currently-free spot still shows its paid window
   renderSchedule(b, mins);
 
   const rows = [];
-  // A condensed map block can cover more than one meter. Only show a location code
-  // when it is unique for that block — presenting an arbitrary nearby code would be
-  // worse than leaving it out.
   const payByPhoneCodes = b.payByPhoneCodes || [];
   if (payByPhoneCodes.length === 1)
-    rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" data-pbp-url="${payByPhoneUrl(payByPhoneCodes[0])}" aria-label="Copy location ${payByPhoneCodes[0]} and open PayByPhone">` +
+    rows.push(`<button class="paybyphone" type="button" data-pbp-code="${payByPhoneCodes[0]}" aria-label="Copy PayByPhone location code ${payByPhoneCodes[0]}">` +
       `<img src="https://cdn.prod.website-files.com/6333327c7fd564605ee14929/6333327c7fd56474fee14b2e_PayByPhone-logo-dark.svg" alt="PayByPhone">` +
-      `<span class="pbp-open">${payByPhoneCodes[0]} ↗</span></button>`);
-  if (b.flat != null) rows.push(`${IC.dollar} ${money(b.flat)} flat evening rate`);
+      `<span class="pbp-open">${payByPhoneCodes[0]} ${COPY_ICON}</span></button>`);
   // Kirkland: live stall-sensor availability, pinned to the top of the rows
   if (b.kirk) {
     const a = b.avail;
@@ -1598,6 +1684,7 @@ function showSpotCard(b) {
       : `${IC.info} Live availability unavailable right now`);
   }
   $('scrows').innerHTML = rows.map((h) => `<div>${h}</div>`).join('');
+  applyPayByPhoneLogoTheme();
   $('scmaps').href = navUrl(b);
   if (wasOpen) flashSpotContent();
   $('spotcard').hidden = false;
@@ -1607,14 +1694,105 @@ function closeSpotCard() {
   $('spotcard').hidden = true; cardBlock = null; clearSpotLine(); closeReportList();
   if (labelLayer) labelLayer.setSelected(null);
 }
+// Granville Island is an operator-managed parking system, not a blockface in
+// the municipal meter feed. The map shows one familiar price pill; this opens
+// the same bottom-sheet surface used for normal parking details.
+function granvilleIslandRates() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Vancouver', month: 'numeric',
+  }).formatToParts(new Date()).reduce((out, part) => (out[part.type] = part.value, out), {});
+  const selectedMonth = trip.mode === 'set' && trip.setDate ? +trip.setDate.slice(5, 7) : +parts.month;
+  const weekend = isWeekend();
+  const summer = selectedMonth >= 5 && selectedMonth <= 9;
+  const weekdayMid = summer ? 3 : 2, weekendMid = summer ? 6 : 4;
+  const mins = nowMins();
+  const rate = mins >= 9 * 60 && mins < 22 * 60 ? (mins < 11 * 60 || mins >= 18 * 60 ? 1 : (weekend ? weekendMid : weekdayMid)) : null;
+  return { weekend, weekdayMid, weekendMid, rate, mins };
+}
+function parkingSelectedMonth() {
+  if (trip.mode === 'set' && trip.setDate) return +trip.setDate.slice(5, 7);
+  return +(new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Vancouver', month: 'numeric' })
+    .formatToParts(new Date()).find((part) => part.type === 'month')?.value || 1);
+}
+function easyParkLotDetails(lot) {
+  const winter = parkingSelectedMonth() >= 10 || parkingSelectedMonth() <= 3;
+  if (lot.kind === 'jericho') return winter
+    ? { rate: 3.12, max: 8.58, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, max: 15.75, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' };
+  return winter
+    ? { rate: 3, freeDuration: 120, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Rates can change for events; confirm before paying.' }
+    : { rate: 4.25, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
+}
+function openEasyParkLot(b) {
+  const wasOpen = !$('spotcard').hidden;
+  const d = easyParkLotDetails(b);
+  cardBlock = b;
+  closeReportList(); closeMenu(); clearSpotLine();
+  $('scprice').innerHTML = d.freeDuration ? 'Free' : `${money(d.rate)}<span class="sc-unit">/hr</span>`;
+  $('scprice').classList.toggle('free', !!d.freeDuration);
+  $('scsub').textContent = b.address;
+  $('scsub').style.display = '';
+  const max = d.max ? `<span class="lim dot-sep">Max ${money(d.max)}</span>` : '';
+  const scheduleRows = d.freeDuration
+    ? `<div class="seg free active"><span class="when">Now<span class="lim dot-sep">First ${d.freeDuration / 60} hours</span></span><span class="cost">Free</span></div>` +
+      `<div class="seg"><span class="when">${d.hours}<span class="lim dot-sep">After ${d.freeDuration / 60} hours</span></span><span class="cost">${money(d.rate)}/hr</span></div>`
+    : `<div class="seg active"><span class="when">${d.hours}${max}</span><span class="cost">${money(d.rate)}/hr</span></div>`;
+  $('scsched').innerHTML = scheduleRows;
+  $('scsched').hidden = false;
+  $('scrows').innerHTML = (d.noOvernight ? `<div class="operator-caption">No overnight parking.</div>` : '') +
+    `<div><a class="operator-source-row" href="${esc(b.sourceUrl)}" target="_blank" rel="noopener noreferrer"><span><b>EasyPark</b></span><span class="operator-link">View source ↗</span></a></div>` +
+    `<div class="operator-caption">${d.caption}</div>`;
+  $('scmaps').href = navUrl(b);
+  $('scmaps').textContent = 'Open in Maps ↗';
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = () => window.open(navUrl(b), '_blank', 'noopener');
+  if (wasOpen) flashSpotContent();
+  $('spotcard').hidden = false;
+  if (labelLayer) labelLayer.setSelected(b.id);
+}
+window.openGranvilleIslandParking = function openGranvilleIslandParking() {
+  const wasOpen = !$('spotcard').hidden;
+  cardBlock = GRANVILLE_ISLAND_BLOCK;
+  closeReportList(); closeMenu(); clearSpotLine();
+  const { weekend, weekdayMid, weekendMid, rate, mins } = granvilleIslandRates();
+  $('scprice').innerHTML = rate == null ? 'Paid' : `${money(rate)}<span class="sc-unit">/hr</span>`;
+  $('scprice').classList.remove('free');
+  $('scsub').textContent = '';
+  $('scsub').style.display = 'none';
+  const islandSchedule = weekend ? [
+    { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: `${money(1)}/hr` },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `${money(weekendMid)}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: `${money(1)}/hr` },
+  ] : [
+    { from: 0, to: 9 * 60, when: 'Before 9:00am', cost: 'Free', free: true },
+    { from: 9 * 60, to: 11 * 60, when: '9:00am–11:00am', cost: `${money(1)}/hr` },
+    { from: 11 * 60, to: 18 * 60, when: '11:00am–6:00pm', cost: `${money(weekdayMid)}/hr` },
+    { from: 18 * 60, to: 22 * 60, when: '6:00pm–10:00pm', cost: `${money(1)}/hr` },
+  ];
+  islandSchedule.push({ from: 22 * 60, to: 1440, when: 'After 10:00pm', limit: 'Registration required', cost: 'Parkade' });
+  $('scsched').innerHTML = islandSchedule.map((segment) => {
+    const active = mins >= segment.from && mins < segment.to;
+    return `<div class="seg ${segment.free ? 'free' : ''} ${active ? 'active' : ''}"><span class="when">${segment.when}${segment.limit ? `<span class="lim dot-sep">${segment.limit}</span>` : ''}</span><span class="cost">${segment.cost}</span></div>`;
+  }).join('');
+  $('scsched').hidden = false;
+  $('scrows').innerHTML = `<div><button class="paybyphone" type="button" data-pbp-code="1670" aria-label="Copy PayByPhone location code 1670"><img src="${PAY_BY_PHONE_LOGO}" alt="PayByPhone"><span class="pbp-open">1670 ${COPY_ICON}</span></button></div>`;
+  applyPayByPhoneLogoTheme();
+  $('scmaps').href = 'https://www.google.com/maps/search/?api=1&query=Granville%20Island%20Vancouver';
+  $('scmaps').textContent = 'Open in Maps ↗';
+  $('scstart').hidden = false;
+  $('scstart').style.display = '';
+  $('scstart').onclick = () => window.open('https://www.google.com/maps/dir/?api=1&destination=Granville%20Island%20Vancouver', '_blank', 'noopener');
+  if (wasOpen) flashSpotContent();
+  $('spotcard').hidden = false;
+  if (labelLayer) labelLayer.setSelected(GRANVILLE_ISLAND_BLOCK.id);
+};
 $('scclose').addEventListener('click', closeSpotCard);
-// The payment handoff is one tap: copy the location code while the user gesture is
-// active, then let the link open PayByPhone. On iPhone, this makes the standard
-// clipboard paste suggestion available in the app's location field; iOS decides
-// whether and when to show that suggestion.
+// Copy the location code on the same user gesture that opens PayByPhone. iOS then
+// offers its standard clipboard paste suggestion in PayByPhone's location field.
 function copyPayByPhoneCode(code) {
   if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(code);
-  // Kept for embedded/older browsers where Clipboard API is unavailable.
   const input = document.createElement('textarea');
   input.value = code;
   input.setAttribute('readonly', '');
@@ -1630,21 +1808,31 @@ document.addEventListener('click', (e) => {
   if (!link) return;
   const code = link.dataset.pbpCode;
   copyPayByPhoneCode(code).then(
-    () => toast(`Location code ${code} copied — paste it into PayByPhone.`),
+    () => toast('Copied. Paste into PayByPhone'),
     () => toast(`Enter location code ${code} in PayByPhone.`),
   );
-  track('opened_paybyphone', { city: activeCity });
-  window.open(link.dataset.pbpUrl, '_blank', 'noopener');
+  track('copied_paybyphone_code', { city: activeCity });
 });
 // tapping the already-selected pill again closes the card instead of re-opening it
+map.on('click', 'west-end-curbs', (e) => {
+  const b = blocks.find((block) => block.id === e.features?.[0]?.properties.id);
+  if (b) tapBlock(b);
+});
+map.on('mouseenter', 'west-end-curbs', () => { map.getCanvas().style.cursor = 'pointer'; });
+map.on('mouseleave', 'west-end-curbs', () => { map.getCanvas().style.cursor = ''; });
+
 function tapBlock(b) {
   if (!$('spotcard').hidden && cardBlock && cardBlock.id === b.id) { closeSpotCard(); return; }
+  if (b.id === GRANVILLE_ISLAND_BLOCK.id) { window.openGranvilleIslandParking(); return; }
+  if (b.operatorLot) { openEasyParkLot(b); return; }
   showSpotCard(b);
 }
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
 document.addEventListener('click', (e) => {
   if ($('spotcard').hidden) return;
-  if (e.target.closest('#spotcard') || e.target.closest('.maplibregl-marker')) return;
+  // Changing the planned arrival is a refinement of the open parking result,
+  // not an outside-map dismissal. Keep the shared sheet open and refresh it.
+  if (e.target.closest('#spotcard') || e.target.closest('#tripcard') || e.target.closest('#tripPill') || e.target.closest('.maplibregl-marker')) return;
   closeSpotCard();
 }, true);
 
@@ -2146,8 +2334,15 @@ function updateRecenter() {
 
 function initLiveLabels() {
   // `blocks` is already populated by loadCity (and grows as more cities load).
+  for (const operatorBlock of [GRANVILLE_ISLAND_BLOCK, ...EASY_PARK_LOTS])
+    if (!blocks.some((block) => block.id === operatorBlock.id)) blocks.push(operatorBlock);
   labelLayer = createLabelLayer(map, blocks, { nowMins, isWeekend, dow: dowNow, onTap: tapBlock, flagState });
-  labelLayer.refresh();
+  labelLayer.setFilter(filters);
+  // The audit-only view hides live parking layers; the overlay workspace keeps
+  // the normal Park Daddy paid/free context visible beneath review lines.
+  if (params.get('review') === '1' && params.get('overlay') !== '1')
+    labelLayer.setFilter({free:false,paid:false,restrictions:false,unverified:false});
+  initReview(map, blocks, tapBlock);
   // Lazy-load a city's data the moment the map center enters its coverage box.
   map.on('moveend', () => {
     const ctr = map.getCenter();
@@ -2264,9 +2459,7 @@ function initLiveLabels() {
   // waits on the same boot gate as the recenter, or the prompt lands *over* the welcome picker.
   if (params.get('sim')) driving.start();
   else bootUISettled.then(() => {
-    if (store.get(GEO_PERMISSION_KEY) !== 'granted' && store.get(GEO_PERMISSION_KEY) !== 'denied') {
-      driving.start({ passive: true });
-    }
+    if (store.get(GEO_PERMISSION_KEY) !== 'granted' && store.get(GEO_PERMISSION_KEY) !== 'denied') driving.start({ passive: true });
   });
 }
 
