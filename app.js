@@ -586,6 +586,19 @@ async function pollKirkLive() {
   // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
   if (cityChosen) return;
 
+  // Resolve an already-granted one-shot fix before painting the remembered/default city.
+  if (store.get(GEO_PERMISSION_KEY) === 'granted') {
+    const pos = await getPosition().catch(() => null);
+    const key = pos && cityAt(pos.lat, pos.lon);
+    if (key) {
+      rememberCity(key);
+      activeCity = key;
+      map.jumpTo({ center: [pos.lon, pos.lat], zoom: 16 });
+      await loadCity(key);
+      return;
+    }
+  }
+
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
   // un-caught boot IIFE, would leave the skeleton up forever — so fall through to the default city.
