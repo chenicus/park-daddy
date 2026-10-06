@@ -1063,7 +1063,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   if ($('tripcard').hidden) return;
   if (e.target.closest('#tripcard') || e.target.closest('#tripPill')) return;
-  $('tripcard').hidden = true;
+  setTripcardOpen(false);
 }, true);
 $('rcList').addEventListener('click', (e) => {
   const del = e.target.closest('.rc-del');
@@ -1148,7 +1148,7 @@ $('chipEV').addEventListener('click', () => {
   $('chipEV').setAttribute('aria-pressed', String(evVisible));
   refreshEvLayer({ animate: !matchMedia('(prefers-reduced-motion: reduce)').matches });
 });
-$('chipRestrictions').addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
+$('chipRestrictions')?.addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
 $('chipPaid').addEventListener('click', () => {
   filters.paid = !filters.paid;
@@ -1190,21 +1190,26 @@ function syncTrip() {
   if (cardBlock?.id === GRANVILLE_ISLAND_BLOCK.id) window.openGranvilleIslandParking();
   else if (cardBlock) showSpotCard(cardBlock);    // spot card totals reflect arrival + duration
 }
-// on the desktop row layout, anchor the dropdown under the pill instead of under the search bar
-function positionTripcard() {
-  const tc = $('tripcard');
-  if (window.innerWidth < 760) { tc.style.left = ''; tc.style.top = ''; return; }
-  const r = $('tripPill').getBoundingClientRect();
-  tc.style.left = `${Math.round(r.left)}px`;
-  tc.style.top = `${Math.round(r.bottom + 8)}px`;
+function setTripcardOpen(open) {
+  $('tripcard').hidden = !open;
+  $('tripPill').setAttribute('aria-expanded', String(open));
+  if (open) requestAnimationFrame(moveSegInd);
 }
 $('tripPill').addEventListener('click', () => {
-  $('tripcard').hidden = !$('tripcard').hidden;
-  if (!$('tripcard').hidden) positionTripcard();
-  requestAnimationFrame(moveSegInd);
+  setTripcardOpen($('tripcard').hidden);
 });
-requestAnimationFrame(moveSegInd);   // initial highlight position
-$('tcClose').addEventListener('click', () => { $('tripcard').hidden = true; });
+requestAnimationFrame(moveSegInd);
+window.addEventListener('resize', moveSegInd);
+$('tcClose').addEventListener('click', () => {
+  setTripcardOpen(false);
+  $('tripPill').focus();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !$('tripcard').hidden) {
+    setTripcardOpen(false);
+    $('tripPill').focus();
+  }
+});
 $('tcArr').addEventListener('click', (e) => {
   const btn = e.target.closest('button');
   if (!btn || btn.hidden) return;

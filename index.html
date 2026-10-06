@@ -313,13 +313,15 @@
   /* ---- trip pill (arrival) ---- */
   .chip.trip { gap: 5px; }
   .chip.trip svg { color: var(--text); }
-  .tripcard { position: absolute; z-index: 520; top: calc(env(safe-area-inset-top, 0px) + 120px);
-    left: 16px; right: 16px; max-width: 360px; border-radius: 12px; box-shadow: var(--shadow);
-    padding: 16px;
-    display: block; transform-origin: top left; opacity: 1; transform: translateY(0) scale(1);
-    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) var(--ease-sheet); }
-  .tripcard[hidden] { opacity: 0; transform: translateY(-8px) scale(.98); visibility: hidden; pointer-events: none;
-    transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease, visibility 0s var(--dur-fast); }
+  .tripcard { position: fixed; z-index: 520; top: auto;
+    bottom: 0; left: 0; right: 0; width: 100%; max-width: 480px; margin: 0 auto;
+    box-sizing: border-box; border-radius: 24px 24px 0 0; box-shadow: var(--shadow);
+    padding: 20px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 140px); overflow-y: auto;
+    display: block; opacity: 1; transform: translateY(0);
+    transition: opacity var(--dur-fast) ease, transform var(--dur-base) var(--ease-sheet); }
+  .tripcard[hidden] { opacity: 0; transform: translateY(100%); visibility: hidden; pointer-events: none;
+    transition: opacity var(--dur-fast) ease, transform var(--dur-base) var(--ease-sheet), visibility 0s var(--dur-base); }
   .tc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .tc-head b { font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.3px; }
   .tc-head .iconbtn { margin: -10px -8px -10px 0; }
@@ -1059,7 +1061,6 @@
     /* Floating cards clear of the screen edge, dismissed by their own close button — there's
        no bottom to push them down to, and the drag is touch-only anyway. */
     .spotcard::before, .rlpanel::before { content: none; }
-    .tripcard { right: auto; width: 340px; top: calc(env(safe-area-inset-top, 0px) + 68px); }
   }
 
 .review-mode #chipFree,.review-mode #chipPaid,.review-mode #chipRestrictions,.review-mode #chipUnverified { display:none; }
@@ -1256,7 +1257,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <button class="chip mat on" id="chipPaid" type="button" aria-pressed="true"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Paid</button>
   <button class="chip mat" id="chipRestrictions" type="button" aria-pressed="false" title="Show permit parking"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Permit</button>
   <button class="chip mat" id="chipEV" type="button" aria-pressed="false" title="Show public EV chargers"><svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>EV</button>
-  <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time">
+  <button class="chip trip mat" id="tripPill" type="button" aria-label="Set arrival time" aria-controls="tripcard" aria-expanded="false">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
     <span class="v" id="tpArr">Now</span>
   </button>
@@ -1269,9 +1270,9 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
   <div id="rcList"></div>
 </div>
 
-<div class="tripcard mat" id="tripcard" hidden>
+<div class="tripcard mat" id="tripcard" role="dialog" aria-labelledby="tcTitle" hidden>
   <div class="tc-head">
-    <b>Arrival</b>
+    <b id="tcTitle">Arrival</b>
     <button class="iconbtn" id="tcClose" type="button" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
   </div>
   <div class="tc-seg" id="tcArr">
@@ -1664,7 +1665,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=180"></script>
+<script type="module" src="app.js?v=181"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
