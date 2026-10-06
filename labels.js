@@ -268,8 +268,17 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       // nearly every cell contains SOME free block, so a plain minimum would read "$0"
       // everywhere — instead the chip is "$0" only where free dominates, else cheapest paid.
       const cells = new Map();
+      const permitCells = new Map();
       for (const bl of vis) {
-        if (bl.curb || bl.unverified) continue; // approximate / restricted sections never set an area price minimum
+        if (bl.unverified) continue;
+        if (bl.curb) {
+          const r = rateFor(bl, mins, dow);
+          if (r.cls === 'p-permit' && curbVisible(bl.curb, mins, dow, filter)) {
+            const key = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
+            if (!permitCells.has(key)) permitCells.set(key, { bl, r });
+          }
+          continue; // Permit summaries never contribute to a public parking price minimum.
+        }
         const ck = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
         const r = rateFor(bl, mins, dow);
         if (!keep(r.free)) continue;
@@ -293,6 +302,11 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
           d: distMeters(ctrLat, ctrLon, lat, lon),
         });
       }
+      for (const [key, { bl, r }] of permitCells) items.push({
+        sig: 'permit-area|' + key + '|' + r.label, lat: bl.lat, lon: bl.lon,
+        text: r.label, cluster: true, cls: r.cls, block: null,
+        d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
+      });
       items.sort((a, b) => a.d - b.d);   // chips near the center win the space
       const kept = [], keptPx = [];
       for (const it of items) {
@@ -312,7 +326,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const r = rateFor(bl, mins, dow);
       if (bl.curb || bl.unverified) return {
         sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
-        text: r.label, free: r.free, cls: r.cls, block: bl, rate: Infinity,
+        text: r.label, free: r.free, cls: r.cls, block: bl, rate: r.cls === 'p-permit' ? 0 : Infinity,
         flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
       // Operator-managed locations can use the ordinary marker component with
