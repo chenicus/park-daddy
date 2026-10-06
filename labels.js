@@ -225,7 +225,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const setCurbData = (fc) => { const s = map.getSource('west-end-curbs'); if (s) s.setData(fc); };
   const setLineData = (fc) => { const s = map.getSource('blockface-lines'); if (s) s.setData(fc); };
   const DOT_COLOR = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' };
-  const zoomInt = () => Math.round(map.getZoom());   // MapLibre zoom is fractional; the ladders want an int
+  const zoomInt = () => map.getZoom();   // MapLibre zoom is fractional; the ladders want an int
   const project = (lat, lon) => map.project([lon, lat]);   // → {x,y} screen px (already rotation-aware)
 
   // Highlight the selected block's pill in its active (darker-tier) state.
@@ -263,64 +263,6 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     const ctrLat = ctr.lat, ctrLon = ctr.lng != null ? ctr.lng : ctr.lon;
 
     if (z < 13) return [];   // dots paint the coverage; no text this far out
-
-    if (z <= 14) {   // area minimum per ~800 m cell — sparse chips over the dot texture
-      // nearly every cell contains SOME free block, so a plain minimum would read "$0"
-      // everywhere — instead the chip is "$0" only where free dominates, else cheapest paid.
-      const cells = new Map();
-      const permitCells = new Map();
-      for (const bl of vis) {
-        if (bl.unverified) continue;
-        if (bl.curb) {
-          const r = rateFor(bl, mins, dow);
-          if (r.cls === 'p-permit' && curbVisible(bl.curb, mins, dow, filter)) {
-            const key = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
-            if (!permitCells.has(key)) permitCells.set(key, { bl, r });
-          }
-          continue; // Permit summaries never contribute to a public parking price minimum.
-        }
-        const ck = Math.floor(bl.lat / 0.0072) + ',' + Math.floor(bl.lon / 0.011);
-        const r = rateFor(bl, mins, dow);
-        if (!keep(r.free)) continue;
-        let c = cells.get(ck);
-        if (!c) { c = { nFree: 0, nPaid: 0, minPaid: Infinity, freeLat: null, freeLon: null, paidLat: null, paidLon: null }; cells.set(ck, c); }
-        // Anchor the chip to a block that MATCHES its label: a free block for the "Free"
-        // chip, the cheapest paid block for a "$X" chip. Without this the pin was whatever
-        // block hit the cell first, so a "Free" chip could land its tail on a paid curb.
-        if (r.free) { c.nFree++; if (c.freeLat === null) { c.freeLat = bl.lat; c.freeLon = bl.lon; } }
-        else { c.nPaid++; if (r.rate < c.minPaid) { c.minPaid = r.rate; c.paidLat = bl.lat; c.paidLon = bl.lon; } }
-      }
-      const items = [];
-      for (const [ck, c] of cells) {
-        const free = c.nFree >= c.nPaid;
-        if (!free && c.minPaid === Infinity) continue;
-        const text = free ? 'Free' : fmtRate(c.minPaid);
-        const lat = free ? c.freeLat : c.paidLat, lon = free ? c.freeLon : c.paidLon;
-        items.push({
-          sig: 'g' + ck + '|' + text, lat, lon, text, cluster: true,
-          cls: bucket(free ? 0 : c.minPaid, free), block: null,
-          d: distMeters(ctrLat, ctrLon, lat, lon),
-        });
-      }
-      for (const [key, { bl, r }] of permitCells) items.push({
-        sig: 'permit-area|' + key + '|' + r.label, lat: bl.lat, lon: bl.lon,
-        text: r.label, cluster: true, cls: r.cls, block: null,
-        d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
-      });
-      items.sort((a, b) => a.d - b.d);   // chips near the center win the space
-      const kept = [], keptPx = [];
-      for (const it of items) {
-        if (kept.length >= 12) break;
-        const px = project(it.lat, it.lon);
-        let clash = false;
-        for (const k of keptPx) {
-          if (Math.abs(k.x - px.x) < 78 && Math.abs(k.y - px.y) < 40) { clash = true; break; }
-        }
-        if (clash) continue;
-        kept.push(it); keptPx.push(px);
-      }
-      return kept;
-    }
 
     const items = vis.filter((bl) => !bl.noPill).map((bl) => {
       const r = rateFor(bl, mins, dow);
@@ -417,7 +359,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
     for (const bl of visibleActive(mins, dow)) {
       const r = rateFor(bl, mins, dow);
       if (bl.curb) {
-        if (z >= 15 && curbVisible(bl.curb, mins, dow, filter)) curbs.push({
+        if (z >= 13 && curbVisible(bl.curb, mins, dow, filter)) curbs.push({
           type: 'Feature', properties: { id: bl.id, color: r.color },
           geometry: { type: 'LineString', coordinates: bl.curb.geometry.coordinates },
         });

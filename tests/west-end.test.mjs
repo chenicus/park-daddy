@@ -318,8 +318,10 @@ test('map rendering, filter, low-zoom and style recreation keep restricted curbs
     assert.equal(sources.get('meter-dots').data.features.length,1);
     sources.set('west-end-curbs',{setData(d){this.data=d;}}); layer.refresh();
     assert.equal(sources.get('west-end-curbs').data.features.length,1);
-    zoom=14; layer.refresh();
-    assert.equal(sources.get('west-end-curbs').data.features.length,0);
+    for (const z of [14,13,12.99,13,14,16]) {
+      zoom=z; layer.refresh();
+      assert.equal(sources.get('west-end-curbs').data.features.length,z >= 13 ? 1 : 0);
+    }
   } finally {layer.destroy();}
 });
 
