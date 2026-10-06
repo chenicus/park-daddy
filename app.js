@@ -1056,11 +1056,13 @@ $('clearDest').addEventListener('click', () => {
 updateClear();       // sync on load (a prefilled ?dest= should show the X)
 // keep the panel open until you pick, clear, or tap away — not on every input blur
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   if ($('recents').hidden) return;
   if (e.target.closest('#recents') || e.target.closest('#searchform')) return;
   hideRecents();
 });
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   if ($('tripcard').hidden) return;
   if (e.target.closest('#tripcard') || e.target.closest('#tripPill')) return;
   setTripcardOpen(false);
@@ -1938,6 +1940,7 @@ function copyPayByPhoneCode(code) {
   return copied ? Promise.resolve() : Promise.reject(new Error('Copy unavailable'));
 }
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   const link = e.target.closest('.paybyphone[data-pbp-code]');
   if (!link) return;
   const code = link.dataset.pbpCode;
@@ -2051,6 +2054,7 @@ function tapBlock(b) {
 }
 // tapping anywhere else on the map (i.e. not a pill) closes the card too
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   if ($('spotcard').hidden) return;
   // Changing the planned arrival is a refinement of the open parking result,
   // not an outside-map dismissal. Keep the shared sheet open and refresh it.
@@ -2058,6 +2062,7 @@ document.addEventListener('click', (e) => {
   closeSpotCard();
 }, true);
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   if ($('evsheet').hidden) return;
   if (e.target.closest('#evsheet') || e.target.closest('.maplibregl-marker')) return;
   closeEvSheet();
@@ -2068,6 +2073,7 @@ document.addEventListener('click', (e) => {
 // the drawer family closes it. Tapping the menu button itself is left to its own
 // click handler so it can still toggle back open.
 document.addEventListener('click', (e) => {
+  if (e.target.closest('#themetoggle')) return;
   const open = $('menupanel').classList.contains('open') || $('changelog').classList.contains('open')
     || $('privacy').classList.contains('open');
   if (!open) return;

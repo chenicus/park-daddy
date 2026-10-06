@@ -579,8 +579,8 @@
   #compass svg { width: 26px; height: 26px; }
   /* theme toggle (light/dark) — always right-aligned with recenter/compass, so it moves straight
      up the same column in drive/nav mode instead of jumping across the screen. */
-  #themetoggle { position: absolute; z-index: 600; right: 16px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
+  #themetoggle { position: absolute; z-index: 1201; right: 16px;
+    bottom: max(calc(env(safe-area-inset-bottom, 0px) + 24px), var(--sheet-clearance, 0px));
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
     color: var(--text); display: grid; place-items: center; cursor: pointer; }
   #themetoggle svg { width: 22px; height: 22px; transition: transform var(--dur-slow) var(--ease-standard); }
@@ -601,7 +601,7 @@
   }
   /* during turn-by-turn, theme stays the lowest icon (matching drive mode); compass and
      recenter stack above it. */
-  body.nav #themetoggle { bottom: calc(env(safe-area-inset-bottom, 0px) + 82px); }
+  body.nav #themetoggle { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 82px), var(--sheet-clearance, 0px)); }
 
   /* ---- turn-by-turn chrome ---- */
   #navbanner { position: absolute; z-index: 640; top: calc(env(safe-area-inset-top, 0px) + 12px);
@@ -1665,7 +1665,8 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=181"></script>
+<script type="module" src="app.js?v=182"></script>
+<script type="module" src="theme-sheet.js?v=1"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
