@@ -12,9 +12,9 @@ function fixture(blocks, restrictions = true) {
   const context = {
     visibleActive: () => blocks, focus: null, map: { getCenter: () => ({ lat: 0, lng: 0 }) },
     rateFor: b => b.r, flags: () => ({}), filter: { free: true, paid: true, restrictions },
-    keep: () => true, curbVisible: () => restrictions, limitFor: () => null,
+    keep: () => true, curbVisible: () => restrictions, limitFor: b => b.limit ?? null,
     distMeters: (a,b,c,d) => Math.hypot(c-a,d-b), project: (lat,lon) => ({ x: lon*100000, y: lat*100000 }),
-    fmtRate: r => `$${r}`, fmtLimit: String, bucket: () => 'p1', LABEL_CAP: 150,
+    fmtRate: r => `$${r}`, fmtLimit: mins => `${mins / 60}h`, bucket: () => 'p1', LABEL_CAP: 150,
   };
   vm.createContext(context);
   vm.runInContext(selectSource, context);
@@ -53,4 +53,21 @@ test('permit pills remain distinct from public parking prices', () => {
   assert.equal(result.length,2);
   assert(result.some(p=>p.text==='Permit' && p.cls==='p-permit'));
   assert(result.some(p=>p.text==='$3/hr'));
+});
+
+test('known free and paid durations keep identical suffixes while zooming in and out', () => {
+  const cases = [
+    {...paid('paid'), limit:120},
+    {id:'free',lat:0,lon:0,r:{free:true,rate:0},limit:120},
+    {id:'curb',lat:0,lon:0,curb:{},r:{free:true,rate:0,label:'Free · 2h',cls:'p-free'}},
+    permit('permit'),
+  ];
+  for (const block of cases) {
+    const select=fixture([block]);
+    for (const zoom of [13,14,15,15.99,16,17,16,15,14,13]) {
+      const pill=select(zoom)[0];
+      if(block.id==='permit') assert(!pill.text.includes(' · '));
+      else {assert(pill.text.endsWith(' · 2h'));assert(pill.suffix.endsWith(' · 2h'));}
+    }
+  }
 });

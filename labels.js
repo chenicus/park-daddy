@@ -268,7 +268,9 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       const r = rateFor(bl, mins, dow);
       if (bl.curb || bl.unverified) return {
         sig: 'b' + bl.id + '|' + r.label + (flags(bl).flagged ? '!' : ''), lat: bl.lat, lon: bl.lon,
-        text: r.label, free: r.free, cls: r.cls, block: bl, rate: r.cls === 'p-permit' ? 0 : Infinity,
+        text: r.label, price: r.label.split(' · ')[0],
+        suffix: r.label.includes(' · ') ? ' · ' + r.label.split(' · ').slice(1).join(' · ') : '',
+        free: r.free, cls: r.cls, block: bl, rate: r.cls === 'p-permit' ? 0 : Infinity,
         flagged: !!flags(bl).flagged, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
       // Operator-managed locations can use the ordinary marker component with
@@ -278,7 +280,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         text: r.label, free: r.free, cls: r.cls || bucket(r.rate, r.free), block: bl, rate: r.rate,
         flagged: false, d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
-      const lim = z >= 16 ? limitFor(bl, mins, dow, wknd) : null;
+      const lim = limitFor(bl, mins, dow, wknd);
       const limTxt = lim != null && lim !== Infinity ? ' · ' + fmtLimit(lim) : '';
       // Kirkland pills append a live "· N free" count, so a plain "Free" price would read
       // "Free · 3 free" — show "$0" there instead to disambiguate price from availability.
