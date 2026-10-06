@@ -273,8 +273,9 @@ function refreshEvMarkers({ animate = false } = {}) {
     const pill = marker.getElement()?.firstElementChild;
     if (animate && pill) {
       pill.classList.remove('in');
+      pill.style.animationDelay = '';
       pill.classList.add('out');
-      setTimeout(() => marker.remove(), 240);
+      setTimeout(() => marker.remove(), 200);
     } else marker.remove();
   }
   evMarkers = [];
@@ -285,7 +286,12 @@ function refreshEvMarkers({ animate = false } = {}) {
   const occupied = [];
   const origin = map.getContainer().getBoundingClientRect();
   const parkingRects = [...map.getContainer().querySelectorAll('.plabel:not(.p-ev):not(.out)')].map(el => el.getBoundingClientRect());
-  for (const feature of evChargerData.features) {
+  const center = map.getCenter();
+  const features = [...evChargerData.features].sort((a, b) => {
+    const [ax, ay] = a.geometry.coordinates, [bx, by] = b.geometry.coordinates;
+    return distMeters(center.lat, center.lng, ay, ax) - distMeters(center.lat, center.lng, by, bx);
+  });
+  for (const feature of features) {
     const [lon, lat] = feature.geometry.coordinates;
     if (!bounds.contains([lon, lat])) continue;
     const px = map.project([lon, lat]);
@@ -295,7 +301,15 @@ function refreshEvMarkers({ animate = false } = {}) {
     occupied.push(px);
     const el = document.createElement('div');
     el.innerHTML = '<div class="plabel p-ev">EV</div>';
-    if (animate) el.firstElementChild.classList.add('in');
+    if (animate) {
+      const pill = el.firstElementChild;
+      pill.style.animationDelay = Math.min(evMarkers.length, 14) * 25 + 'ms';
+      pill.classList.add('in');
+      pill.addEventListener('animationend', () => {
+        pill.classList.remove('in');
+        pill.style.animationDelay = '';
+      }, { once: true });
+    }
     const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
       .setLngLat([lon, lat]).addTo(map);
     el.addEventListener('click', () => {
