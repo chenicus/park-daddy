@@ -56,8 +56,11 @@ const EASY_PARK_LOTS = [
 ].map(([id, name, address, lat, lon, spaces, kind]) => ({
   id, name, address, lat, lon, spaces, kind, provider: 'EasyPark', sourceUrl: EASY_PARK_SOURCE,
   pts: [], rushes: [], prohibitions: [], card: false, operatorLot: true,
-  operatorRate() {
+  operatorRate(mins) {
     const details = easyParkLotDetails(this);
+    if (details.noOvernight && (mins < 6 * 60 || mins >= 22 * 60)) {
+      return { hidden: true, free: false, rate: null };
+    }
     // A free introductory duration is the decision-driving price, so it gets
     // priority in the shared map marker rather than burying it behind "then".
     return details.freeDuration
@@ -1860,6 +1863,7 @@ function easyParkLotDetails(lot) {
     : { rate: 4.25, hours: '6:00am–10:00pm', noOvernight: true, caption: 'Seasonal EasyPark rate. Rates can change for events; confirm before paying.' };
 }
 function openEasyParkLot(b) {
+  if (b.operatorRate(nowMins()).hidden) { closeSpotCard(); return; }
   const wasOpen = !$('spotcard').hidden;
   const d = easyParkLotDetails(b);
   cardBlock = b;
