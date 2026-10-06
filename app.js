@@ -166,9 +166,16 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
 };
 const LAST_CITY_KEY = 'pd_last_city';
+const LAST_POSITION_KEY = 'pd_last_position';
 const GEO_PERMISSION_KEY = 'pd_geo_permission';
 function storedCity() { const key = store.get(LAST_CITY_KEY); return key && CITIES[key] ? key : DEFAULT_CITY; }
 function rememberCity(key) { if (CITIES[key]) store.set(LAST_CITY_KEY, key); }
+function storedPosition() {
+  try {
+    const p = JSON.parse(store.get(LAST_POSITION_KEY));
+    return p && Number.isFinite(p.lat) && Number.isFinite(p.lon) ? p : null;
+  } catch { return null; }
+}
 // CARTO's free, no-API-key VECTOR styles — Positron (light) / Dark Matter (dark). Vector so the
 // map can truly rotate/pitch and MapLibre keeps street labels upright; near-identical muted look
 // to the old raster basemaps. Attribution rides inside each style's sources → shown by the
@@ -586,6 +593,16 @@ async function pollKirkLive() {
   // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
   if (cityChosen) return;
 
+  const savedPos = storedPosition();
+  const savedKey = savedPos && cityAt(savedPos.lat, savedPos.lon);
+  if (savedKey) {
+    rememberCity(savedKey);
+    activeCity = savedKey;
+    map.jumpTo({ center: [savedPos.lon, savedPos.lat], zoom: 16 });
+    await loadCity(savedKey);
+    // Continue below to refresh the saved fix, but the user no longer sees Vancouver.
+  }
+
   // Use the same one-shot path as the location button before painting the fallback city.
   // The browser will reuse an existing grant without prompting; if permission is undecided,
   // this is the one intentional startup prompt.
@@ -600,6 +617,7 @@ async function pollKirkLive() {
     await loadCity(startupKey);
     return;
   }
+  if (savedKey) return;
 
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
@@ -698,7 +716,14 @@ function getPosition() {
     if (cachedPos) return res(cachedPos);
     if (!navigator.geolocation) return res(null);
     navigator.geolocation.getCurrentPosition(
-      (p) => { store.set(GEO_PERMISSION_KEY, 'granted'); cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude }; res(cachedPos); },
+      (p) => {
+        store.set(GEO_PERMISSION_KEY, 'granted');
+        cachedPos = { lat: p.coords.latitude, lon: p.coords.longitude };
+        store.set(LAST_POSITION_KEY, JSON.stringify(cachedPos));
+        const key = cityAt(cachedPos.lat, cachedPos.lon);
+        if (key) rememberCity(key);
+        res(cachedPos);
+      },
       (e) => { if (e?.code === 1) store.set(GEO_PERMISSION_KEY, 'denied'); res(null); },
       { timeout: 20000, maximumAge: 300000 }
     );
