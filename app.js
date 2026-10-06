@@ -495,7 +495,7 @@ async function goToCity(key) {
   // stay behind the mapLoaded await. Only the explicit switch clears: panning is left alone,
   // since the metros are far enough apart that you can't drift between them at street zoom.
   if (lastLoc) clearDestination();
-  map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
+  map.jumpTo({ center: savedKey ? [savedPos.lon, savedPos.lat] : [c.center[1], c.center[0]], zoom: savedKey ? 16 : c.zoom });
   // Passive follow (started in initLiveLabels) eases the camera onto every GPS fix inside ANY
   // covered city — which yanks the map straight back off the city you just picked. Picking a city
   // is an explicit "show me over there", so park follow like a search does; the recenter fab
@@ -586,45 +586,8 @@ async function pollKirkLive() {
 // ignored (common at a red light). Paint the default city first; if a fix lands within a few
 // seconds and it's in a covered city, pan there.
 (async () => {
-  // Google-Maps-style startup: keep the map hidden while the one-shot GPS fix resolves,
-  // so the Vancouver fallback is never presented as the user's initial location.
-  const mapContainer = map.getContainer();
-  mapContainer.style.visibility = 'hidden';
-  await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
-
-  // The welcome picker is up before the map finishes loading, so a tap can land while we're still
-  // parked on this await. goToCity() then owns the camera and the city load — bail out rather than
-  // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
-  if (cityChosen) { mapContainer.style.visibility = ''; return; }
-
-  const savedPos = storedPosition();
-  const savedKey = savedPos && cityAt(savedPos.lat, savedPos.lon);
-  if (savedKey) {
-    rememberCity(savedKey);
-    activeCity = savedKey;
-    map.jumpTo({ center: [savedPos.lon, savedPos.lat], zoom: 16 });
-    await loadCity(savedKey);
-    // Continue below to refresh the saved fix, but the user no longer sees Vancouver.
-  }
-
-  // Use the same one-shot path as the location button before painting the fallback city.
-  // The browser will reuse an existing grant without prompting; if permission is undecided,
-  // this is the one intentional startup prompt.
-  await bootUISettled;
-  if (cityChosen) { mapContainer.style.visibility = ''; return; }
-  const startupPos = await getPosition().catch(() => null);
-  const startupKey = startupPos && cityAt(startupPos.lat, startupPos.lon);
-  if (startupKey) {
-    rememberCity(startupKey);
-    activeCity = startupKey;
-    map.jumpTo({ center: [startupPos.lon, startupPos.lat], zoom: 16 });
-    await loadCity(startupKey);
-    mapContainer.style.visibility = '';
-    if (driving && !driving.isActive()) driving.start({ passive: true });
-    return;
-  }
-  if (savedKey) { mapContainer.style.visibility = ''; return; }
-  mapContainer.style.visibility = '';
+  await mapLoaded;
+  if (cityChosen) return;
 
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
@@ -676,10 +639,12 @@ async function pollKirkLive() {
   // Paint the default city now so pills show right away. Passive drive mode (see
   // initLiveLabels) recenters the camera on the user once GPS warms up; here we only detect +
   // load the RIGHT city's data. c.center is Leaflet [lat, lon]; MapLibre wants [lng, lat].
-  const initialCity = storedCity();
+  const savedPos = storedPosition();
+  const savedKey = savedPos && cityAt(savedPos.lat, savedPos.lon);
+  const initialCity = savedKey || storedCity();
   const c = CITIES[initialCity];
   activeCity = initialCity;
-  map.jumpTo({ center: [c.center[1], c.center[0]], zoom: c.zoom });
+  map.jumpTo({ center: savedKey ? [savedPos.lon, savedPos.lat] : [c.center[1], c.center[0]], zoom: savedKey ? 16 : c.zoom });
   await loadCity(initialCity);
 
   if (params.get('dest')) { run(null, true); return; }   // text-search deep link
