@@ -1,5 +1,6 @@
-// Keep the theme control above sheets as they open, resize, or are dragged.
+// Keep the map controls above sheets as they open, resize, or are dragged.
 const toggle = document.getElementById('themetoggle');
+const controls = [toggle, document.getElementById('compass'), document.getElementById('recenter')].filter(Boolean);
 const sheets = [...document.querySelectorAll('.tripcard, .spotcard, .rlpanel, #welcome .wc-sheet, #navwarn .wc-card')];
 let frame = 0;
 let followUntil = 0;
@@ -14,7 +15,7 @@ function update() {
     if (rect.right <= button.left || rect.left >= button.right || rect.top >= innerHeight || rect.bottom <= 0) continue;
     clearance = Math.max(clearance, innerHeight - rect.top + 12);
   }
-  toggle.style.setProperty('--sheet-clearance', `${Math.ceil(clearance)}px`);
+  for (const control of controls) control.style.setProperty('--sheet-clearance', `${Math.ceil(clearance)}px`);
   if (performance.now() < followUntil) frame = requestAnimationFrame(update);
 }
 function schedule() {

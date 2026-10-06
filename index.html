@@ -562,18 +562,16 @@
     transition: transform var(--dur-press) var(--ease-press); }
   body.driving #recenter { right: auto; left: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); }
   /* during turn-by-turn, recenter + compass + theme toggle float as a right-side stack above the full-width ETA bar */
-  body.nav #recenter { left: auto; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 210px); }
+  body.nav #recenter { left: auto; right: 16px; bottom: max(calc(env(safe-area-inset-bottom, 0px) + 210px), calc(var(--sheet-clearance, 0px) + 116px)); z-index: 1201; }
   /* compass — heading-up (POV) ⇄ north-up in drive/nav, north-reset in browse. JS rotates the
      needle by -bearing on every map 'rotate' so its point always holds true north. */
-  #compass { position: absolute; z-index: 600; right: 16px; bottom: calc(env(safe-area-inset-bottom, 0px) + 82px);
+  #compass { position: absolute; z-index: 1201; right: 16px; bottom: max(calc(env(safe-area-inset-bottom, 0px) + 82px), calc(var(--sheet-clearance, 0px) + 58px));
     width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--stroke); box-shadow: var(--shadow);
-    display: none; place-items: center; color: var(--text); cursor: pointer; }
-  /* shown in drive/nav (heading-up toggle) and, like Google Maps, whenever the map is rotated
-     off north in plain browse mode (body.rotated, set by JS on the map 'rotate' event). */
-  body.nav #compass, body.driving #compass, body.rotated #compass { display: grid; }
+    display: grid; place-items: center; color: var(--text); cursor: pointer; }
+  /* Keep navigation orientation available in every map mode. */
   /* Nav bar takes the bottom, so the whole right-side stack lifts together — but keeps
      the drive-mode order (theme lowest, compass above it, recenter on top). */
-  body.nav #compass { bottom: calc(env(safe-area-inset-bottom, 0px) + 146px); }
+  body.nav #compass { bottom: max(calc(env(safe-area-inset-bottom, 0px) + 146px), calc(var(--sheet-clearance, 0px) + 58px)); }
   #compass:active { filter: brightness(.94); }
   /* JS rotates the needle by -bearing on every map 'rotate' so its point always holds true north. */
   #compass svg { width: 26px; height: 26px; }
@@ -1665,8 +1663,8 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=182"></script>
-<script type="module" src="theme-sheet.js?v=1"></script>
+<script type="module" src="app.js?v=183"></script>
+<script type="module" src="theme-sheet.js?v=2"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
