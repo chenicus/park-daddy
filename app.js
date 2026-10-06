@@ -586,17 +586,19 @@ async function pollKirkLive() {
   // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
   if (cityChosen) return;
 
-  // Resolve an already-granted one-shot fix before painting the remembered/default city.
-  if (store.get(GEO_PERMISSION_KEY) === 'granted') {
-    const pos = await getPosition().catch(() => null);
-    const key = pos && cityAt(pos.lat, pos.lon);
-    if (key) {
-      rememberCity(key);
-      activeCity = key;
-      map.jumpTo({ center: [pos.lon, pos.lat], zoom: 16 });
-      await loadCity(key);
-      return;
-    }
+  // Use the same one-shot path as the location button before painting the fallback city.
+  // The browser will reuse an existing grant without prompting; if permission is undecided,
+  // this is the one intentional startup prompt.
+  await bootUISettled;
+  if (cityChosen) return;
+  const startupPos = await getPosition().catch(() => null);
+  const startupKey = startupPos && cityAt(startupPos.lat, startupPos.lon);
+  if (startupKey) {
+    rememberCity(startupKey);
+    activeCity = startupKey;
+    map.jumpTo({ center: [startupPos.lon, startupPos.lat], zoom: 16 });
+    await loadCity(startupKey);
+    return;
   }
 
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
