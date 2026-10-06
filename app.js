@@ -586,12 +586,16 @@ async function pollKirkLive() {
 // ignored (common at a red light). Paint the default city first; if a fix lands within a few
 // seconds and it's in a covered city, pan there.
 (async () => {
+  // Google-Maps-style startup: keep the map hidden while the one-shot GPS fix resolves,
+  // so the Vancouver fallback is never presented as the user's initial location.
+  const mapContainer = map.getContainer();
+  mapContainer.style.visibility = 'hidden';
   await mapLoaded;   // MapLibre isn't usable until 'load' — unlike Leaflet's synchronous map
 
   // The welcome picker is up before the map finishes loading, so a tap can land while we're still
   // parked on this await. goToCity() then owns the camera and the city load — bail out rather than
   // paint DEFAULT_CITY over it (which also clobbered activeCity, mis-biasing search and ranking).
-  if (cityChosen) return;
+  if (cityChosen) { mapContainer.style.visibility = ''; return; }
 
   const savedPos = storedPosition();
   const savedKey = savedPos && cityAt(savedPos.lat, savedPos.lon);
@@ -607,7 +611,7 @@ async function pollKirkLive() {
   // The browser will reuse an existing grant without prompting; if permission is undecided,
   // this is the one intentional startup prompt.
   await bootUISettled;
-  if (cityChosen) return;
+  if (cityChosen) { mapContainer.style.visibility = ''; return; }
   const startupPos = await getPosition().catch(() => null);
   const startupKey = startupPos && cityAt(startupPos.lat, startupPos.lon);
   if (startupKey) {
@@ -615,9 +619,11 @@ async function pollKirkLive() {
     activeCity = startupKey;
     map.jumpTo({ center: [startupPos.lon, startupPos.lat], zoom: 16 });
     await loadCity(startupKey);
+    mapContainer.style.visibility = '';
     return;
   }
-  if (savedKey) return;
+  if (savedKey) { mapContainer.style.visibility = ''; return; }
+  mapContainer.style.visibility = '';
 
   // Deep link with explicit coords: honor it exactly — no geolocation needed. Guard against a
   // malformed/truncated share link (?lat=abc): a NaN center makes MapLibre throw and, inside this
