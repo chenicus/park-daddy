@@ -15,7 +15,9 @@ let meters = [];
 const filters = { free: true, paid: true, restrictions: false, unverified: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 const VANCOUVER_EV_SOURCE = 'https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/electric-vehicle-charging-stations/records?limit=100';
-const NRCAN_VANCOUVER_EV_SOURCE = "https://services.arcgis.com/wjcPoefzjpzCgffS/arcgis/rest/services/Electric_Charging_Stations_in_Canada/FeatureServer/0/query?where=City%3D%27Vancouver%27%20AND%20State%3D%27BC%27%20AND%20Status_Code%3D%27E%27%20AND%20Access_Code%3D%27public%27&outFields=Station_Name%2CStreet_Address%2CEV_Level2_EVSE_Num%2CEV_DC_Fast_Count%2CEV_Network%2CEV_Network_Web%2CEV_Connector_Types%2CEV_Pricing%2CAccess_Days_Time%2CID&returnGeometry=true&outSR=4326&f=geojson";
+const NRCAN_EV_BASE = 'https://services.arcgis.com/wjcPoefzjpzCgffS/arcgis/rest/services/Electric_Charging_Stations_in_Canada/FeatureServer/0/query';
+const evFederalUrl = (city, state) => `${NRCAN_EV_BASE}?where=City%3D%27${encodeURIComponent(city)}%27%20AND%20State%3D%27${encodeURIComponent(state)}%27%20AND%20Status_Code%3D%27E%27%20AND%20Access_Code%3D%27public%27&outFields=Station_Name%2CStreet_Address%2CEV_Level2_EVSE_Num%2CEV_DC_Fast_Count%2CEV_Network%2CEV_Network_Web%2CEV_Connector_Types%2CEV_Pricing%2CAccess_Days_Time%2CID&returnGeometry=true&outSR=4326&f=geojson`;
+let evLoadedCity = null;
 let evChargerData = { type: 'FeatureCollection', features: [] };
 let evChargersLoaded = false;
 let evVisible = false;
@@ -324,14 +326,16 @@ function refreshEvMarkers({ animate = false } = {}) {
   }
 }
 
-async function loadVancouverEvChargers() {
-  if (evChargersLoaded) return;
+async function loadVancouverEvChargers(city = activeCity) {
+  if (evChargersLoaded && evLoadedCity === city) return;
+  if (city !== 'vancouver' && city !== 'seattle') return;
   try {
-    const cityRequest = fetch(VANCOUVER_EV_SOURCE).then((response) => {
+    const isVancouver = city === 'vancouver';
+    const cityRequest = isVancouver ? fetch(VANCOUVER_EV_SOURCE).then((response) => {
       if (!response.ok) throw new Error(`EV data request failed: ${response.status}`);
       return response.json();
-    });
-    const federalRequest = fetch(NRCAN_VANCOUVER_EV_SOURCE).then((response) => {
+    }) : Promise.resolve({ results: [] });
+    const federalRequest = fetch(evFederalUrl(isVancouver ? 'Vancouver' : 'Seattle', isVancouver ? 'BC' : 'WA')).then((response) => {
       if (!response.ok) throw new Error(`National EV data request failed: ${response.status}`);
       return response.json();
     });
@@ -345,27 +349,18 @@ async function loadVancouverEvChargers() {
     const federalFeatures = (federalPayload.features || []).filter((feature) => feature.geometry?.coordinates).map((feature) => {
       const row = feature.properties || {};
       const ports = (Number(row.EV_Level2_EVSE_Num) || 0) + (Number(row.EV_DC_Fast_Count) || 0);
-      return {
-        type: 'Feature', geometry: feature.geometry,
-      properties: { address: row.Street_Address, location: row.Station_Name, connectors: row.EV_Connector_Types,
+      return { type: 'Feature', geometry: feature.geometry,
+        properties: { address: row.Street_Address, location: row.Station_Name, connectors: row.EV_Connector_Types,
           ports: ports || null, cost: row.EV_Pricing, access: 'Public', hours: row.Access_Days_Time, operator: row.EV_Network,
-          operatorUrl: row.EV_Network_Web, level2: row.EV_Level2_EVSE_Num, fast: row.EV_DC_Fast_Count, mapId: row.ID, source: 'Natural Resources Canada' },
-      };
+          operatorUrl: row.EV_Network_Web, level2: row.EV_Level2_EVSE_Num, fast: row.EV_DC_Fast_Count, mapId: row.ID, source: 'Natural Resources Canada' } };
     });
     const seen = new Set();
     const uniqueFeatures = [...cityFeatures, ...federalFeatures].filter((feature) => {
-      const [lon, lat] = feature.geometry.coordinates;
-      const key = `${lon.toFixed(5)},${lat.toFixed(5)}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
+      const [lon, lat] = feature.geometry.coordinates, key = `${lon.toFixed(5)},${lat.toFixed(5)}`;
+      if (seen.has(key)) return false; seen.add(key); return true;
     });
-    evChargerData = {
-      type: 'FeatureCollection',
-      features: uniqueFeatures,
-    };
-    evChargersLoaded = true;
-    refreshEvLayer();
+    evChargerData = { type: 'FeatureCollection', features: uniqueFeatures };
+    evChargersLoaded = true; evLoadedCity = city; refreshEvLayer();
   } catch {
     $('chipEV').disabled = true;
     $('chipEV').title = 'Public EV-charger data is unavailable right now';
@@ -547,7 +542,7 @@ async function loadCity(key) {
       else if (d.kind === 'sanjose') { pushBlocks(buildSanJoseBlocks(data)); }
       else if (d.kind === 'kirkland') { const kb = buildKirklandBlocks(data); pushBlocks(kb); startKirkLive(kb, c.live); }
     });
-    if (key === 'vancouver') loadVancouverEvChargers();
+    if (key === 'vancouver' || key === 'seattle') loadVancouverEvChargers(key);
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
