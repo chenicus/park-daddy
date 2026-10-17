@@ -427,8 +427,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         // translate). MapLibre keeps the wrapper screen-upright on rotate automatically.
         const el = document.createElement('div');
         if (d.cluster) el.className = 'cluster';
-        el.innerHTML = `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${body}${d.block?.community?'<span class="community-badge" aria-label="Community added">C</span>':''}</div>`;
-        if(d.block?.community)el.setAttribute('aria-label',`${d.text}. Community added. ${d.block.community.street}`);
+        el.innerHTML = `<div class="plabel ${d.cls}${d.flagged ? ' flag' : ''}">${warn}${body}</div>`;
         mk = new maplibregl.Marker({ element: el, anchor: 'center' }).setLngLat([d.lon, d.lat]).addTo(map);
         if (d.block) el.addEventListener('click', () => onTap(d.block));
         // area chip → zoom in so its individual block pills appear

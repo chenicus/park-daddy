@@ -84,11 +84,3 @@ for the geometry method, the two historical Street View observations, and rebuil
 Davie–Beach, Denman West and Robson North add 193 approximate curb sections using
 the same map layer and schedule tables. Fourteen unresolved markings stay off the map.
 See [additional map sources and limitations](data/sources/west-end-expansion.md).
-
-### Community sign scanning (deployment required)
-
-The iPhone app saves readable sign photos as private drafts while the scanner is open. A runner can review and send them later. OCR proposes simple schedules only when the sign explicitly states days, hours and one rule; a scan never publishes a rate. The app records the GPS fix at capture time and suggests a curb-snapped point and street side when a precisely matched curb supports it. Otherwise the moderator must establish the side and final map pin.
-
-Apply [`community-signs.sql`](community-signs.sql) in the Supabase SQL Editor before enabling submissions. Create a Supabase Auth user for each moderator, then add that user's UUID to `public.sign_moderators` in the SQL Editor. Moderators use [`review-signs.html`](review-signs.html): inspect the private original and location, verify the street and side, enter explicit weekly parking windows, upload a redacted public evidence image, and approve, reject, or hold the submission. Approval runs the `review_sign_submission` database function; only published rules can be read by the public map. The shared [`community-rules.js`](community-rules.js) parser rejects malformed or overlapping schedules and never shows a rate outside a reviewed window.
-
-The schedule JSON uses `{"windows":[{"days":[1,2,3,4,5],"from":540,"to":1080,"kind":"paid","rate":2.5,"limitMin":120}]}`. Days are Sunday 0 through Saturday 6; times are minutes after midnight. Kinds are `free`, `paid`, `permit`, and `ev`. Each window describes only its explicit times; gaps are unknown and show no community marker. For a complete day, add a separate window for each distinct rule. Sign images in the private `sign-evidence` bucket are never public; moderators must remove faces and license plates before uploading the public evidence copy to `sign-reviewed`.
