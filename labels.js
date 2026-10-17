@@ -208,7 +208,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const pillByBlock = new Map();    // block.id -> currently-shown pill marker
   let selectedId = null, selMarker = null;
   let firstPaint = true;            // fade the pills in only on the cold app load; zooming/panning into new areas stays still
-  let filter = { free: true, paid: true, restrictions: true, unverified: false };
+  let filter = { free: true, paid: true, restrictions: true, unverified: false, ev: false };
   // Set for the single refresh a Free/Paid toggle triggers: pills animate in/out instead of
   // popping, so the filter reads as pins leaving rather than the map silently changing.
   let morph = false;
@@ -257,6 +257,14 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
       !flags(bl).hidden && !rateFor(bl, mins, dow).hidden);   // 3+ reports → gone from pills, dots and cluster minimums alike
   }
 
+  function categoryVisible(bl, r, mins, dow) {
+    if (bl.unverified) return filter.unverified !== false;
+    if (bl.curb) return curbVisible(bl.curb, mins, dow, filter);
+    if (bl.community && r.cls === 'p-permit') return !!filter.restrictions;
+    if (bl.community && r.cls === 'p-ev') return !!filter.ev;
+    return keep(r.free);
+  }
+
   function pillDesired(z, mins, wknd, dow) {
     const vis = visibleActive(mins, dow);
     const ctr = focus || map.getCenter();
@@ -301,7 +309,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         cls: bucket(r.rate, r.free), block: bl, rate: r.rate, flagged,
         d: distMeters(ctrLat, ctrLon, bl.lat, bl.lon),
       };
-    }).filter((it) => it.block.unverified ? filter.unverified !== false : it.block.curb ? curbVisible(it.block.curb, mins, dow, filter) : keep(it.free));
+    }).filter((it) => categoryVisible(it.block, rateFor(it.block, mins, dow), mins, dow));
 
     // Unrestricted residential streets deliberately have no per-block pill: at
     // city scale, thousands of identical "Free" labels would hide the map. But
@@ -370,7 +378,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         });
         continue;
       }
-      if (bl.unverified ? filter.unverified === false : !keep(r.free)) continue;
+      if (!categoryVisible(bl, r, mins, dow)) continue;
       const col = bl.unverified ? r.color : DOT_COLOR[r.cls] || DOT_COLOR[bucket(r.rate, r.free)];
       if (bl.kirk && bl.stalls) {   // Kirkland — one dot per stall, coloured by LIVE occupancy
         for (const st of bl.stalls) {

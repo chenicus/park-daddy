@@ -30,7 +30,10 @@ test('free, permit and EV retain the web app marker classes',()=>{
   }
 });
 
-test('community permit and EV dots match their marker colors when zoomed out',()=>{
+test('community permit and EV dots keep their colors and follow their own filters',()=>{
+  const previousMatchMedia=globalThis.matchMedia;
+  globalThis.matchMedia=()=>({matches:true});
+  try{
   for(const [kind,color] of [['permit','#7c3aed'],['ev','#0891b2']]){
     let dots=null;
     const source={setData(data){dots=data;}};
@@ -39,7 +42,13 @@ test('community permit and EV dots match their marker colors when zoomed out',()
       getSource:name=>name==='meter-dots'?source:null,on(){},off(){},fire(){}};
     const block=communityBlock({...row,schedule:{windows:[{days:[1],from:0,to:1440,kind}]}});
     const layer=createLabelLayer(map,[block],{nowMins:()=>600,isWeekend:()=>false,dow:()=>1,onTap(){}});
-    try{layer.refresh();assert.equal(dots.features[0].properties.color,color);}
+    try{
+      layer.setFilter({free:false,paid:false,restrictions:true,ev:true,unverified:false});
+      assert.equal(dots.features[0].properties.color,color);
+      layer.setFilter({free:true,paid:true,restrictions:kind!=='permit',ev:kind!=='ev',unverified:false});
+      assert.equal(dots.features.length,0);
+    }
     finally{layer.destroy();}
   }
+  }finally{globalThis.matchMedia=previousMatchMedia;}
 });

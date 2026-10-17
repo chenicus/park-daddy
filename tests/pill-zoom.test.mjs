@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 // Exercise the production selection function without a GPU or DOM renderer.
 const source = fs.readFileSync(new URL('../labels.js', import.meta.url), 'utf8');
-const start = source.indexOf('  function pillDesired(');
+const start = source.indexOf('  function categoryVisible(');
 const end = source.indexOf('\n  // Dots (meters)', start);
 const selectSource = source.slice(start, end);
 function fixture(blocks, restrictions = true) {

@@ -13,7 +13,7 @@ import {fetchCommunityBlocks,activeCommunityWindow,communityDisplay} from './com
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
-const filters = { free: true, paid: true, restrictions: false, unverified: false };
+const filters = { free: true, paid: true, restrictions: false, unverified: false, ev: false };
 let map, markers = [], destMarker, lastLoc = null, cachedPos = null;
 const VANCOUVER_EV_SOURCE = 'https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets/electric-vehicle-charging-stations/records?limit=100';
 const NRCAN_EV_BASE = 'https://services.arcgis.com/wjcPoefzjpzCgffS/arcgis/rest/services/Electric_Charging_Stations_in_Canada/FeatureServer/0/query';
@@ -1189,9 +1189,11 @@ function applyFilters() {
 }
 $('chipEV').addEventListener('click', () => {
   evVisible = !evVisible;
+  filters.ev = evVisible;
   $('chipEV').classList.toggle('on', evVisible);
   $('chipEV').setAttribute('aria-pressed', String(evVisible));
   refreshEvLayer({ animate: !matchMedia('(prefers-reduced-motion: reduce)').matches });
+  applyFilters();
 });
 $('chipRestrictions')?.addEventListener('click', () => { filters.restrictions = !filters.restrictions; $('chipRestrictions').classList.toggle('on', filters.restrictions); $('chipRestrictions').setAttribute('aria-pressed', String(filters.restrictions)); applyFilters(); });
 $('chipFree').addEventListener('click', () => { filters.free = !filters.free; $('chipFree').classList.toggle('on', filters.free); $('chipFree').setAttribute('aria-pressed', String(filters.free)); applyFilters(); });
