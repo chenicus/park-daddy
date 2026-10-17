@@ -59,7 +59,7 @@ function render(row){
           p_evidence_url:`${SUPABASE_URL}/storage/v1/object/public/sign-reviewed/${path}`};
       }
       await request('/rest/v1/rpc/review_sign_submission',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      message.textContent=decision==='approved'?'Published.':'Review decision saved.';message.className='success';card.remove();
+      card.remove();await refresh();
     }catch(error){message.textContent=error.message;message.className='error';actions.querySelectorAll('button').forEach(el=>el.disabled=false);}
   };
   approve.onclick=()=>void run('approved');reject.onclick=()=>void run('rejected');needs.onclick=()=>void run('needs_review');
