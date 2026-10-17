@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {activeCommunityWindow,communityBlock,communityDisplay,normalizeCommunityRule} from '../community-rules.js';
+import {createLabelLayer} from '../labels.js';
 
 const row={id:'11111111-1111-4111-8111-111111111111',city:'seattle',lat:47.61,lon:-122.33,
   street:'Pine Street',side:'north',published_at:'2026-10-17T00:00:00Z',
@@ -26,5 +27,19 @@ test('free, permit and EV retain the web app marker classes',()=>{
   for(const [kind,cls] of [['free','p-free'],['permit','p-permit'],['ev','p-ev']]){
     const block=communityBlock({...row,schedule:{windows:[{days:[0],from:0,to:1440,kind}]}});
     assert.equal(block.operatorRate(600,0).cls,cls);
+  }
+});
+
+test('community permit and EV dots match their marker colors when zoomed out',()=>{
+  for(const [kind,color] of [['permit','#7c3aed'],['ev','#0891b2']]){
+    let dots=null;
+    const source={setData(data){dots=data;}};
+    const map={getZoom:()=>12,getCenter:()=>({lat:47.61,lng:-122.33}),
+      getBounds:()=>({getSouth:()=>47.5,getNorth:()=>47.7,getWest:()=>-122.4,getEast:()=>-122.2}),
+      getSource:name=>name==='meter-dots'?source:null,on(){},off(){},fire(){}};
+    const block=communityBlock({...row,schedule:{windows:[{days:[1],from:0,to:1440,kind}]}});
+    const layer=createLabelLayer(map,[block],{nowMins:()=>600,isWeekend:()=>false,dow:()=>1,onTap(){}});
+    try{layer.refresh();assert.equal(dots.features[0].properties.color,color);}
+    finally{layer.destroy();}
   }
 });

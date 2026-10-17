@@ -224,7 +224,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
   const setDotData = (fc) => { const s = map.getSource('meter-dots'); if (s) s.setData(fc); };
   const setCurbData = (fc) => { const s = map.getSource('west-end-curbs'); if (s) s.setData(fc); };
   const setLineData = (fc) => { const s = map.getSource('blockface-lines'); if (s) s.setData(fc); };
-  const DOT_COLOR = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626' };
+  const DOT_COLOR = { 'p-free': '#2563eb', p1: '#16a34a', p2: '#d97706', p3: '#ea580c', p4: '#dc2626', 'p-permit':'#7c3aed', 'p-ev':'#0891b2' };
   const zoomInt = () => map.getZoom();   // MapLibre zoom is fractional; the ladders want an int
   const project = (lat, lon) => map.project([lon, lat]);   // → {x,y} screen px (already rotation-aware)
 
@@ -371,7 +371,7 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         continue;
       }
       if (bl.unverified ? filter.unverified === false : !keep(r.free)) continue;
-      const col = bl.unverified ? r.color : DOT_COLOR[bucket(r.rate, r.free)];
+      const col = bl.unverified ? r.color : DOT_COLOR[r.cls] || DOT_COLOR[bucket(r.rate, r.free)];
       if (bl.kirk && bl.stalls) {   // Kirkland — one dot per stall, coloured by LIVE occupancy
         for (const st of bl.stalls) {
           const c = st.s === 'vacant' ? '#16a34a' : st.s === 'occupied' ? '#9ca3af' : col;   // unknown → price color
