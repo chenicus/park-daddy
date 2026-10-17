@@ -8,6 +8,7 @@ import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from '
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
+import {fetchCommunityBlocks,activeCommunityWindow,communityDisplay} from './community-rules.js?v=1';
 
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
@@ -495,6 +496,7 @@ const splashCleared = () =>
     ? Promise.resolve()
     : new Promise((r) => document.addEventListener('pd:splash-done', r, { once: true }));
 const loadedCities = new Set();
+const communityLoads = new Map();
 function pushBlocks(arr) { for (const b of arr) blocks.push(b); }
 
 // Fly to a city and load its feeds. Used by the first-visit picker (#welcome).
@@ -545,6 +547,11 @@ async function loadCity(key) {
     if (key === 'vancouver' || key === 'seattle') loadVancouverEvChargers(key);
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
     else labelLayer.refresh();                  // later cities: just repaint
+    const communityLoad=fetchCommunityBlocks(key).then(approved => {
+      blocks.unshift(...approved.filter(block=>!blocks.some(existing=>existing.id===block.id)));
+      labelLayer?.refresh();
+    }).catch(()=>{}); // The official map remains available while this optional feed is offline.
+    communityLoads.set(key,communityLoad);
   } catch { loadedCities.delete(key); setStatus('Failed to load parking data.'); }
 }
 
@@ -630,6 +637,7 @@ async function pollKirkLive() {
     activeCity = key;
     map.jumpTo({ center: [plon, plat], zoom: 16 });
     await loadCity(key);
+    if(rawSpot.startsWith('community-'))await communityLoads.get(key)?.catch(()=>{});
     const b = blocks.find((x) => String(x.id) === rawSpot);
     if (b) {
       showSpotCard(b);
@@ -1705,7 +1713,9 @@ function segLabel(s) {
 
 function renderSchedule(b, mins) {
   const el = $('scsched');
-  const segs = b.unverified ? [
+  const segs = b.community ? b.community.schedule.windows.filter(w=>w.days.includes(dowNow()))
+    .map(w=>({from:w.from,to:w.to,rate:w.kind==='paid'?w.rate:0,
+      status:w.kind==='permit'?'Permit only':w.kind==='ev'?'EV parking':null,limit:w.limitMin})) : b.unverified ? [
     { from: 0, to: 1440, label: 'Hours and eligibility unknown', status: 'Check signs', rate: null },
     ...(b.streetViewUrl ? [{ from: 0, to: 1440, label: 'Nearby Street View · side unverified', status: 'Open', url: b.streetViewUrl, linkLabel: 'Open nearby Street View; check both curb sides', applies: false }] : []),
   ] : b.curb ? curbTableSegments(b.curb, dowNow())
@@ -1774,6 +1784,21 @@ function showSpotCard(b) {
   renderFlag(b);
 
   $('scprice').classList.remove('free');
+  if (b.community) {
+    const active=activeCommunityWindow(b.community,mins,dowNow());
+    const state=communityDisplay(active);
+    $('scprice').textContent=state.hidden?'Hours not confirmed':state.label;
+    $('scprice').classList.toggle('free',!!state.free);
+    renderSchedule(b,mins);
+    const evidence=safePhotoUrl(b.community.evidence_url);
+    const checked=b.community.last_checked_at?new Date(b.community.last_checked_at).toLocaleDateString():null;
+    $('scrows').innerHTML='<div class="community-source"><b>Community added · reviewed</b><span>'+esc([b.community.street,b.community.side&&`${b.community.side} side`,checked&&`checked ${checked}`].filter(Boolean).join(' · '))+'</span>'+(
+      evidence?`<a href="${esc(evidence)}" target="_blank" rel="noopener noreferrer">View reviewed sign evidence ↗</a>`:'')+'</div>';
+    $('scmaps').href=navUrl(b);
+    $('spotcard').hidden=false;
+    if (labelLayer) labelLayer.setSelected(b.id);
+    return;
+  }
   if (b.unverified) {
     $('scprice').textContent = 'Check signs';
     renderSchedule(b, mins);

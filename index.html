@@ -408,6 +408,10 @@
     margin: 0 4px 0 -2px; border-radius: 50%; background: #fff; color: #b45309;
     font-size: var(--fs-micro); font-weight: 700; line-height: 1; vertical-align: 1px; }
   .plabel .plim { opacity: .75; }   /* unit + max-stay (/hr · 2h) recedes via opacity only; keeps the price's 500 weight so it stays legible */
+  .plabel .community-badge { position:absolute; top:-9px; right:-8px; display:grid; place-items:center; width:17px; height:17px; border-radius:50%; background:var(--sheet-strong); color:var(--text); border:1px solid var(--line); font-size:10px; font-weight:800; line-height:1; }
+  .community-source { display:grid; gap:5px; padding:12px 0; color:var(--text); font-size:14px; }
+  .community-source span { color:var(--muted); }
+  .community-source a { color:var(--text); text-decoration:underline; min-height:44px; display:flex; align-items:center; }
   .plabel.p-permit { --c: #7c3aed; }
   .plabel.p-unknown { --c: #a16207; }
   #spotcard { max-height: 75dvh; overflow-y: auto; overscroll-behavior: contain; }
