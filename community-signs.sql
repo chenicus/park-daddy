@@ -190,12 +190,6 @@ exception when others then return false;
 end;
 $$;
 
-alter table public.community_parking_rules drop constraint if exists community_rules_schedule_valid;
-alter table public.community_parking_rules drop constraint if exists community_rules_street_nonempty;
-alter table public.community_parking_rules drop constraint if exists community_rules_side_valid;
-alter table public.community_parking_rules drop constraint if exists community_rules_approved_source;
-alter table public.community_parking_rules drop constraint if exists community_rules_public_evidence;
-
 alter table public.community_parking_rules
   add constraint community_rules_schedule_valid check (public.valid_community_schedule(schedule));
 alter table public.community_parking_rules
