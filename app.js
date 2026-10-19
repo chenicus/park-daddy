@@ -1,14 +1,15 @@
 import { initReview, renderReviewDetail } from './review.js?v=32';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=23';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=26';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
-import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=56';
-import { CITIES, cityAt, DEFAULT_CITY, newCities } from './cities.js?v=36';
+import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, buildSurreyBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=57';
+import { CITIES, cityAt, DEFAULT_CITY, newCities, hydrateSharedRegistry } from './cities.js?v=42';
 import { createDriving, SIM_START } from './driving.js?v=30';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
 import { track } from './analytics.js?v=3';
 
+await hydrateSharedRegistry();
 const $ = (id) => document.getElementById(id);
 const TOPN = 5;
 let meters = [];
@@ -541,6 +542,7 @@ async function loadCity(key) {
       else if (d.kind === 'sf-free') { pushBlocks(buildSeattleFreeBlocks(data, 7e6)); }
       else if (d.kind === 'sanjose') { pushBlocks(buildSanJoseBlocks(data)); }
       else if (d.kind === 'kirkland') { const kb = buildKirklandBlocks(data); pushBlocks(kb); startKirkLive(kb, c.live); }
+      else if (d.kind === 'surrey') { pushBlocks(buildSurreyBlocks(data)); }
     });
     if (key === 'vancouver' || key === 'seattle') loadVancouverEvChargers(key);
     if (!labelLayer) initLiveLabels();          // first city: stand up the whole layer
@@ -1720,7 +1722,7 @@ function renderSchedule(b, mins) {
     const costText = s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(s.linkLabel || `Open Street View imagery from ${cost}`)}">${esc(cost)} ↗</a>` : cost;
     // paid windows show their own max stay inline; the active row is marked by highlight alone
     const lim = s.limit != null && s.limit !== Infinity ? `<span class="lim dot-sep">Max ${fmtLimit(s.limit)}</span>` : '';
-    return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''}">` +
+    return `<div class="seg ${s.tow ? 'tow' : ''} ${free ? 'free' : ''} ${active ? 'active' : ''} ${b.curb?.verification === 'street-view-parked-cars' ? 'compact' : ''}">` +
       `<span class="when">${s.label || segLabel(s)}${s.days ? `<span class="lim">${s.days}</span>` : ''}${lim}</span><span class="cost">${costText}</span></div>`;
   }).join('');
   renderReviewDetail(b, el);

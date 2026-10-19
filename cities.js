@@ -38,12 +38,26 @@ export const CITIES = {
       { url: 'data/beach-pacific-street-view.json?v=2', kind: 'west-end' },
       { url: 'data/street-view-two-hour-followup.json?v=1', kind: 'west-end' },
       { url: 'data/cornwall-balsam-vine-user-photos.json?v=1', kind: 'west-end' },
-      { url: 'data/industrial-user-photos.json?v=1', kind: 'west-end' },
+      { url: 'data/industrial-user-photos.json?v=4', kind: 'west-end' },
+      { url: 'data/october-17-user-sign-photos.json?v=9', kind: 'west-end' },
       { url: 'data/kitsilano-spotangels-user-supplied.json?v=1', kind: 'west-end' },
     ],
     style: 'points',
     rank: true,   // only city with the point-meter feed rankMeters() understands (walk-cost spot suggestions)
     geo: { cc: 'ca', suffix: 'Vancouver, BC' },
+  },
+  surrey: {
+    name: 'Surrey', region: 'British Columbia, Canada', flag: '🇨🇦', added: '2026-09-28',
+    tz: 'America/Vancouver',
+    center: [49.1904, -122.8490], zoom: 13,
+    bounds: [[49.00, -122.92], [49.23, -122.69]],
+    data: [
+      { url: 'data/surrey-meters.json?v=1', kind: 'surrey' },
+    ],
+    // Surrey's public data identifies pay-station points, so the map renders rate dots at
+    // those stations rather than claiming a precise paid curb geometry it does not publish.
+    style: 'points',
+    geo: { cc: 'ca', suffix: 'Surrey, BC' },
   },
   seattle: {
     name: 'Seattle', region: 'Washington, USA', flag: '🇺🇸', added: '2026-07-10',
@@ -119,6 +133,24 @@ export function cityAt(lat, lon) {
 }
 
 export const DEFAULT_CITY = 'vancouver';
+
+// The hosted registry is the shared source of truth for web and iOS. Keep the
+// bundled object above as an offline/failure fallback, then replace its values
+// before the app boots when the shared manifest is reachable.
+export async function hydrateSharedRegistry(url = 'data/registry.json?v=4') {
+  try {
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error(`Registry HTTP ${response.status}`);
+    const manifest = await response.json();
+    if (!manifest || manifest.version !== 1 || !manifest.cities?.vancouver) throw new Error('Invalid shared registry');
+    for (const key of Object.keys(CITIES)) delete CITIES[key];
+    Object.assign(CITIES, manifest.cities);
+    return true;
+  } catch (error) {
+    console.warn('Shared parking registry unavailable; using bundled fallback.', error);
+    return false;
+  }
+}
 
 // Keys to badge NEW: the most recently added batch only, and only while it's still recent.
 // A badge on three of four rows points at nothing — this always marks the smallest set

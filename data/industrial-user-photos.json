@@ -10,10 +10,20 @@
       "url": "https://www.google.com/maps/@49.2691718,-123.0938533,3a,75y,95h,85t/data=!3m7!1e1!3m5!1s5BxAfANkYxpvU2k7pgtKOg!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D5%26panoid%3D5BxAfANkYxpvU2k7pgtKOg%26yaw%3D95!7i16384!8i8192",
       "title": "Google Street View near 455 Industrial Avenue, April 2022",
       "checkedOn": "2026-10-05"
+    },
+    "street-view-2024-240": {
+      "url": "https://www.google.com/maps/@?api=1&map_action=pano&pano=D3FJV9NCy9U9efR68Um3-A",
+      "title": "Google Street View near 240 Industrial Avenue, July 2024; curbside cars visible",
+      "checkedOn": "2026-10-19"
+    },
+    "street-view-2024-300": {
+      "url": "https://www.google.com/maps/@49.269739,-123.097241,20z",
+      "title": "Google Street View in the 300-block of Industrial Avenue, July 2024; curbside cars visible on both sides",
+      "checkedOn": "2026-10-19"
     }
   },
-  "geometryNote": "A short, approximate curb section begins at the photographed sign near 455 Industrial Avenue. It follows the sign arrow only; the next sign boundary is not surveyed.",
-  "restrictionNote": "The user photo shows public two-hour parking, 8am–6pm Monday through Saturday, in the arrowed direction. A separate nearby photo shows commercial loading and no-parking signs; that direction is deliberately excluded from this public-parking section.",
+  "geometryNote": "The photographed 455 Industrial sign has a short arrowed curb section. Three additional, approximate candidate pockets near 240 and in the 300-block follow the Industrial Avenue street axis; they do not cover entire blockfaces, driveways or junctions.",
+  "restrictionNote": "The 455 Industrial user photo shows public two-hour parking, 8am–6pm Monday through Saturday, only in the arrowed direction. The other sections are inferred from parked cars in July 2024 Street View, not verified free parking. Check current signs, driveways and Vancouver's unsigned-street rules.",
   "excludeInferredBlocks": [],
   "sections": [
     {
@@ -39,7 +49,43 @@
         "finding": "User photo shows P 2h, 8AM–6PM, Mon–Sat with an arrow east. The opposite direction has a no-parking sign. A separate nearby photo shows commercial loading 7AM–6PM Mon–Fri and a no-parking direction, neither of which is mapped as public parking.",
         "scope": "Only the arrowed, sign-adjacent portion is included. Adjacent industrial loading and temporary restrictions still control."
       }],
-      "geometry": {"type": "LineString", "coordinates": [[-123.09384, 49.26910], [-123.09318, 49.26910]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.09384, 49.26915], [-123.09318, 49.26904]]}
+    },
+    {
+      "id": "industrial-240-north-unsigned-candidate",
+      "area": "industrial-avenue", "street": "Industrial Avenue", "side": "north",
+      "between": ["Western Street", "Station Street"],
+      "category": "free", "verification": "street-view-parked-cars",
+      "geometryStatus": "approximate-street-view-candidate",
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Unsigned; limits unverified"},
+      "outsideSchedule": "unknown", "sourceIds": ["street-view-2024-240"],
+      "splitBoundaryNote": "Short 240-block candidate only. Parked cars were visible; no controlling sign was confirmed. Not the entire blockface. Exclude driveways, corners and any current restrictions.",
+      "spotChecks": [{"status":"inferred-only","checkedOn":"2026-10-19","imageryDate":"2024-07","finding":"Parallel-parked cars visible on the north curb near 240 Industrial. No readable sign established that parking is free.","scope":"Short, approximate north-curb pocket only."}],
+      "geometry": {"type":"LineString","coordinates":[[-123.09902,49.27016],[-123.09870,49.27010]]}
+    },
+    {
+      "id": "industrial-300-north-unsigned-candidate",
+      "area": "industrial-avenue", "street": "Industrial Avenue", "side": "north",
+      "between": ["Station Street", "Scotia Street"],
+      "category": "free", "verification": "street-view-parked-cars",
+      "geometryStatus": "approximate-street-view-candidate",
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Unsigned; limits unverified"},
+      "outsideSchedule": "unknown", "sourceIds": ["street-view-2024-300"],
+      "splitBoundaryNote": "Short 300-block candidate, not a full blockface. Exclude driveways, corners and current signed restrictions.",
+      "spotChecks": [{"status":"inferred-only","checkedOn":"2026-10-19","imageryDate":"2024-07","finding":"Several vehicles visibly parallel parked on the north curb in the Station–Scotia block. No readable sign established a free rule.","scope":"Approximate north-curb pocket only."}],
+      "geometry": {"type":"LineString","coordinates":[[-123.09760,49.26990],[-123.09704,49.26980]]}
+    },
+    {
+      "id": "industrial-300-south-unsigned-candidate",
+      "area": "industrial-avenue", "street": "Industrial Avenue", "side": "south",
+      "between": ["Station Street", "Scotia Street"],
+      "category": "free", "verification": "street-view-parked-cars",
+      "geometryStatus": "approximate-street-view-candidate",
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Unsigned; limits unverified"},
+      "outsideSchedule": "unknown", "sourceIds": ["street-view-2024-300"],
+      "splitBoundaryNote": "Short 300-block candidate, not a full blockface. Exclude driveways, corners and current signed restrictions.",
+      "spotChecks": [{"status":"inferred-only","checkedOn":"2026-10-19","imageryDate":"2024-07","finding":"Several vehicles visibly parallel parked on the south curb in the Station–Scotia block. No readable sign established a free rule.","scope":"Approximate south-curb pocket only."}],
+      "geometry": {"type":"LineString","coordinates":[[-123.09754,49.26982],[-123.09698,49.26972]]}
     }
   ]
 }

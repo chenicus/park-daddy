@@ -1,0 +1,353 @@
+{
+  "version": 1,
+  "area": "vancouver-user-sign-photos-2026-10-17",
+  "sources": {
+    "national-photos": {
+      "title": "User photographs IMG_1167–IMG_1171 of signs near National Avenue",
+      "checkedOn": "2026-10-17",
+      "note": "Original photographs remain with the user and are not published with this dataset."
+    },
+    "arbutus-photos": {
+      "title": "User photographs IMG_1173–IMG_1175 of Arbutus Street signs",
+      "checkedOn": "2026-10-17",
+      "note": "Original photographs remain with the user and are not published with this dataset."
+    },
+    "w-first-photo": {
+      "title": "User photograph IMG_1172 of a W 1st Avenue sign near Burrard",
+      "checkedOn": "2026-10-17",
+      "note": "Original photograph remains with the user and is not published with this dataset."
+    },
+    "station-streetview": {
+      "title": "Google Street View, Station Street near Under the Rose, captured July 2024",
+      "url": "https://www.google.com/maps/@49.2756374,-123.0990747,3a,35.3y,65.42h,90t/data=!3m7!1e1!3m5!1syZtuVRT1BonHArq_8cTluw!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-18",
+      "note": "Historical imagery shows a two-hour sign, but does not establish current payment rules, day-of-week wording or the full arrowed curb extent."
+    },
+    "under-the-rose-parking": {
+      "title": "Under the Rose Sauna House parking map",
+      "url": "https://www.undertherose.club/parking-map",
+      "checkedOn": "2026-10-18",
+      "note": "The business describes Station Street from National Avenue to Prior Street as two-hour free parking, but also provides a narrower after-6:30pm weekday/weekend note and says Main Street parking is no longer available."
+    },
+    "user-confirmed-station": {
+      "title": "User confirmation of free two-hour parking on Station Street",
+      "checkedOn": "2026-10-18",
+      "note": "The user reports reviewing Street View along the full Station Street block from National Avenue to Prior Street and reading Mon–Sat on the two-hour signs. This supports extending the east-curb line while leaving junction corners and the unverified opposite curb out."
+    },
+    "station-south-user-map": {
+      "title": "User-supplied map of Station Street between Southern Street and Industrial Avenue",
+      "checkedOn": "2026-10-18",
+      "note": "The user identifies this separate southern Station Street stretch as free street parking. The map image shows cars along the east curb, but does not show readable parking signs or establish a time limit. The original image remains with the user."
+    },
+    "station-northern-southern-user-map": {
+      "title": "User-supplied map of Station Street between Northern Street and Southern Street",
+      "checkedOn": "2026-10-18",
+      "note": "The user identifies the pictured Station Street stretch between Northern and Southern as additional free street parking. Central Street splits the stretch into two blockfaces. The image does not show readable parking signs or establish a time limit. The original image remains with the user."
+    },
+    "northern-streetview-user-screenshot": {
+      "title": "User-supplied Google Street View screenshot of Northern Street, July 2024 imagery",
+      "url": "https://www.google.com/maps/@49.271848,-123.0994029,7a,75y,88.89h,76.59t/data=!3m7!1e1!3m5!1slbBWqp0livkUGsgV5GHwzw!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-18",
+      "note": "A one-hour public-parking plate, 9AM–6PM, points toward Station Street; an adjacent no-parking plate points in the opposite direction. The day-of-week text and exact pole position are not reliably legible. The original screenshot remains with the user."
+    },
+    "national-bus-zone-user-screenshot": {
+      "title": "User-supplied Google Street View screenshot of the bus-only curb near 126 National Avenue, May 2022 imagery",
+      "url": "https://www.google.com/maps/@49.2749182,-123.1012587,7a,59.1y,114.64h,82.34t/data=!3m7!1e1!3m5!1sgZHG0sw_rOBebA7esRid1Q!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-19",
+      "note": "Directional bus-zone signs reserve the curb for buses. The user confirms this entire signed portion must remain unavailable to general parking."
+    },
+    "national-modo-zone-user-screenshot": {
+      "title": "User-supplied Google Street View screenshot of the Modo-only curb near 128 National Avenue, May 2022 imagery",
+      "checkedOn": "2026-10-19",
+      "note": "A NO PARKING EXCEPT MODO plate and adjacent directional no-parking plate define a short reserved car-share space. The user requests treating it as no parking for general vehicles."
+    },
+    "national-main-quebec-user-screenshots": {
+      "title": "User-supplied Street View screenshots of National Avenue between Main Street and Quebec Street",
+      "checkedOn": "2026-10-19",
+      "note": "Screenshots at 162, 164, 189 and 192 National Avenue show signed one-hour and two-hour public parking, including a one-hour/two-hour transition. Bus-only, Modo-only and arrowed no-parking portions remain excluded."
+    }
+  },
+  "geometryNote": "Curb estimates from photo GPS, camera direction, visible landmarks, sign arrows and historical Street View. Station Street lines follow user-identified blocks with approximate end buffers. Photo GPS, map imagery and Street View camera locations do not identify exact signposts; endpoints and street-side offsets are approximate.",
+  "restrictionNote": "No-parking directions are excluded from public parking. A nearby City paid-meter record conflicts with the W 1st photo, so that observation is retained for review without asserting a free space.",
+  "excludeInferredBlocks": ["1500 Station St", "1600 Station St"],
+  "sections": [
+    {
+      "id": "national-south-user-photo-2h",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "south",
+      "between": ["photo sign near Main Street", "short adjacent curb"],
+      "category": "time-limited",
+      "photoVerified": true,
+      "publicSign": false,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "unknown",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-sign-slice",
+      "splitBoundaryNote": "IMG_1168 shows a two-hour sign pointing both ways; IMG_1167 and IMG_1169 show adjoining no-parking directions. Only a short piece near the readable two-hour sign is plotted.",
+      "sourceIds": ["national-photos"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-17",
+        "finding": "IMG_1167–IMG_1169 show a green P 2h, 9AM–6PM, Mon–Sat sign on the park-side curb. Separate arrowed no-parking signs limit the adjacent curb. No payment rule is established by these photographs.",
+        "scope": "Sign-adjacent section only; check for payment signs and the next curb boundary."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09960, 49.27484], [-123.09952, 49.27484]]}
+    },
+    {
+      "id": "national-north-user-photo-2h-east",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "north",
+      "between": ["IMG_1170 sign", "short curb east of sign"],
+      "category": "time-limited",
+      "photoVerified": true,
+      "publicSign": false,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "unknown",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-sign-slice",
+      "splitBoundaryNote": "IMG_1170 shows no parking toward the west and a two-hour sign toward the east. The opposite direction is excluded.",
+      "sourceIds": ["national-photos"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-17",
+        "finding": "The sign in IMG_1170 shows P 2h, 9AM–6PM, Mon–Sat with an arrow to the right; the adjacent no-parking plate points left. IMG_1171 provides wider location context. No payment rule is established by these photographs.",
+        "scope": "Short, approximate building-side curb east of the photographed pole only."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09942, 49.27497], [-123.09932, 49.27497]]}
+    },
+    {
+      "id": "national-north-bus-zone-no-parking",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "north",
+      "between": ["bus-zone boundary signs near 126 National", "bus-only curb"],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": 0, "end": 1440, "label": "Bus zone"},
+      "outsideSchedule": "not-applicable",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "user-confirmed-approximate-sign-slice",
+      "splitBoundaryNote": "Reserved for buses between the directional bus-zone signs. This slice interrupts adjacent public parking and must not be merged into a one-hour or two-hour line.",
+      "sourceIds": ["national-bus-zone-user-screenshot"],
+      "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-05", "finding": "Directional signs show a bus-only curb. General vehicle parking is excluded.", "scope": "Approximate north-curb bus zone near 126 National Avenue; endpoints follow the photographed boundary poles."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10134, 49.27495], [-123.10113, 49.27495]]}
+    },
+    {
+      "id": "national-north-modo-zone-no-parking",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "north",
+      "between": ["Modo boundary sign near 128 National", "adjacent no-parking boundary"],
+      "category": "no-parking",
+      "limitMinutes": null,
+      "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": 0, "end": 1440, "label": "Modo only"},
+      "outsideSchedule": "not-applicable",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "user-confirmed-approximate-sign-slice",
+      "splitBoundaryNote": "The curb is reserved for Modo car-share vehicles. It is represented as no parking for general vehicles and interrupts adjacent public parking.",
+      "sourceIds": ["national-modo-zone-user-screenshot"],
+      "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-05", "finding": "NO PARKING EXCEPT MODO and an adjacent directional no-parking plate define a short reserved space.", "scope": "Approximate single-space north-curb Modo reservation near 128 National Avenue."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10142, 49.27495], [-123.10134, 49.27495]]}
+    },
+    {
+      "id": "national-main-quebec-south-2h",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "south",
+      "between": ["Quebec Street", "one-hour/two-hour transition near 162 National"],
+      "category": "time-limited",
+      "photoVerified": true,
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-between-signs",
+      "splitBoundaryNote": "The 162 National screenshot shows a two-hour arrow continuing toward Quebec and a one-hour arrow toward Main.",
+      "sourceIds": ["national-main-quebec-user-screenshots"],
+      "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-01", "finding": "P 2h, 9AM–6PM, Mon–Sat points from the transition toward Quebec Street.", "scope": "South curb, with corner clearance and separately signed exceptions excluded."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10252, 49.27482], [-123.10182, 49.27482]]}
+    },
+    {
+      "id": "national-main-quebec-south-1h",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "south",
+      "between": ["one-hour/two-hour transition near 162 National", "Main Street"],
+      "category": "time-limited",
+      "photoVerified": true,
+      "publicSign": true,
+      "limitMinutes": 60,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-between-signs",
+      "splitBoundaryNote": "The transition sign at 162 National and the one-hour sign near 164 National bound this curb toward Main Street.",
+      "sourceIds": ["national-main-quebec-user-screenshots"],
+      "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-01", "finding": "P 1h, 9AM–6PM points from the transition toward Main Street.", "scope": "South curb, ending before the intersection clearance."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10182, 49.27482], [-123.10150, 49.27482]]}
+    },
+    {
+      "id": "national-main-quebec-north-2h",
+      "area": "national-avenue",
+      "street": "National Avenue",
+      "side": "north",
+      "between": ["Quebec Street", "Main Street signed exceptions"],
+      "category": "time-limited",
+      "photoVerified": true,
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-between-signs",
+      "splitBoundaryNote": "The 189 and 192 National screenshots show two-hour parking. The line stops before the bus-only and Modo-only slices near Main Street.",
+      "sourceIds": ["national-main-quebec-user-screenshots"],
+      "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2020-12/2022-05", "finding": "P 2h, 9AM–6PM, Mon–Sat signs and parked vehicles appear on the curb; adjacent bus/no-parking signs define the eastern boundary.", "scope": "North curb between Quebec and the first reserved-zone boundary near Main."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10252, 49.27496], [-123.10142, 49.27496]]}
+    },
+    {
+      "id": "arbutus-east-user-photo-permit",
+      "area": "kitsilano-arbutus-north",
+      "street": "Arbutus Street",
+      "side": "east",
+      "between": ["IMG_1174 permit boundary", "IMG_1173 permit boundary"],
+      "category": "permit",
+      "photoVerified": true,
+      "limitMinutes": null,
+      "schedule": {"days": [0, 1, 2, 3, 4, 5, 6], "start": 0, "end": 1440, "label": "Every day"},
+      "outsideSchedule": "not-applicable",
+      "verification": "user-photo-match",
+      "geometryStatus": "approximate-between-signs",
+      "splitBoundaryNote": "The northern photo points permit parking south and no parking north. The southern photos point permit parking north and no parking south. Only the space between those opposing permit arrows is plotted.",
+      "sourceIds": ["arbutus-photos"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-17",
+        "finding": "IMG_1173 and IMG_1174–IMG_1175 show NO PARKING EXCEPT WITH PERMIT pointing toward each other, bounded by no-parking signs pointing away. No hours are printed on the readable permit plates.",
+        "scope": "Approximate east-curb interval between photographed poles; other curb directions are not public parking."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.15253, 49.27379], [-123.15253, 49.27394]]}
+    },
+    {
+      "id": "station-east-user-confirmed-free-2h",
+      "area": "under-the-rose-station-street",
+      "street": "Station Street",
+      "side": "east",
+      "between": ["National Avenue", "Prior Street"],
+      "category": "time-limited",
+      "userConfirmedFree": true,
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "unknown",
+      "verification": "user-confirmed-street-view",
+      "geometryStatus": "user-confirmed-approximate-blockface",
+      "splitBoundaryNote": "User reports following the two-hour signs along the full east curb in Street View. Approximate buffers stop this line short of the National and Prior intersections; it does not represent driveways, temporary restrictions or the opposite curb.",
+      "sourceIds": ["station-streetview", "under-the-rose-parking", "user-confirmed-station"],
+      "spotChecks": [{
+        "status": "user-confirmed-street-view",
+        "checkedOn": "2026-10-18",
+        "finding": "User confirms free two-hour parking along Station Street and reads Mon–Sat on the signs in Street View; July 2024 imagery independently shows a two-hour sign on the east curb.",
+        "scope": "East curb between National Avenue and Prior Street, excluding approximate corner buffers and any separately signed obstruction."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09902, 49.27505], [-123.09902, 49.27655]]}
+    },
+    {
+      "id": "station-east-southern-industrial-user-free",
+      "area": "station-street-south",
+      "street": "Station Street",
+      "side": "east",
+      "between": ["Southern Street", "Industrial Avenue"],
+      "category": "free",
+      "limitMinutes": null,
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Hours not verified"},
+      "outsideSchedule": "unknown",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "user-confirmed-approximate-blockface",
+      "splitBoundaryNote": "User identifies the pictured Southern–Industrial section as free. The line follows the east curb where parked cars are visible, with corner buffers; driveways, temporary restrictions, the opposite curb and exact sign boundaries are not asserted. No two-hour limit or Mon–Sat schedule is inferred from the northern Station Street block.",
+      "sourceIds": ["station-south-user-map"],
+      "spotChecks": [{
+        "status": "user-supplied-map-match",
+        "checkedOn": "2026-10-18",
+        "finding": "The user identifies this Station Street section as free; the supplied satellite image shows parked cars along the east curb. No readable sign in this image establishes a time limit or schedule. A City free-parking record at 1600 Station Street also falls near this block.",
+        "scope": "Approximate east curb between Southern Street and Industrial Avenue only; verify on-street signs before relying on a particular time limit."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.098055, 49.27064], [-123.098055, 49.26983]]}
+    },
+    {
+      "id": "station-east-northern-central-user-free",
+      "area": "station-street-south",
+      "street": "Station Street",
+      "side": "east",
+      "between": ["Northern Street", "Central Street"],
+      "category": "free",
+      "limitMinutes": null,
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Hours not verified"},
+      "outsideSchedule": "unknown",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "user-confirmed-approximate-blockface",
+      "splitBoundaryNote": "User identifies this stretch as free. Approximate corner buffers leave the Northern and Central junctions out. Only the east curb is mapped; exact sign boundaries, driveways and temporary restrictions remain unverified.",
+      "sourceIds": ["station-northern-southern-user-map"],
+      "spotChecks": [{"status": "user-supplied-map-match", "checkedOn": "2026-10-18", "finding": "User identifies the Northern–Southern stretch as free. The screenshot locates this blockface but shows no readable time-limit sign.", "scope": "East curb between Northern Street and Central Street only; verify posted signs for any time limit."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.098055, 49.27164], [-123.098055, 49.27118]]}
+    },
+    {
+      "id": "station-east-central-southern-user-free",
+      "area": "station-street-south",
+      "street": "Station Street",
+      "side": "east",
+      "between": ["Central Street", "Southern Street"],
+      "category": "free",
+      "limitMinutes": null,
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Hours not verified"},
+      "outsideSchedule": "unknown",
+      "verification": "user-supplied-map-match",
+      "geometryStatus": "user-confirmed-approximate-blockface",
+      "splitBoundaryNote": "User identifies this stretch as free. Approximate corner buffers leave the Central and Southern junctions out. Only the east curb is mapped; exact sign boundaries, driveways and temporary restrictions remain unverified.",
+      "sourceIds": ["station-northern-southern-user-map"],
+      "spotChecks": [{"status": "user-supplied-map-match", "checkedOn": "2026-10-18", "finding": "User identifies the Northern–Southern stretch as free. The screenshot locates this blockface but shows no readable time-limit sign.", "scope": "East curb between Central Street and Southern Street only; verify posted signs for any time limit."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.098055, 49.27105], [-123.098055, 49.27079]]}
+    },
+    {
+      "id": "northern-south-station-facing-user-one-hour",
+      "area": "station-street-south",
+      "street": "Northern Street",
+      "side": "south",
+      "between": ["one-hour sign east of railway crossing", "Station Street"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 60,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days not legible"},
+      "outsideSchedule": "unknown",
+      "verification": "historical-sign-match",
+      "geometryStatus": "approximate-sign-to-junction",
+      "splitBoundaryNote": "The one-hour arrow points toward Station Street; the opposite no-parking direction and railway crossing are excluded. The line ends before the Station Street junction. Street View is from July 2024 and does not establish the current exact signpost position or day wording.",
+      "sourceIds": ["northern-streetview-user-screenshot"],
+      "spotChecks": [{
+        "status": "historical-sign-match",
+        "checkedOn": "2026-10-18",
+        "imageryDate": "July 2024",
+        "url": "https://www.google.com/maps/@49.271848,-123.0994029,7a,75y,88.89h,76.59t/data=!3m7!1e1!3m5!1slbBWqp0livkUGsgV5GHwzw!2e0!7i16384!8i8192",
+        "finding": "The user screenshot shows a P 1h, 9AM–6PM arrow toward Station Street and a no-parking arrow away from it. Day-of-week wording is not reliably legible.",
+        "scope": "Approximate south curb east of the one-hour sign to short of Station Street only."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09925, 49.27184], [-123.09822, 49.27181]]}
+    }
+  ],
+  "observationsNeedingReview": [
+    {
+      "id": "w-first-burrard-user-photo-meter-conflict",
+      "street": "W 1st Avenue",
+      "near": "Burrard Street",
+      "cameraLocation": [-123.14495, 49.27067],
+      "sourceIds": ["w-first-photo"],
+      "finding": "IMG_1172 shows a no-parking arrow west of a P 2h, 9AM–6PM, Mon–Fri arrow east. City meter B117SPB is about 13 m from the camera GPS and lists paid parking; the photograph does not establish whether the photographed public direction overlaps that paid zone or has a separate payment sign.",
+      "mapDecision": "No free or paid curb section added until the pole position, paid-zone boundary and payment signage are resolved."
+    }
+  ]
+}

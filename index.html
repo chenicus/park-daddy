@@ -727,6 +727,7 @@
   /* baseline, not center: .lim is a smaller size and centering floats it off the text's feet */
   .sc-sched .seg .when { color: var(--muted-strong); display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; }
   .sc-sched .seg .cost { flex-shrink: 0; text-align: right; font-weight: 600; color: var(--text); }
+  .sc-sched .seg.compact .when, .sc-sched .seg.compact .cost { white-space: nowrap; }
   .sc-sched .seg.free .cost { color: var(--free); }
   .sc-sched .seg.tow .cost { color: #ff3b30; }
   .sc-sched .seg.active { background: var(--chip); }
@@ -1664,7 +1665,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=195"></script>
+<script type="module" src="app.js?v=205"></script>
 <script type="module" src="theme-sheet.js?v=2"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->

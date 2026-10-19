@@ -65,6 +65,19 @@ test('Industrial user photo maps only the arrowed two-hour public curb', () => {
   assert.match(section.spotChecks[0].finding, /commercial loading/);
 });
 
+test('Industrial parked-car candidates appear as free with compact sign guidance, without a two-hour rule', () => {
+  const candidates = industrialPhotos.sections.filter(section => section.verification === 'street-view-parked-cars');
+  assert.equal(candidates.length, 3);
+  for (const section of candidates) {
+    assert.equal(curbState(section, 600, 1).label, 'Free');
+    assert.equal(curbState(section, 600, 0).label, 'Free');
+    assert.equal(curbSchedule(section), 'No signs seen');
+    assert.deepEqual(curbTableSegments(section, 1).map(row => [row.label, row.status]),
+      [['No signs seen', 'Free']]);
+    assert.equal(section.geometry.coordinates.length, 2);
+  }
+});
+
 test('signed free pockets disappear during posted prohibitions and retain their hours', () => {
   const oak = screenshotGaps.sections.find(section => section.id === 'oak-w54-east-offhours-pocket');
   const w12 = screenshotGaps.sections.find(section => section.id === 'w12-1405-north-offhours-free');
@@ -536,7 +549,8 @@ test('confirmed no-stopping record cannot appear in normal parking results', () 
  for(let day=0;day<7;day++) for(const mins of [0,600,1200,1439]) {
  assert.equal(curbState(s,mins,day).free,false);
  assert.equal(curbState(s,mins,day).label,'No parking');
- assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:true,unverified:true}),false);
+ assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:false,unverified:true}),false);
+ assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:true,unverified:true}),true);
  }
  assert.ok(curbTableSegments(s,1).some(r=>r.status==='No parking'));
 });

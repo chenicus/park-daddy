@@ -20,7 +20,7 @@
 | | |
 |---|---|
 | 🧭 **Drive mode** | Follow-me map showing each block's parking rate as you drive past it. Defaults on. |
-| 🅿️ **Up-to-date meter data** | Every metered block across five cities, refreshable per city. |
+| 🅿️ **Up-to-date meter data** | Every published meter or pay-station location across six cities, refreshable per city. |
 | 🟢 **Live availability (Kirkland)** | Stall sensors show which spots are free vs. taken right now, straight from the city's live feed. |
 | 🗺️ **Turn-by-turn to a spot** | Pick a spot, hand off to in-app navigation (Valhalla) or deep-link out to Google Maps. |
 | 🚫 **No-park awareness** | Loading zones, no-stopping and permit-only windows hide the spot while active and show in its schedule. |
@@ -33,7 +33,7 @@
 | Layer | What we use | For |
 |---|---|---|
 | **Map** | [MapLibre GL 4.7](https://maplibre.org/) + [CARTO vector styles](https://carto.com/basemaps/) | Rotatable vector map + light/dark styles (CDN). |
-| **Parking data** | Open data from [Vancouver](https://opendata.vancouver.ca/), [Seattle](https://data.seattle.gov/), [San Francisco](https://datasf.org/), San Jose & Kirkland | Meter rates, limits, rush-hours, prohibition zones, geo. |
+| **Parking data** | Open data from [Vancouver](https://opendata.vancouver.ca/), [Surrey](https://gisservices.surrey.ca/arcgis/rest/services/ParkingStations/MapServer/0), [Seattle](https://data.seattle.gov/), [San Francisco](https://datasf.org/), San Jose & Kirkland | Meter rates, limits, rush-hours, prohibition zones, geo. |
 | **Live sensors** | [Kirkland parking-sensor feed (ArcGIS)](https://services2.arcgis.com/) | Real-time vacant/occupied status per stall, polled live. |
 | **Routing** | [Valhalla](https://valhalla1.openstreetmap.de/) (public OSM server) | Drive-mode route geometry + maneuvers. |
 | **Geocoding** | [Nominatim (OpenStreetMap)](https://nominatim.org/) | Address / place / street search + autocomplete. |
@@ -42,6 +42,14 @@
 | **Analytics** | [PostHog](https://posthog.com/) | Anonymous product analytics. |
 | **Browser APIs** | Geolocation, Wake Lock | Follow-me GPS, keep-screen-awake. |
 | **Hosting** | GitHub Pages (static frontend) + Supabase (data) | Zero-build static site talking to a hosted backend. |
+
+### Shared web/iOS registry
+
+Both clients hydrate from [`data/registry.json`](data/registry.json) at startup. It is the
+canonical city-and-feed manifest: add a city or change a feed there, publish the web app, and
+the iOS app will pick up the same registry on its next launch. Each client keeps a bundled copy
+as an offline fallback, but the hosted manifest wins whenever it is reachable. Parking JSON
+feeds remain shared hosted files as well.
 
 > **Stack:** plain HTML + vanilla ES modules. No framework, no bundler, no build step.
 
@@ -57,6 +65,7 @@ coverage sentence — is built from.
 | City | Data shape | Notes |
 |---|---|---|
 | **Vancouver** 🇨🇦 | Point meters + free blocks | Only city with walk-cost spot suggestions (rich rate feed). |
+| **Surrey** 🇨🇦 | Pay-station points + audited curbs | Published rate, hours and maximum stay; station dots are the default, with a curb line only where Street View supports it. |
 | **Seattle** 🇺🇸 | Paid blockface lines | Demand-responsive rates. |
 | **San Francisco** 🇺🇸 | Point meters, time-of-day bands | Both metered dots and free-block lines. |
 | **San Jose** 🇺🇸 | Flat-rate point meters | Search-only (compact downtown); not in the pick-a-city list. |

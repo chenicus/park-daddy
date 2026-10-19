@@ -1,4 +1,4 @@
-import { curbState, curbVisible } from './west-end.js?v=16';
+import { curbState, curbVisible } from './west-end.js?v=26';
 // Block-face clustering + always-visible price labels.
 // Clusters the ~3,758 meters once at load into block-face groups (same rate/limit
 // tuple within 45 m), then renders a zoom-laddered label layer:
@@ -77,6 +77,19 @@ export function buildKirklandBlocks(records, idBase = 6e6) {
     limitMin: o.limit || null,
     paid: !!o.paid, kirk: true, avail: null,           // avail filled in by the live poller
     spaces: o.spaces, hblock: o.h,
+    rushes: [], card: false,
+  }));
+}
+
+// Surrey publishes the locations and rate schedule of public pay stations, but no curb geometry.
+// Show the verified station points individually rather than implying paid coverage along a block.
+export function buildSurreyBlocks(records, idBase = 7e6) {
+  return records.map((o, i) => ({
+    id: idBase + i, lat: o.lat, lon: o.lon, pts: [[o.lat, o.lon]],
+    bands: { wkd: o.wkd || [], sat: o.sat || [], sun: o.sun || [] },
+    limitMin: o.limit || null, spaces: o.spaces || 0, hblock: o.h,
+    zone: o.zone, station: o.station,
+    provider: 'City of Surrey pay station · HONK at select locations',
     rushes: [], card: false,
   }));
 }

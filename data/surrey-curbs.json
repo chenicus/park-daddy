@@ -1,0 +1,8 @@
+[
+  {
+    "station": "#020",
+    "line": [[-122.78945,49.016522],[-122.7852,49.016512]],
+    "confidence": "medium",
+    "evidence": "Street View audit: signed, marked paid stalls visible from 15621 through 15787 Marine Drive. Do not extend east of 15801, where a permit-only sign is visible."
+  }
+]

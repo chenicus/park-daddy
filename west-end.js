@@ -36,6 +36,23 @@ const signedFree = section => section.category === 'free' && ['historical-sign-m
 
 export function curbState(section, mins, dow) {
   if (section.category === 'no-parking') return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'PDF shows a no-parking restriction; check posted signs for its exact limits'};
+  if (section.photoVerified && section.category === 'time-limited') {
+    const s = section.schedule;
+    const active = s.days?.includes(dow) && mins >= s.start && mins < s.end;
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',
+      label:active ? `Free · ${curbLimitLabel(section.limitMinutes)}` : 'Free',
+      status:active
+        ? `User confirms this parking is free; the photo shows a ${curbLimitLabel(section.limitMinutes)} limit during the posted hours.`
+        : 'Outside the posted two-hour time-limit hours; other restrictions may still apply.'};
+  }
+  if (section.userConfirmedFree && section.category === 'time-limited') {
+    const s = section.schedule;
+    const active = s.days?.includes(dow) && mins >= s.start && mins < s.end;
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',
+      label:active ? `Free · ${curbLimitLabel(section.limitMinutes)}` : 'Free',
+      status:active ? 'User confirms free two-hour parking; Street View corroborates the signed limit during the posted hours.'
+        : 'Outside the posted two-hour limit hours; other restrictions may still apply.'};
+  }
   if (section.category === 'permit-window') {
     const s = section.schedule;
     return s.days?.includes(dow) && mins >= s.start && mins < s.end
@@ -75,6 +92,8 @@ export function curbState(section, mins, dow) {
     return {free:false,rate:null,group:'prohibited',cls:'p-unknown',color:'#dc2626',label:'No parking',status:'Separate posted no-parking period'};
   if (signedFree(section))
     return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:section.verification === 'user-supplied-map-match' ? 'User-supplied map reports this rule; follow the posted sign' : 'Free outside posted prohibitions, per user instruction'};
+  if (section.category === 'free' && section.verification === 'street-view-parked-cars')
+    return {free:true,rate:0,group:'free',cls:'p-free',color:'#2563eb',label:'Free',status:'No signs seen'};
   if (section.publicSign && section.schedule.days == null) {
     const inHours = mins >= section.schedule.start && mins < section.schedule.end;
     return inHours
@@ -105,13 +124,17 @@ export function curbState(section, mins, dow) {
 }
 
 export function curbVisible(section, mins, dow, filters) {
-  if (section.accessOverride?.category === 'prohibited' || section.category === 'no-parking') return false;
+  if (section.accessOverride?.category === 'prohibited' || section.category === 'no-parking') {
+    return filters.restrictions !== false;
+  }
   const state = curbState(section, mins, dow);
+  if (section.photoVerified) return state.group !== 'prohibited';
   return state.group !== 'prohibited' && filters[state.group] !== false;
 }
 
 const clock = (m) => `${Math.floor(m / 60) % 12 || 12}${m % 60 ? ':' + String(m % 60).padStart(2, '0') : ''}${m < 720 ? 'am' : 'pm'}`;
 export function curbSchedule(section) {
+  if (section.category === 'free' && section.verification === 'street-view-parked-cars') return 'No signs seen';
   if (section.category === 'free') return 'Free outside posted no-parking or no-stopping hours';
   if (section.accessOverride?.category === 'permit') return 'Permit required · hours not confirmed';
   if (section.category === 'permit' && section.verification === 'historical-conflict') return 'Conflicting permit and no-parking signs · exact curb limits unknown';
@@ -131,6 +154,15 @@ export function curbTableSegments(section, dow) {
     : section.streetViewUrl ? [{ label: 'Street View · sign not verified', status: 'Open', url: section.streetViewUrl,
       linkLabel: 'Open Street View near this curb; sign not verified', rate: null, applies: false }] : [];
   const evidence = sourceEvidence;
+  if (section.photoVerified && section.category === 'time-limited') {
+    const s = section.schedule;
+    const applies = s.days?.includes(dow) === true;
+    return [
+      {from:s.start,to:s.end,days:s.label,limit:section.limitMinutes,rate:0,status:'Free',applies},
+      {label:'Other times',status:'Free',rate:0,activeOutside:applies ? [s.start,s.end] : []},
+      ...evidence,
+    ];
+  }
   if (section.category === 'permit-window') return [
     {from:section.schedule.start,to:section.schedule.end,days:section.schedule.label,status:'Permit required',rate:null,applies:section.schedule.days?.includes(dow)},
     {label:'Other times',status:'Check signs',rate:null,applies:false},
@@ -184,6 +216,9 @@ export function curbTableSegments(section, dow) {
       ...evidence,
     ];
   }
+  if (section.category === 'free' && section.verification === 'street-view-parked-cars') return [
+    {from:0,to:1440,label:'No signs seen',status:'Free',rate:0,applies:true},
+  ];
   if (section.bestJudgment && section.verification !== 'historical-sign-match') return [
     {label:'Best local reading',status:section.bestJudgment.summary,rate:null,applies:false},
     {label:'Reported other times',status:section.bestJudgment.otherTimes || 'Not established',rate:null,applies:false},
