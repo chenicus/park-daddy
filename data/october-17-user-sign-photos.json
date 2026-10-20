@@ -65,6 +65,24 @@
       "title": "User-supplied Street View screenshots of National Avenue between Main Street and Quebec Street",
       "checkedOn": "2026-10-19",
       "note": "Screenshots at 162, 164, 189 and 192 National Avenue show signed one-hour and two-hour public parking, including a one-hour/two-hour transition. Bus-only, Modo-only and arrowed no-parking portions remain excluded."
+    },
+    "east-first-258-user-streetview": {
+      "title": "User-supplied Street View screenshot and curb review near 258 E 1st Avenue",
+      "url": "https://www.google.com/maps/@49.2689929,-123.0984382,9a,75y,321.77h,76.55t/data=!3m7!1e1!3m5!1s6-vFSCzd1taLBW4Xeo_xLA!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-19",
+      "note": "July 2024 imagery shows parked vehicles on both curbs and a P 2h, 9AM–6PM sign on the southwest curb near 239 E 1st. The day text is not reliably legible. The opposite curb has parked cars but no parking-control sign was found in the reviewed views. Construction-obstructed curb near the Main Street end is excluded."
+    },
+    "quebec-street-user-screenshots": {
+      "title": "User-supplied Street View screenshots and curb review along Quebec Street",
+      "url": "https://www.google.com/maps/@49.2753544,-123.101945,7a,75y,84.14h,90t/data=!3m7!1e1!3m5!1s-duMyaiP3PDzBLkyOeYooQ!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-19",
+      "note": "July 2024 imagery and user screenshots show signed P 2h, 9AM–6PM parking, a short signed 15-minute section near 1288 Quebec, and parked vehicles farther south. Driveways, hydrants, intersections, reserved spaces and curb without a positive parking finding are excluded."
+    },
+    "quebec-south-streetview": {
+      "title": "Google Street View, Quebec Street south of Terminal Avenue",
+      "url": "https://www.google.com/maps/@49.2726316,-123.102166,7a,75y,180h,90t/data=!3m7!1e1!3m5!1sbXCQ80aOP3b8Dy7-9mWUYA!2e0!7i16384!8i8192",
+      "checkedOn": "2026-10-19",
+      "note": "January 2022 and July 2024 imagery show vehicles parked on the reviewed east-hand curb stretches; no parking-control sign was found in those occupied stretches."
     }
   },
   "geometryNote": "Curb estimates from photo GPS, camera direction, visible landmarks, sign arrows and historical Street View. Station Street lines follow user-identified blocks with approximate end buffers. Photo GPS, map imagery and Street View camera locations do not identify exact signposts; endpoints and street-side offsets are approximate.",
@@ -209,6 +227,79 @@
       "sourceIds": ["national-main-quebec-user-screenshots"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2020-12/2022-05", "finding": "P 2h, 9AM–6PM, Mon–Sat signs and parked vehicles appear on the curb; adjacent bus/no-parking signs define the eastern boundary.", "scope": "North curb between Quebec and the first reserved-zone boundary near Main."}],
       "geometry": {"type": "LineString", "coordinates": [[-123.10252, 49.27496], [-123.10142, 49.27496]]}
+    },
+    {
+      "id": "east-first-200-300-north-no-sign",
+      "area": "mount-pleasant-industrial", "street": "E 1st Avenue", "side": "north",
+      "between": ["200-block west buffer", "300-block east buffer"],
+      "category": "free", "limitMinutes": null,
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Every day"},
+      "outsideSchedule": "free", "verification": "street-view-parked-cars",
+      "geometryStatus": "approximate-car-occupied-curb",
+      "splitBoundaryNote": "Mapped only along the visible parked-car run. Corners, hydrants, driveways and construction-obstructed curb are excluded.",
+      "sourceIds": ["east-first-258-user-streetview"],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09960, 49.26976], [-123.09772, 49.26891]]}
+    },
+    {
+      "id": "east-first-239-270-south-2h",
+      "area": "mount-pleasant-industrial", "street": "E 1st Avenue", "side": "south",
+      "between": ["239 E 1st Avenue", "270 E 1st Avenue"],
+      "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": null, "start": 540, "end": 1080, "label": "Days unreadable"},
+      "outsideSchedule": "free", "verification": "user-photo-match",
+      "geometryStatus": "approximate-signed-curb",
+      "splitBoundaryNote": "The sign face shows P 2h and 9AM–6PM. The line follows only the reviewed sign-side curb; construction, driveways and unreviewed curb are excluded.",
+      "sourceIds": ["east-first-258-user-streetview"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-19", "imageryDate": "2024-07", "finding": "A green P 2h, 9AM–6PM sign appears near 239 E 1st, with cars parked on the same curb. The day text is unreadable.", "scope": "Signed southwest curb from approximately 239 to 270 E 1st Avenue."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09910, 49.26930], [-123.09803, 49.26868]]}
+    },
+    {
+      "id": "quebec-east-national-prior-2h",
+      "area": "science-world-quebec", "street": "Quebec Street", "side": "east",
+      "between": ["National Avenue", "Prior Street"],
+      "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free", "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-signed-curb",
+      "splitBoundaryNote": "The line follows the east curb and stops before both intersections.",
+      "sourceIds": ["quebec-street-user-screenshots"],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10190, 49.27582], [-123.10181, 49.27508]]}
+    },
+    {
+      "id": "quebec-east-terminal-national-2h",
+      "area": "science-world-quebec", "street": "Quebec Street", "side": "east",
+      "between": ["Terminal Avenue", "National Avenue"],
+      "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free", "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-signed-curb",
+      "splitBoundaryNote": "The line follows the east curb and stops before the Terminal and National intersection clearances.",
+      "sourceIds": ["quebec-street-user-screenshots"],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10175, 49.27487], [-123.10167, 49.27398]]}
+    },
+    {
+      "id": "quebec-east-1288-15min",
+      "area": "science-world-quebec", "street": "Quebec Street", "side": "east",
+      "between": ["15-minute boundary north of 1288 Quebec", "15-minute boundary south of 1288 Quebec"],
+      "category": "time-limited", "publicSign": true, "limitMinutes": 15,
+      "schedule": {"days": null, "start": null, "end": null, "label": "Signed 15 min"},
+      "outsideSchedule": "unknown", "verification": "user-confirmed-street-view",
+      "geometryStatus": "approximate-signed-curb",
+      "splitBoundaryNote": "Short 15-minute section only; adjoining two-hour curb is kept separate.",
+      "sourceIds": ["quebec-street-user-screenshots"],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10167, 49.27391], [-123.10167, 49.27372]]}
+    },
+    {
+      "id": "quebec-south-east-no-sign-seen",
+      "area": "science-world-quebec", "street": "Quebec Street", "side": "east",
+      "between": ["south of Terminal Avenue", "north of Central Street"],
+      "category": "free", "limitMinutes": null,
+      "schedule": {"days": null, "start": 0, "end": 1440, "label": "Every day"},
+      "outsideSchedule": "free", "verification": "street-view-parked-cars",
+      "geometryStatus": "approximate-car-occupied-curb",
+      "splitBoundaryNote": "Mapped only on the east-hand Quebec Street carriageway between Terminal and Central. The line stops before the Central Street junction. Other sections are not covered by this geometry.",
+      "sourceIds": ["quebec-south-streetview"],
+      "geometry": {"type": "LineString", "coordinates": [[-123.101652, 49.272738], [-123.101670, 49.272536], [-123.101685, 49.272431], [-123.101716, 49.272314], [-123.101746, 49.272190], [-123.101813, 49.272066]]}
     },
     {
       "id": "arbutus-east-user-photo-permit",

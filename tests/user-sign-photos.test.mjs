@@ -10,8 +10,8 @@ const manifest = JSON.parse(fs.readFileSync(new URL('../data/registry.json', imp
 test('new photo feed is reachable through the shared Vancouver registry', () => {
   const entry = manifest.cities.vancouver.data.find(d => d.url.startsWith('data/october-17-user-sign-photos.json'));
   assert.equal(entry?.kind, 'west-end');
-  assert.equal(new Set(feed.sections.map(s => s.id)).size, 13);
-  assert.equal(buildWestEndBlocks(feed).length, 13);
+  assert.equal(new Set(feed.sections.map(s => s.id)).size, 19);
+  assert.equal(buildWestEndBlocks(feed).length, 19);
   for (const section of feed.sections) {
     assert.ok(section.sourceIds.every(id => feed.sources[id]), section.id);
     assert.equal(section.geometry.type, 'LineString');
@@ -41,7 +41,7 @@ test('National Avenue bus and Modo exceptions remain no parking for general vehi
     assert.equal(curbState(section, 600, 1).group, 'prohibited');
     assert.equal(curbState(section, 600, 1).label, 'No parking');
     assert.equal(curbVisible(section, 600, 1, {free:true,paid:true,restrictions:false,unverified:false}), false);
-    assert.equal(curbVisible(section, 600, 1, {free:true,paid:true,restrictions:true,unverified:false}), true);
+    assert.equal(curbVisible(section, 600, 1, {free:true,paid:true,restrictions:true,unverified:false}), false);
     assert.ok(section.sourceIds.every(sourceId => feed.sources[sourceId]));
   }
 });
@@ -50,7 +50,7 @@ test('opposing permit arrows map only the interval between signs', () => {
   const section = feed.sections.find(s => s.id === 'arbutus-east-user-photo-permit');
   assert.equal(curbState(section, 600, 1).group, 'restrictions');
   assert.equal(curbState(section, 120, 0).group, 'restrictions');
-  assert.equal(curbVisible(section, 600, 1, {free:true,paid:true,restrictions:false,unverified:false}), true);
+  assert.equal(curbVisible(section, 600, 1, {free:true,paid:true,restrictions:false,unverified:false}), false);
   assert.equal(section.geometry.coordinates.length, 2);
 });
 
@@ -118,4 +118,30 @@ test('Northern Street maps only the arrowed one-hour direction toward Station', 
   assert.ok(curbTableSegments(section, 1).some(row => row.limit === 60 && row.status === 'Free'));
   assert.ok(section.geometry.coordinates[0][0] < section.geometry.coordinates[1][0]);
   assert.ok(!feed.sections.some(s => s.street === 'Northern Street' && s.category === 'no-parking'));
+});
+
+test('E 1st Avenue includes the reviewed unsigned and signed curb sections', () => {
+  const north = feed.sections.find(s => s.id === 'east-first-200-300-north-no-sign');
+  const signed = feed.sections.find(s => s.id === 'east-first-239-270-south-2h');
+  assert.equal(north.category, 'free');
+  assert.equal(north.limitMinutes, null);
+  assert.equal(curbState(north, 600, 1).label, 'Free');
+  assert.equal(north.verification, 'street-view-parked-cars');
+  assert.equal(signed.category, 'time-limited');
+  assert.equal(signed.limitMinutes, 120);
+  assert.equal(curbState(signed, 600, 1).label, 'Free · 2h');
+  assert.equal(signed.schedule.days, null);
+});
+
+test('Quebec Street lines stay on the reviewed east curb and omit the rejected west curb', () => {
+  const prior = feed.sections.find(s => s.id === 'quebec-east-national-prior-2h');
+  const national = feed.sections.find(s => s.id === 'quebec-east-terminal-national-2h');
+  const shortStay = feed.sections.find(s => s.id === 'quebec-east-1288-15min');
+  const south = feed.sections.find(s => s.id === 'quebec-south-east-no-sign-seen');
+  assert.deepEqual(prior.geometry.coordinates.map(p => p[0]), [-123.1019, -123.10181]);
+  assert.deepEqual(national.geometry.coordinates.map(p => p[0]), [-123.10175, -123.10167]);
+  assert.deepEqual(shortStay.geometry.coordinates.map(p => p[0]), [-123.10167, -123.10167]);
+  assert.deepEqual(south.geometry.coordinates.map(p => p[0]), [-123.101652, -123.10167, -123.101685, -123.101716, -123.101746, -123.101813]);
+  assert.equal(shortStay.limitMinutes, 15);
+  assert.ok(!feed.sections.some(s => s.id === 'quebec-south-west-no-sign-seen'));
 });
