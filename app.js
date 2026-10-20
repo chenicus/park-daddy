@@ -2760,8 +2760,13 @@ function initLiveLabels() {
   // But starting it fires getCurrentPosition/watchPosition, i.e. the permission prompt — so it
   // waits on the same boot gate as the recenter, or the prompt lands *over* the welcome picker.
   if (params.get('sim')) driving.start();
-  else bootUISettled.then(() => {
-    if (store.get(GEO_PERMISSION_KEY) !== 'granted' && store.get(GEO_PERMISSION_KEY) !== 'denied') driving.start({ passive: true });
+  else bootUISettled.then(async () => {
+    // Keep the live location arrow visible after a prior grant. Starting passive tracking
+    // does not ask again because we first confirm the browser still reports permission.
+    try {
+      const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
+      if (permission?.state === 'granted') driving.start({ passive: true });
+    } catch {}
   });
 }
 
