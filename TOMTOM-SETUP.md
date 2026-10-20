@@ -142,3 +142,9 @@ The live browser preview successfully resolved Under the Rose Sauna to Under the
 Rose Club at 1024 Main Street after Turnstile verification. Both client configs
 now point to the protected endpoint. The web integration is being published;
 mobile requires a new native build and release before installed apps use it.
+
+## Popup rollback
+
+User rejected the verification dialog. Both client endpoints are disabled again,
+restoring Photon/Nominatim search. The backend protections remain intact. Do not
+reactivate TomTom with a visible verification prompt.
