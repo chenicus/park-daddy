@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Park Daddy search preview</title><style>body{font:16px system-ui;max-width:600px;margin:40px auto;padding:20px}input,button{font:inherit;padding:12px}pre{white-space:pre-wrap}</style><h1>Location search preview</h1><p>Try a business name. A quick browser check helps keep search free.</p><form id="form"><input id="query" aria-label="Business name" value="Under the Rose Sauna"><button>Search</button></form><pre id="result" aria-live="polite"></pre><p>Search by TomTom</p><script type="module">
+import {createPlaceSearch} from './place-search.js?v=2';
+import {getSearchChallenge} from './search-verification.js?v=1';
+import {SUPABASE_ANON_KEY} from './config.js';
+const client=createPlaceSearch({endpoint:'https://atgkbgekwluimgcrvbxr.supabase.co/functions/v1/place-search',publicKey:SUPABASE_ANON_KEY,getChallenge:getSearchChallenge});
+document.querySelector('#form').onsubmit=async e=>{e.preventDefault();const result=document.querySelector('#result');result.textContent='Searching…';try{const place=await client.search(document.querySelector('#query').value,[-123.1,49.27]);result.textContent=place?place.label+'\n'+place.sub:'No matching place found.';}catch(error){result.textContent=error.message;}};
+</script></html>
