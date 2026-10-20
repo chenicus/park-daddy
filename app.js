@@ -687,7 +687,16 @@ async function pollKirkLive() {
   // the cityChosen guard regardless — so don't spend a permission prompt on it.
   if (cityChosen) return;
 
-  // Best-effort recenter, capped at 5s so a slow or ignored permission prompt never stalls boot.
+  // A page load should reuse a site permission that was already granted, but must not
+  // trigger a new browser permission prompt. The recenter control remains the explicit
+  // user gesture for first-time visitors.
+  if (!navigator.permissions?.query) return;
+  let permission;
+  try { permission = await navigator.permissions.query({ name: 'geolocation' }); }
+  catch { return; }
+  if (permission.state !== 'granted') return;
+
+  // Best-effort recenter from an existing grant, capped so a slow GPS fix never stalls boot.
   const pos = await Promise.race([
     getPosition().catch(() => null),
     new Promise((r) => setTimeout(() => r(null), 15000)),
