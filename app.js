@@ -702,6 +702,9 @@ async function pollKirkLive() {
     new Promise((r) => setTimeout(() => r(null), 15000)),
   ]);
   if (!pos) return;
+  // This successful fix proves location access is already available. Start passive
+  // tracking here as well as recentering so the live location chevron is drawn on boot.
+  driving?.start({ passive: true });
   if (cityChosen) return;                                // user picked a city in the welcome — respect it
   const key = cityAt(pos.lat, pos.lon);
   if (!key) return;                                      // outside coverage — stay on the default city
