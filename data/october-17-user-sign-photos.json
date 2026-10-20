@@ -152,7 +152,7 @@
       "splitBoundaryNote": "Reserved for buses between the directional bus-zone signs. This slice interrupts adjacent public parking and must not be merged into a one-hour or two-hour line.",
       "sourceIds": ["national-bus-zone-user-screenshot"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-05", "finding": "Directional signs show a bus-only curb. General vehicle parking is excluded.", "scope": "Approximate north-curb bus zone near 126 National Avenue; endpoints follow the photographed boundary poles."}],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10134, 49.27495], [-123.10113, 49.27495]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10052, 49.27504], [-123.10030, 49.27504]]}
     },
     {
       "id": "national-north-modo-zone-no-parking",
@@ -169,7 +169,7 @@
       "splitBoundaryNote": "The curb is reserved for Modo car-share vehicles. It is represented as no parking for general vehicles and interrupts adjacent public parking.",
       "sourceIds": ["national-modo-zone-user-screenshot"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-05", "finding": "NO PARKING EXCEPT MODO and an adjacent directional no-parking plate define a short reserved space.", "scope": "Approximate single-space north-curb Modo reservation near 128 National Avenue."}],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10142, 49.27495], [-123.10134, 49.27495]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10062, 49.27504], [-123.10052, 49.27504]]}
     },
     {
       "id": "national-main-quebec-south-2h",
@@ -188,7 +188,7 @@
       "splitBoundaryNote": "The 162 National screenshot shows a two-hour arrow continuing toward Quebec and a one-hour arrow toward Main.",
       "sourceIds": ["national-main-quebec-user-screenshots"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-01", "finding": "P 2h, 9AM–6PM, Mon–Sat points from the transition toward Quebec Street.", "scope": "South curb, with corner clearance and separately signed exceptions excluded."}],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10252, 49.27482], [-123.10182, 49.27482]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10170, 49.27484], [-123.10142, 49.27485]]}
     },
     {
       "id": "national-main-quebec-south-1h",
@@ -207,7 +207,7 @@
       "splitBoundaryNote": "The transition sign at 162 National and the one-hour sign near 164 National bound this curb toward Main Street.",
       "sourceIds": ["national-main-quebec-user-screenshots"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2022-01", "finding": "P 1h, 9AM–6PM points from the transition toward Main Street.", "scope": "South curb, ending before the intersection clearance."}],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10182, 49.27482], [-123.10150, 49.27482]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10138, 49.27485], [-123.10025, 49.27487]]}
     },
     {
       "id": "national-main-quebec-north-2h",
@@ -226,7 +226,7 @@
       "splitBoundaryNote": "The 189 and 192 National screenshots show two-hour parking. The line stops before the bus-only and Modo-only slices near Main Street.",
       "sourceIds": ["national-main-quebec-user-screenshots"],
       "spotChecks": [{"status": "user-confirmed-street-view", "checkedOn": "2026-10-19", "imageryDate": "2020-12/2022-05", "finding": "P 2h, 9AM–6PM, Mon–Sat signs and parked vehicles appear on the curb; adjacent bus/no-parking signs define the eastern boundary.", "scope": "North curb between Quebec and the first reserved-zone boundary near Main."}],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10252, 49.27496], [-123.10142, 49.27496]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10170, 49.27506], [-123.10065, 49.27504]]}
     },
     {
       "id": "east-first-200-300-north-no-sign",
@@ -263,7 +263,7 @@
       "geometryStatus": "approximate-signed-curb",
       "splitBoundaryNote": "The line follows the east curb and stops before both intersections.",
       "sourceIds": ["quebec-street-user-screenshots"],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10190, 49.27582], [-123.10181, 49.27508]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10199, 49.27582], [-123.10196, 49.27568], [-123.10189, 49.27542], [-123.10181, 49.27508]]}
     },
     {
       "id": "quebec-east-terminal-national-2h",
@@ -275,7 +275,7 @@
       "geometryStatus": "approximate-signed-curb",
       "splitBoundaryNote": "The line follows the east curb and stops before the Terminal and National intersection clearances.",
       "sourceIds": ["quebec-street-user-screenshots"],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10175, 49.27487], [-123.10167, 49.27398]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10178, 49.27487], [-123.10169, 49.27457], [-123.10155, 49.27415], [-123.10151, 49.27398]]}
     },
     {
       "id": "quebec-east-1288-15min",
@@ -287,7 +287,7 @@
       "geometryStatus": "approximate-signed-curb",
       "splitBoundaryNote": "Short 15-minute section only; adjoining two-hour curb is kept separate.",
       "sourceIds": ["quebec-street-user-screenshots"],
-      "geometry": {"type": "LineString", "coordinates": [[-123.10167, 49.27391], [-123.10167, 49.27372]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10151, 49.27391], [-123.10151, 49.27372]]}
     },
     {
       "id": "quebec-south-east-no-sign-seen",
@@ -299,7 +299,7 @@
       "geometryStatus": "approximate-car-occupied-curb",
       "splitBoundaryNote": "Mapped only on the east-hand Quebec Street carriageway between Terminal and Central. The line stops before the Central Street junction. Other sections are not covered by this geometry.",
       "sourceIds": ["quebec-south-streetview"],
-      "geometry": {"type": "LineString", "coordinates": [[-123.101652, 49.272738], [-123.101670, 49.272536], [-123.101685, 49.272431], [-123.101716, 49.272314], [-123.101746, 49.272190], [-123.101813, 49.272066]]}
+      "geometry": {"type": "LineString", "coordinates": [[-123.10157, 49.272738], [-123.10159, 49.272536], [-123.10160, 49.272431], [-123.10162, 49.272314], [-123.10165, 49.272190], [-123.10173, 49.272066]]}
     },
     {
       "id": "arbutus-east-user-photo-permit",

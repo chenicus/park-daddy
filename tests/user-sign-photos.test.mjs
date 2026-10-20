@@ -138,10 +138,21 @@ test('Quebec Street lines stay on the reviewed east curb and omit the rejected w
   const national = feed.sections.find(s => s.id === 'quebec-east-terminal-national-2h');
   const shortStay = feed.sections.find(s => s.id === 'quebec-east-1288-15min');
   const south = feed.sections.find(s => s.id === 'quebec-south-east-no-sign-seen');
-  assert.deepEqual(prior.geometry.coordinates.map(p => p[0]), [-123.1019, -123.10181]);
-  assert.deepEqual(national.geometry.coordinates.map(p => p[0]), [-123.10175, -123.10167]);
-  assert.deepEqual(shortStay.geometry.coordinates.map(p => p[0]), [-123.10167, -123.10167]);
-  assert.deepEqual(south.geometry.coordinates.map(p => p[0]), [-123.101652, -123.10167, -123.101685, -123.101716, -123.101746, -123.101813]);
+  assert.deepEqual(prior.geometry.coordinates.map(p => p[0]), [-123.10199, -123.10196, -123.10189, -123.10181]);
+  assert.deepEqual(national.geometry.coordinates.map(p => p[0]), [-123.10178, -123.10169, -123.10155, -123.10151]);
+  assert.deepEqual(shortStay.geometry.coordinates.map(p => p[0]), [-123.10151, -123.10151]);
+  assert.deepEqual(south.geometry.coordinates.map(p => p[0]), [-123.10157, -123.10159, -123.1016, -123.10162, -123.10165, -123.10173]);
   assert.equal(shortStay.limitMinutes, 15);
   assert.ok(!feed.sections.some(s => s.id === 'quebec-south-west-no-sign-seen'));
+});
+
+test('National Avenue parking lines stay east of Quebec Street and stop before intersections', () => {
+  const ids = ['national-main-quebec-south-2h', 'national-main-quebec-south-1h', 'national-main-quebec-north-2h'];
+  for (const id of ids) {
+    const section = feed.sections.find(s => s.id === id);
+    assert.ok(section.geometry.coordinates.every(([lng]) => lng > -123.1018), id);
+  }
+  const south2h = feed.sections.find(s => s.id === 'national-main-quebec-south-2h');
+  const south1h = feed.sections.find(s => s.id === 'national-main-quebec-south-1h');
+  assert.ok(south2h.geometry.coordinates.at(-1)[0] < south1h.geometry.coordinates[0][0]);
 });
