@@ -1431,7 +1431,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
       <li><b>CARTO</b> and <b>MapLibre</b>: map tiles and styling</li>
       <li><b>Search:</b> when TomTom search is enabled, queries and the map area are sent through our Supabase server to TomTom. Otherwise, Nominatim and Komoot Photon provide search. TomTom results in recent searches last for the current session only. <b>Valhalla</b> receives route endpoints for directions.</li>
       <li><b>Cloudflare</b> and <b>PostHog</b>: the anonymous usage stats above</li>
-      <li><b>Supabase</b>: stores reports, feedback, and temporary search-abuse counters. Search protection uses daily keyed IP digests rather than raw IP addresses in its database. <b>Cloudflare Turnstile</b> checks browsers before issuing a short-lived search pass.</li>
+      <li><b>Supabase</b>: stores reports, feedback, and temporary search-abuse counters. Search protection uses daily keyed IP digests rather than raw IP addresses in its database. Search requests are limited per IP address and by a shared monthly allowance.</li>
       <li><b>ArcGIS</b>: live parking availability in Kirkland</li>
     </ul>
 
@@ -1665,7 +1665,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=216"></script>
+<script type="module" src="app.js?v=218"></script>
 <script type="module" src="theme-sheet.js?v=2"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->

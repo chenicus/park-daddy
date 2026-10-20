@@ -9,12 +9,10 @@ const coordinates = (value: unknown): value is number[] => Array.isArray(value) 
 const hex = (buffer: ArrayBuffer) => Array.from(new Uint8Array(buffer),b=>b.toString(16).padStart(2,'0')).join('');
 const digest = async (value:string) => hex(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
 async function guardSearch(req:Request,input:any,backend:string,service:string):Promise<{status?:number;code?:string;pass?:string;expiresAt?:number}> {
-  const secret=Deno.env.get('TURNSTILE_SECRET_KEY');
-  const hosts=(Deno.env.get('TURNSTILE_HOSTNAMES')||'parkdaddy.app,www.parkdaddy.app').split(',').map(s=>s.trim());
   // Must be set only after checking that the managed gateway overwrites this
   // header. Never accept a caller-provided IP in the JSON body or query string.
   const ipHeader=Deno.env.get('SEARCH_TRUSTED_IP_HEADER');
-  if(!secret||!ipHeader||!['cf-connecting-ip','x-forwarded-for'].includes(ipHeader))return {status:503,code:'verification_unavailable'};
+  if(!ipHeader||!['cf-connecting-ip','x-forwarded-for'].includes(ipHeader))return {status:503,code:'verification_unavailable'};
   const ip=(req.headers.get(ipHeader)||'').split(',')[0].trim().toLowerCase();
   if(!ip||ip.length>64||!/^[0-9a-f:.]+$/.test(ip))return {status:403,code:'verification_required'};
   // A daily keyed digest avoids storing raw IP addresses or reusable IP hashes.
@@ -26,19 +24,7 @@ async function guardSearch(req:Request,input:any,backend:string,service:string):
     return response.json();
   };
   const failure=(result:string)=>result==='rate'?{status:429,code:'rate_limited'}:result==='budget'?{status:429,code:'budget_exhausted'}:{status:403,code:'verification_required'};
-  if(input.operation==='issue-pass'){
-    if(typeof input.challenge!=='string'||!input.challenge||input.challenge.length>2048)return {status:403,code:'verification_required'};
-    const limit=await reserve('issue');if(limit!=='ok')return failure(limit);
-    const verified=await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret,response:input.challenge,remoteip:ip}),signal:AbortSignal.timeout(8000)});
-    if(!verified.ok)return {status:503,code:'verification_unavailable'};
-    const result=await verified.json();
-    if(result.success!==true||!hosts.includes(result.hostname)||result.action!=='park-search')return {status:403,code:'verification_required'};
-    const pass=hex(crypto.getRandomValues(new Uint8Array(32)).buffer);
-    if(await reserve('create',await digest(pass))!=='ok')return {status:503,code:'verification_unavailable'};
-    return {pass,expiresAt:Date.now()+10*60*1000};
-  }
-  if(typeof input.pass!=='string'||!/^[a-f0-9]{64}$/.test(input.pass))return {status:403,code:'verification_required'};
-  const result=await reserve(input.operation,await digest(input.pass));
+  const result=await reserve(input.operation);
   return result==='ok'?{}:failure(result);
 }
 
@@ -68,10 +54,6 @@ export async function handleSearch(req: Request): Promise<Response> {
     try {input=JSON.parse(new TextDecoder().decode(bytes));} catch {return reply(400,{error:'Invalid JSON'});}
     if (!input || !SESSION.test(text(input.session))) return reply(400,{error:'Invalid session'});
     const {operation}=input;
-    if(operation==='issue-pass'){
-      const result=await guardSearch(req,input,backend,service);
-      return result.status?reply(result.status,{code:result.code}):reply(200,result);
-    }
     let url='https://api.tomtom.com/maps/orbis/places/';
     let body:string|undefined;
     let attributes:string;

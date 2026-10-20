@@ -1,8 +1,7 @@
-import { getSearchChallenge } from './search-verification.js?v=1';
-import { createPlaceSearch } from './place-search.js?v=2';
-import { PLACE_SEARCH_URL } from './search-config.js?v=4';
+import { createPlaceSearch } from './place-search.js?v=3';
+import { PLACE_SEARCH_URL } from './search-config.js?v=5';
 import { SUPABASE_ANON_KEY } from './config.js';
-const tomtomSearch = createPlaceSearch({endpoint:PLACE_SEARCH_URL,publicKey:SUPABASE_ANON_KEY,getChallenge:getSearchChallenge});
+const tomtomSearch = createPlaceSearch({endpoint:PLACE_SEARCH_URL,publicKey:SUPABASE_ANON_KEY});
 let destinationSeq = 0, destinationRequest = null;
 import { initReview, renderReviewDetail } from './review.js?v=32';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=26';

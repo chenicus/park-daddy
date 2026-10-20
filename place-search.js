@@ -1,6 +1,6 @@
 // Shared with mobile/place-search.js. This module never receives the TomTom key.
-export function createPlaceSearch({endpoint, publicKey, getChallenge, newSession = () => crypto.randomUUID()}) {
-  let session, pass, passExpiry=0, passPending;
+export function createPlaceSearch({endpoint, publicKey, newSession = () => crypto.randomUUID()}) {
+  let session;
   async function send(body, signal) {
     const response=await fetch(endpoint,{method:'POST',signal,headers:{'Content-Type':'application/json',apikey:publicKey},body:JSON.stringify({...body,session:session||=newSession()})});
     const data=await response.json().catch(()=>({}));
@@ -11,27 +11,9 @@ export function createPlaceSearch({endpoint, publicKey, getChallenge, newSession
     }
     return data;
   }
-  async function ensurePass(){
-    if(pass&&Date.now()<passExpiry-30000)return pass;
-    if(!passPending){
-      passPending=(async()=>{
-        if(!getChallenge)throw new Error('Search verification is not configured.');
-        const challenge=await getChallenge();
-        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);
-        try{
-          const data=await send({operation:'issue-pass',challenge},controller.signal);
-          if(!/^[a-f0-9]{64}$/.test(data.pass)||!Number.isFinite(data.expiresAt))throw new Error('Search verification failed.');
-          pass=data.pass;passExpiry=data.expiresAt;return pass;
-        }finally{clearTimeout(timer);}
-      })().finally(()=>{passPending=undefined;});
-    }
-    return passPending;
-  }
   async function request(body,signal){
-    const currentPass=await ensurePass();
     if(signal?.aborted)throw new DOMException('Search cancelled','AbortError');
-    try{return await send({...body,pass:currentPass},signal);}
-    catch(error){if(error.code==='verification_required'){pass=undefined;passExpiry=0;}throw error;}
+    return send(body,signal);
   }
   async function suggest(query, center, signal) {
     const data = await request({operation:'suggest', query:query.trim(), center}, signal);

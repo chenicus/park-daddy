@@ -179,6 +179,13 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
     isActive: () => active,
     isFollowing: () => follow,
     lastPos: () => lastPos,
+    // Reuse the successful startup fix immediately; the separate watch can take
+    // several seconds to report its first position on some mobile browsers.
+    seedPosition(pos) {
+      if (!active || !pos || !Number.isFinite(pos.lat) || !Number.isFinite(pos.lon)) return;
+      accept({ coords: { latitude: pos.lat, longitude: pos.lon, accuracy: null,
+        heading: null, speed: null } });
+    },
     // Re-point to the mode's bearing (and recenter if following) — called on compass toggle /
     // drive start. Distinct from recenter(): it never changes zoom.
     reorient() {
