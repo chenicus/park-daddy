@@ -9,7 +9,7 @@ import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, 
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, buildSurreyBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=57';
 import { CITIES, cityAt, DEFAULT_CITY, newCities, hydrateSharedRegistry } from './cities.js?v=42';
-import { createDriving, SIM_START } from './driving.js?v=30';
+import { createDriving, SIM_START } from './driving.js?v=31';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';

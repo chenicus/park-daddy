@@ -128,7 +128,9 @@ export function createDriving({ map, onFix, onActiveChange, onFollowChange, bear
 
   function accept(p) {
     const { latitude: lat, longitude: lon, accuracy, heading, speed } = p.coords;
-    if (accuracy != null && accuracy > 50) return;       // drop wild fixes
+    // Let the first fix draw the location arrow even when the browser can only provide
+    // coarse accuracy; later fixes must meet the normal 50 m threshold before moving it.
+    if (lastPos && accuracy != null && accuracy > 50) return;
     const moved = lastPos ? distMeters(lastPos.lat, lastPos.lon, lat, lon) : Infinity;
     if (moved < 3) return;                               // holding station — ignore GPS jitter
 
