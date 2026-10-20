@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { buildWestEndBlocks, buildInferredBlocks, curbState, curbVisible, curbSchedule, curbTableSegments, filterMetersCoveredByCurbs } from '../west-end.js';
+import { buildWestEndBlocks, buildInferredBlocks, curbState, curbVisible, curbSchedule, curbTableSegments, filterMetersCoveredByCurbs, curbHasDrawableLine } from '../west-end.js';
 import { createLabelLayer, buildSeattleFreeBlocks } from '../labels.js';
 import { rptKey } from '../reports.js';
 
@@ -54,6 +54,14 @@ test('SpotAngels Kitsilano entries preserve their weekday two-hour rule and perm
     assert.equal(curbState(section, 600, 0).label, 'Free');
     assert.equal(section.geometry.coordinates.length, 2);
   }
+});
+
+test('map-pin rules with no known curb side show a pin without a cross-road curb line', () => {
+  const yew = kitsilanoSpotAngels.sections.find(section => section.id === 'yew-1555-2h-weekday-spotangels');
+  assert.equal(curbHasDrawableLine(yew), false);
+  assert.equal(curbHasDrawableLine(cornwallPhotos.sections.find(section => section.id === 'cornwall-2040-morning-free-spotangels')), false);
+  assert.equal(curbHasDrawableLine(cornwallPhotos.sections.find(section => section.id === 'cornwall-2268-vine-north-permit')), true);
+  assert.equal(curbHasDrawableLine(kitsNorth.sections.find(section => section.id === 'kits-north-fa3fb499309c')), true);
 });
 
 test('Industrial user photo maps only the arrowed two-hour public curb', () => {
@@ -550,7 +558,7 @@ test('confirmed no-stopping record cannot appear in normal parking results', () 
  assert.equal(curbState(s,mins,day).free,false);
  assert.equal(curbState(s,mins,day).label,'No parking');
  assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:false,unverified:true}),false);
- assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:true,unverified:true}),true);
+ assert.equal(curbVisible(s,mins,day,{free:true,paid:true,restrictions:true,unverified:true}),false);
  }
  assert.ok(curbTableSegments(s,1).some(r=>r.status==='No parking'));
 });

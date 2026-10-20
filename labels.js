@@ -1,4 +1,4 @@
-import { curbState, curbVisible } from './west-end.js?v=26';
+import { curbState, curbVisible, curbHasDrawableLine } from './west-end.js?v=29';
 // Block-face clustering + always-visible price labels.
 // Clusters the ~3,758 meters once at load into block-face groups (same rate/limit
 // tuple within 45 m), then renders a zoom-laddered label layer:
@@ -377,7 +377,9 @@ export function createLabelLayer(map, blocks, { nowMins, isWeekend, dow, onTap, 
         if (!curbVisible(bl.curb, mins, dow, filter)) continue;
         dots.push({ type: 'Feature', properties: { color: r.color },
           geometry: { type: 'Point', coordinates: [bl.lon, bl.lat] } });
-        if (z >= 13) curbs.push({
+        // A map-pin rule without a confirmed curb side is a point observation.
+        // Its placeholder LineString must not be drawn across the roadway.
+        if (z >= 13 && curbHasDrawableLine(bl.curb)) curbs.push({
           type: 'Feature', properties: { id: bl.id, color: r.color },
           geometry: { type: 'LineString', coordinates: bl.curb.geometry.coordinates },
         });

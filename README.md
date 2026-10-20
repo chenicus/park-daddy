@@ -93,3 +93,12 @@ for the geometry method, the two historical Street View observations, and rebuil
 Davie–Beach, Denman West and Robson North add 193 approximate curb sections using
 the same map layer and schedule tables. Fourteen unresolved markings stay off the map.
 See [additional map sources and limitations](data/sources/west-end-expansion.md).
+
+### Curb placement check
+
+Before adding or changing a dotted curb section, open the current local map at close zoom
+and inspect the complete line, both endpoints and its marker against the visible road.
+Check that it follows the correct side of the street and stops before cross streets,
+driveways and other excluded curb. If the road edge cannot be confirmed visually,
+leave that section off the map until it can be checked; coordinates alone are not
+proof of placement. Recheck the rendered map after the data cache version changes.

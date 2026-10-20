@@ -137,7 +137,7 @@ export const DEFAULT_CITY = 'vancouver';
 // The hosted registry is the shared source of truth for web and iOS. Keep the
 // bundled object above as an offline/failure fallback, then replace its values
 // before the app boots when the shared manifest is reachable.
-export async function hydrateSharedRegistry(url = 'data/registry.json?v=4') {
+export async function hydrateSharedRegistry(url = 'data/registry.json?v=7') {
   try {
     const response = await fetch(url, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Registry HTTP ${response.status}`);

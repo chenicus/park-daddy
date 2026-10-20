@@ -16,6 +16,10 @@ export function buildWestEndBlocks(data) {
   });
 }
 
+export function curbHasDrawableLine(section) {
+  return section.side !== 'sign side not established';
+}
+
 // A side-specific paid curb already represents these exact City meter records.
 // Keep the curb and its evidence; do not draw a third, overlapping meter marker.
 export function filterMetersCoveredByCurbs(meters, feeds) {
@@ -125,10 +129,9 @@ export function curbState(section, mins, dow) {
 
 export function curbVisible(section, mins, dow, filters) {
   if (section.accessOverride?.category === 'prohibited' || section.category === 'no-parking') {
-    return filters.restrictions !== false;
+    return false;
   }
   const state = curbState(section, mins, dow);
-  if (section.photoVerified) return state.group !== 'prohibited';
   return state.group !== 'prohibited' && filters[state.group] !== false;
 }
 
