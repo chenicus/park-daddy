@@ -1,3 +1,9 @@
+import { getSearchChallenge } from './search-verification.js?v=1';
+import { createPlaceSearch } from './place-search.js?v=2';
+import { PLACE_SEARCH_URL } from './search-config.js?v=3';
+import { SUPABASE_ANON_KEY } from './config.js';
+const tomtomSearch = createPlaceSearch({endpoint:PLACE_SEARCH_URL,publicKey:SUPABASE_ANON_KEY,getChallenge:getSearchChallenge});
+let destinationSeq = 0, destinationRequest = null;
 import { initReview, renderReviewDetail } from './review.js?v=32';
 import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, filterInferredFree, filterMetersCoveredByCurbs } from './west-end.js?v=26';
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
@@ -690,11 +696,14 @@ async function pollKirkLive() {
   // A page load should reuse a site permission that was already granted, but must not
   // trigger a new browser permission prompt. The recenter control remains the explicit
   // user gesture for first-time visitors.
-  if (!navigator.permissions?.query) return;
-  let permission;
-  try { permission = await navigator.permissions.query({ name: 'geolocation' }); }
-  catch { return; }
-  if (permission.state !== 'granted') return;
+  // Prefer the live browser permission state. Some mobile browsers do not expose
+  // Permissions.query for geolocation, so use our prior successful grant as fallback.
+  let locationGranted = store.get(GEO_PERMISSION_KEY) === 'granted';
+  try {
+    const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
+    if (permission) locationGranted = permission.state === 'granted';
+  } catch {}
+  if (!locationGranted) return;
 
   // Best-effort recenter from an existing grant, capped so a slow GPS fix never stalls boot.
   const pos = await Promise.race([
@@ -783,7 +792,12 @@ async function geocodeAnywhere(q) {
 }
 // Try local-biased first, then widen to any covered city if that finds nothing.
 async function geocodeWide(q) { return (await geocodeOne(q, true)) || geocodeOne(q, false); }
-async function geocode(q) {
+async function geocode(q, signal) {
+  if (PLACE_SEARCH_URL) {
+    const c=map.getCenter();
+    const p=await tomtomSearch.search(q,[c.lng,c.lat],signal);
+    return p ? {...p,name:p.label} : null;
+  }
   let loc = await geocodeWide(q);
   if (!loc && /\s(&|and|at|@|\/|x)\s|\s?&\s?/i.test(q)) {
     const first = q.split(/\s*(?:&|@|\/|\bat\b|\band\b|\bx\b)\s*/i)[0].trim();
@@ -906,24 +920,36 @@ let current = [];
 async function run(preLoc, isNew) {
   const q = $('dest').value.trim();
   if (!q && !preLoc) return;
-  let loc = preLoc;
+  const seq=++destinationSeq;
+  destinationRequest?.abort();
+  const controller=new AbortController();destinationRequest=controller;
+  const pending=preLoc?.provider==='tomtom' && preLoc.id;
+  let loc = pending ? null : preLoc;
+  if(loc)$('searchform').classList.remove('loading');
   if (!loc) {
     $('searchform').classList.add('loading');
-    try { loc = await geocode(q); }
+    const timeout=setTimeout(()=>{controller.abort();if(seq===destinationSeq)setStatus('Search timed out. Please try again.');},PLACE_SEARCH_URL?120000:15000);
+    try {
+      loc = pending ? await tomtomSearch.resolve(preLoc,controller.signal) : await geocode(q,controller.signal);
+      if(seq!==destinationSeq || controller.signal.aborted)return;
+      if(loc?.label)loc.name=loc.label;
+    }
     catch (e) {
-      setStatus(e.busy
+      if(seq!==destinationSeq || controller.signal.aborted)return;
+      setStatus(PLACE_SEARCH_URL ? e.message : e.busy
         ? 'Search is busy right now — wait a moment and try again.'
         : 'Search is unavailable — check your connection and try again.');
       return;
-    } finally { $('searchform').classList.remove('loading'); }
+    } finally { clearTimeout(timeout);if(seq===destinationSeq)$('searchform').classList.remove('loading'); }
   }
   // Nothing in a covered country — but the place may still exist elsewhere. Check before
   // claiming we couldn't find it, so "Berlin" gets "not available there yet" and only a
   // genuine typo gets "couldn't find that".
   if (!loc) {
-    const away = await geocodeAnywhere(q);
+    const away = PLACE_SEARCH_URL ? null : await geocodeAnywhere(q);
+    if(seq!==destinationSeq || controller.signal.aborted)return;
     if (away) { showNoCoverage(away); return; }
-    setStatus('Could not find that place. Try an address or nearby landmark.');
+    setStatus('Could not find that place. Try adding the city to the business name.');
     return;
   }
   // Resolved inside the US or Canada, but outside the five metros we have data for —
@@ -943,6 +969,7 @@ async function run(preLoc, isNew) {
 // Persisted list of places you've searched — surfaced when the search box is
 // focused so you can jump back without re-typing. Newest first, capped at 5.
 const REC_KEY = 'vanpark.recents', REC_MAX = 5;
+let recentSession = null;
 const PIN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
 const X_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -961,13 +988,14 @@ function safePhotoUrl(u) {
 // Drop malformed entries (partial writes, hand-edits, old schema) so addRecent/renderRecents
 // never throw on a missing .label or non-numeric coords.
 function loadRecents() {
+  if(recentSession)return recentSession;
   try {
     const a = JSON.parse(store.get(REC_KEY));
     return Array.isArray(a) ? a.filter((r) => r && typeof r.label === 'string'
       && Number.isFinite(r.lat) && Number.isFinite(r.lon)) : [];
   } catch { return []; }
 }
-function saveRecents(a) { store.set(REC_KEY, JSON.stringify(a)); }
+function saveRecents(a) { recentSession=a;store.set(REC_KEY, JSON.stringify(a.filter(p=>p.provider!=='tomtom'))); }
 
 // prefer what the user typed as the label; fall back to the geocoder's first segment
 function addRecent(loc, q) {
@@ -976,7 +1004,7 @@ function addRecent(loc, q) {
   const a = loadRecents().filter((r) =>
     r.label.toLowerCase() !== label.toLowerCase() &&
     !(Math.abs(r.lat - loc.lat) < 1e-4 && Math.abs(r.lon - loc.lon) < 1e-4));
-  a.unshift({ label, lat: loc.lat, lon: loc.lon });
+  a.unshift({ label, lat: loc.lat, lon: loc.lon, ...(loc.provider?{provider:loc.provider}:{}) });
   saveRecents(a.slice(0, REC_MAX));
 }
 
@@ -991,14 +1019,13 @@ function renderRecents() {
   return a.length;
 }
 function showRecents() { suggestSeq++; if (renderRecents()) $('recents').hidden = false; else $('recents').hidden = true; }
-function hideRecents() { $('recents').hidden = true; }
+function hideRecents() { suggestSeq++;clearTimeout(suggestTimer);suggestRequest?.abort();$('recents').hidden = true; }
 
 // ---- live suggestions (autocomplete) ----------------------------------------
-// As you type, query Photon (komoot's autocomplete geocoder — CORS-enabled) and list
-// matches in the same panel. Each match already carries its coordinates, so picking one
-// searches directly with no second geocode. We bias to the map center (not a hard bbox)
-// so local streets rank first while an explicit "gum wall seattle" still surfaces.
-let suggestSeq = 0, suggestTimer = null, suggestItems = [];
+// TomTom returns suggestions first and resolves coordinates only on selection.
+// Until its endpoint is enabled, Photon remains the active autocomplete provider.
+// Both use the map center as a bias, allowing explicit searches for other cities.
+let suggestSeq = 0, suggestTimer = null, suggestItems = [], suggestRequest = null;
 
 // Country of the city currently on screen — the stand-in for "where the user is", which is
 // what Google keys its domestic/foreign rule on. Photon spells countries out, so compare
@@ -1040,13 +1067,24 @@ function renderSuggest(items) {
     `<div class="rc-item" data-s="${i}"><span class="rc-ic">${PIN_SVG}</span>` +
     `<span class="rc-txt"><span class="rc-name">${esc(s.label)}</span>` +
     (s.sub ? `<span class="rc-sub">${esc(s.sub)}</span>` : '') + `</span></div>`
-  ).join('');
+  ).join('') + (PLACE_SEARCH_URL ? '<div class="rc-sub" style="padding:8px 16px">Search by TomTom</div>' : '');
   $('recents').hidden = false;
 }
 
 async function fetchSuggest(q) {
   const seq = ++suggestSeq;
-  const ctr = map.getCenter();   // bias toward where you're looking, no hard boundary
+  const ctr = map.getCenter();
+  if(PLACE_SEARCH_URL){
+    suggestRequest?.abort();const controller=new AbortController();suggestRequest=controller;
+    const timeout=setTimeout(()=>controller.abort(),120000);
+    try{
+      const items=await tomtomSearch.suggest(q,[ctr.lng,ctr.lat],controller.signal);
+      if(seq===suggestSeq&&!controller.signal.aborted)renderSuggest(items);
+    }catch(e){if(seq===suggestSeq){const message=controller.signal.aborted?'Search timed out. Please try again.':e.message;hideRecents();setStatus(message);}}
+    finally{clearTimeout(timeout);}
+    return;
+  }
+  // bias toward where you're looking, no hard boundary
   const url = `https://photon.komoot.io/api/?limit=6&lang=en` +
     `&lat=${ctr.lat}&lon=${ctr.lng}&q=${encodeURIComponent(q)}`;
   let feats;
@@ -1070,9 +1108,12 @@ async function fetchSuggest(q) {
 
 // typing drives the panel: <2 chars → recents, otherwise debounced suggestions
 function onType() {
+  destinationSeq++;destinationRequest?.abort();$('searchform').classList.remove('loading');
+  suggestSeq++;suggestRequest?.abort();
   const q = $('dest').value.trim();
   clearTimeout(suggestTimer);
   if (q.length < 2) { showRecents(); return; }
+  hideRecents();
   suggestTimer = setTimeout(() => fetchSuggest(q), 250);
 }
 $('dest').addEventListener('input', onType);
@@ -1089,6 +1130,7 @@ $('dest').addEventListener('input', updateClear);
 // itself out to it, with its pin still sitting on the map. Everything a destination put on
 // screen has to come off together, or the ones left behind are lying about the ones that went.
 function clearDestination() {
+  destinationSeq++;destinationRequest?.abort();tomtomSearch.reset();$('searchform').classList.remove('loading');
   lastLoc = null;
   if (destMarker) { destMarker.remove(); destMarker = null; }
   clearSpotLine();                      // drops the dotted line AND cancels an in-flight walk
@@ -1125,14 +1167,14 @@ $('rcList').addEventListener('click', (e) => {
   }
   const item = e.target.closest('.rc-item');
   if (!item) return;
-  // a suggestion carries its own coords; a recent is looked up by index
+  // TomTom suggestions need Details; legacy suggestions and recents already have coordinates.
   const pick = item.dataset.s != null ? suggestItems[+item.dataset.s] : loadRecents()[+item.dataset.i];
   if (!pick) return;
   $('dest').value = pick.label;
   updateClear();
   $('dest').blur();
   hideRecents();
-  run({ lat: pick.lat, lon: pick.lon, name: pick.label }, true);
+  run({ ...pick, name: pick.label }, true);
 });
 $('rcClear').addEventListener('click', () => { saveRecents([]); hideRecents(); });
 
@@ -2766,10 +2808,12 @@ function initLiveLabels() {
   else bootUISettled.then(async () => {
     // Keep the live location arrow visible after a prior grant. Starting passive tracking
     // does not ask again because we first confirm the browser still reports permission.
+    let locationGranted = store.get(GEO_PERMISSION_KEY) === 'granted';
     try {
       const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
-      if (permission?.state === 'granted') driving.start({ passive: true });
+      if (permission) locationGranted = permission.state === 'granted';
     } catch {}
+    if (locationGranted) driving.start({ passive: true });
   });
 }
 

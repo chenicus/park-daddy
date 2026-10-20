@@ -1429,9 +1429,9 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
     <p>Loading a map and searching means your browser fetches things from other companies, who will see your IP address as a result:</p>
     <ul>
       <li><b>CARTO</b> and <b>MapLibre</b>: map tiles and styling</li>
-      <li><b>OpenStreetMap</b> (Nominatim, Valhalla) and <b>Komoot</b> (Photon): search, autocomplete and directions. Places you search for are sent to these to look up.</li>
+      <li><b>Search:</b> when TomTom search is enabled, queries and the map area are sent through our Supabase server to TomTom. Otherwise, Nominatim and Komoot Photon provide search. TomTom results in recent searches last for the current session only. <b>Valhalla</b> receives route endpoints for directions.</li>
       <li><b>Cloudflare</b> and <b>PostHog</b>: the anonymous usage stats above</li>
-      <li><b>Supabase</b>: stores reports and feedback</li>
+      <li><b>Supabase</b>: stores reports, feedback, and temporary search-abuse counters. Search protection uses daily keyed IP digests rather than raw IP addresses in its database. <b>Cloudflare Turnstile</b> checks browsers before issuing a short-lived search pass.</li>
       <li><b>ArcGIS</b>: live parking availability in Kirkland</li>
     </ul>
 
@@ -1665,7 +1665,7 @@ html.pd-arrive #map{animation:pdMapSettle .90s cubic-bezier(.2,0,0,1) .80s both}
 </div>
 
 <script src="vendor/maplibre-gl@4.7.1.js"></script>
-<script type="module" src="app.js?v=205"></script>
+<script type="module" src="app.js?v=214"></script>
 <script type="module" src="theme-sheet.js?v=2"></script>
 
 <!-- Cloudflare Web Analytics — privacy-friendly visitor + country tracking, no cookies -->
