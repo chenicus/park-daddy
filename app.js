@@ -8,7 +8,7 @@ import { buildWestEndBlocks, buildInferredBlocks, curbState, curbTableSegments, 
 import { rankMeters, rateNow, limitNow, bandRateNow, distMeters, ENF_START, MID, ENF_END, prohibitionWindowsForDay, prohibitionNow } from './rank.js?v=15';
 import { buildBlocks, buildSeattleBlocks, buildSeattleFreeBlocks, buildSFBlocks, buildSanJoseBlocks, buildKirklandBlocks, buildSurreyBlocks, createLabelLayer, fmtLimit, bucket } from './labels.js?v=57';
 import { CITIES, cityAt, DEFAULT_CITY, newCities, hydrateSharedRegistry } from './cities.js?v=42';
-import { createDriving, SIM_START } from './driving.js?v=31';
+import { createDriving, SIM_START } from './driving.js?v=32';
 import { fetchRoute, fetchWalkPath, fetchWalkMatrix, createNav, fmtDist } from './nav.js?v=19';
 import { fetchFlags, submitReport, submitFeedback, rptKey, FLAG_MIN, HIDE_MIN } from './reports.js?v=5';
 import { CHANGELOG } from './changelog.js?v=3';
@@ -697,12 +697,7 @@ async function pollKirkLive() {
   // user gesture for first-time visitors.
   // Prefer the live browser permission state. Some mobile browsers do not expose
   // Permissions.query for geolocation, so use our prior successful grant as fallback.
-  let locationGranted = store.get(GEO_PERMISSION_KEY) === 'granted';
-  try {
-    const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
-    if (permission) locationGranted = permission.state === 'granted';
-  } catch {}
-  if (!locationGranted) return;
+  if (!await hasStartupLocationGrant()) return;
 
   // Best-effort recenter from an existing grant, capped so a slow GPS fix never stalls boot.
   const pos = await Promise.race([
@@ -713,6 +708,7 @@ async function pollKirkLive() {
   // This successful fix proves location access is already available. Start passive
   // tracking here as well as recentering so the live location chevron is drawn on boot.
   driving?.start({ passive: true });
+  driving?.seedPosition(pos);
   if (cityChosen) return;                                // user picked a city in the welcome — respect it
   const key = cityAt(pos.lat, pos.lon);
   if (!key) return;                                      // outside coverage — stay on the default city
@@ -724,6 +720,17 @@ async function pollKirkLive() {
 function setStatus(msg) { toast(msg, 4000); }
 
 // ---- geolocation -------------------------------------------------------------
+async function hasStartupLocationGrant() {
+  const savedGrant = store.get(GEO_PERMISSION_KEY) === 'granted';
+  try {
+    const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
+    if (permission?.state === 'denied') return false;
+    if (permission?.state === 'granted') return true;
+  } catch {}
+  // Some browsers report "prompt" even after a successful site grant. The last
+  // successful location request is our fallback in that case.
+  return savedGrant;
+}
 function getPosition() {
   return new Promise((res) => {
     if (cachedPos) return res(cachedPos);
@@ -1225,6 +1232,7 @@ $('here').addEventListener('click', async () => {
   const pos = await getPosition();
   if (!pos) { toast('Could not get your location.'); return; }
   if (driving && !driving.isActive()) driving.start({ passive: true });
+  driving?.seedPosition(pos);
   driving?.setFollow(true);              // arm follow for incoming fixes
   map.easeTo({ center: [pos.lon, pos.lat], zoom: 16, duration: reduceMotion() ? 0 : 600 });
 });
@@ -2807,12 +2815,7 @@ function initLiveLabels() {
   else bootUISettled.then(async () => {
     // Keep the live location arrow visible after a prior grant. Starting passive tracking
     // does not ask again because we first confirm the browser still reports permission.
-    let locationGranted = store.get(GEO_PERMISSION_KEY) === 'granted';
-    try {
-      const permission = await navigator.permissions?.query?.({ name: 'geolocation' });
-      if (permission) locationGranted = permission.state === 'granted';
-    } catch {}
-    if (locationGranted) driving.start({ passive: true });
+    if (await hasStartupLocationGrant()) driving.start({ passive: true });
   });
 }
 
