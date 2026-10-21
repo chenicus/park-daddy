@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "area": "mount-pleasant-main-e5-union",
+  "sources": {
+    "user-photos-2026-10-20-main": {"title": "User photographs of parking signs on Main Street from East 5th Avenue to National Avenue", "checkedOn": "2026-10-20", "note": "Nine photographs document the east curb of Main Street. Repeated views of the same signs are treated as one observation. Bus-lane and no-parking plates provide boundaries and schedule restrictions, not public-parking sections."},
+    "user-photos-2026-10-20-main-north": {"title": "User photographs of parking signs on Main Street from National Avenue to Union Street", "checkedOn": "2026-10-20", "note": "Nine photographs continue north along Main Street. Photos 1–6 repeatedly confirm two-hour parking from 9am to 3pm Monday–Saturday on the east curb; the no-parking plates bound the public schedule. Photo 7 marks the Union Street boundary. Photos 8–9 show paid meter 67081 on the opposite curb and are not duplicated as a line section."},
+    "osm-main-geometry-2026-10-20": {"url": "https://www.openstreetmap.org/#map=16/49.2740/-123.1000", "title": "OpenStreetMap road geometry for Main Street", "checkedOn": "2026-10-20"},
+    "vancouver-meter-67081": {"title": "City of Vancouver parking meter record 67081", "checkedOn": "2026-10-20", "note": "The existing meter feed locates paid meter 67081 on the opposite curb north of Union Street; it remains represented by the meter layer rather than a duplicate photo-derived line."}
+  },
+  "geometryNote": "Each line is offset onto the photographed east curb of Main Street and stops before cross-street junctions. Only photo-bounded public-parking slices are included; the unconfirmed gap between East 3rd Avenue and the National Avenue approach is intentionally unmapped. The paid meter photographed north of Union Street is on the opposite curb and remains in the meter layer.",
+  "restrictionNote": "The public curb around East 5th and East 4th is one-hour parking from 9:30am to 6pm Monday–Saturday, with weekday morning no parking. From the photographed approach south of National Avenue through the blocks ending at Union Street, the east curb is two-hour parking from 9am to 3pm Monday–Saturday, with weekday no parking from 3pm to 7pm. Bus/HOV restrictions and full-time bus zones are not rendered as parking.",
+  "excludeInferredBlocks": ["Main Street east curb between East 3rd Avenue and the National Avenue photo-bounded section"],
+  "sections": [
+    {
+      "id": "main-east-e5-e4-user-1h", "area": "mount-pleasant-main-e5-national", "street": "Main Street", "side": "east", "between": ["East 5th Avenue", "East 4th Avenue"], "category": "time-limited", "publicSign": true, "limitMinutes": 60,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The East 5th pole shows P 1h, 9:30am–6pm, Mon–Sat. The line begins beyond the East 5th corner and stops before East 4th; bus and morning no-parking periods are retained only as restrictions.",
+      "sourceIds": ["user-photos-2026-10-20-main", "osm-main-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photos 1 through 3 show the Main Street east curb and a public one-hour sign valid 9:30am–6pm Monday–Saturday. The adjacent no-parking plate applies 7am–9:30am Monday–Friday.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri morning bus/HOV period"}], "scope": "East curb only, clear of East 5th and East 4th intersections."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10066, 49.26654], [-123.10064, 49.26676], [-123.10062, 49.26700], [-123.10060, 49.26720]]}
+    },
+    {
+      "id": "main-east-e4-e3-user-1h", "area": "mount-pleasant-main-e5-national", "street": "Main Street", "side": "east", "between": ["East 4th Avenue", "East 3rd Avenue"], "category": "time-limited", "publicSign": true, "limitMinutes": 60,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "Repeated one-hour plates continue north of East 4th. The mapped slice stops before East 3rd and does not bridge the later bus-lane-only photographs.",
+      "sourceIds": ["user-photos-2026-10-20-main", "osm-main-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photos 5 and 6 show P 1h, 9:30am–6pm, Mon–Sat on the east curb near East 4th. Photos showing bus/HOV and no-parking plates are used only to bound the public section.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri morning bus/HOV period"}], "scope": "Photo-confirmed east curb north of East 4th; the unconfirmed continuation is omitted."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.10050, 49.26744], [-123.10049, 49.26764], [-123.10048, 49.26786], [-123.10047, 49.26808]]}
+    },
+    {
+      "id": "main-east-national-approach-user-2h", "area": "mount-pleasant-main-e5-national", "street": "Main Street", "side": "east", "between": ["photo-bounded section south of National Avenue", "National Avenue"], "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 900, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The National Avenue approach signs show P 2h, 9am–3pm, Mon–Sat. The line ends before National Avenue and remains separate from the unverified curb farther south.",
+      "sourceIds": ["user-photos-2026-10-20-main", "osm-main-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photos 8 and 9 clearly show public two-hour parking from 9am to 3pm Monday–Saturday, paired with no parking from 3pm to 7pm Monday–Friday. The nearby truck-route plate does not create a parking section.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 900, "end": 1140, "label": "Mon–Fri afternoon restriction"}], "scope": "Short east-curb approach to National Avenue, stopping before the intersection."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09973, 49.27418], [-123.09972, 49.27438], [-123.09971, 49.27458], [-123.09970, 49.27479]]}
+    },
+    {
+      "id": "main-east-national-milross-user-2h", "area": "mount-pleasant-main-e5-union", "street": "Main Street", "side": "east", "between": ["National Avenue", "Milross Avenue"], "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 900, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The line starts beyond National Avenue and stops before Milross Avenue. Repeated plates show P 2h, 9am–3pm, Mon–Sat; the weekday afternoon no-parking period is retained only as a restriction.",
+      "sourceIds": ["user-photos-2026-10-20-main-north", "osm-main-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Repeated views confirm public two-hour parking from 9am to 3pm Monday–Saturday, paired with no parking from 3pm to 7pm Monday–Friday.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 900, "end": 1140, "label": "Mon–Fri afternoon restriction"}], "scope": "East curb between National Avenue and Milross Avenue, clear of both intersections."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09970, 49.27508], [-123.09969, 49.27531], [-123.09967, 49.27562], [-123.09965, 49.27595]]}
+    },
+    {
+      "id": "main-east-milross-prior-user-2h", "area": "mount-pleasant-main-e5-union", "street": "Main Street", "side": "east", "between": ["Milross Avenue", "Prior Street"], "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 900, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The line resumes beyond Milross Avenue and stops before Prior Street, following the photographed east curb without crossing either junction.",
+      "sourceIds": ["user-photos-2026-10-20-main-north", "osm-main-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "The plates continue public two-hour parking from 9am to 3pm Monday–Saturday and no parking from 3pm to 7pm Monday–Friday.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 900, "end": 1140, "label": "Mon–Fri afternoon restriction"}], "scope": "East curb between Milross Avenue and Prior Street."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09965, 49.27614], [-123.09965, 49.27634], [-123.09964, 49.27656], [-123.09964, 49.27667]]}
+    },
+    {
+      "id": "main-east-prior-union-user-2h", "area": "mount-pleasant-main-e5-union", "street": "Main Street", "side": "east", "between": ["Prior Street", "Union Street"], "category": "time-limited", "publicSign": true, "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 540, "end": 900, "label": "Mon–Sat"}, "outsideSchedule": "free", "verification": "user-photo-match", "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The line starts beyond Prior Street and ends before Union Street, where the final east-curb photo establishes the boundary. Paid meter 67081 is on the opposite curb north of Union and is not joined to this section.",
+      "sourceIds": ["user-photos-2026-10-20-main-north", "osm-main-geometry-2026-10-20", "vancouver-meter-67081"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "The last east-curb plates before Union Street show public two-hour parking from 9am to 3pm Monday–Saturday, paired with no parking from 3pm to 7pm Monday–Friday.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 900, "end": 1140, "label": "Mon–Fri afternoon restriction"}], "scope": "East curb between Prior Street and Union Street, ending before the intersection."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09964, 49.27687], [-123.09963, 49.27708], [-123.09962, 49.27729], [-123.09961, 49.27749]]}
+    }
+  ]
+}

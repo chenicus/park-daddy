@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "area": "mount-pleasant-kingsway-e11-e12",
+  "sources": {
+    "user-photos-2026-10-20": {
+      "title": "User photographs of parking signs on East 12th Avenue and Kingsway",
+      "checkedOn": "2026-10-20",
+      "note": "Seventeen photographs show the curb signs from Guelph Street west along East 12th Avenue and then northwest on Kingsway through East 11th and East 10th to Broadway. Repeated views of the same poles are treated as one observation."
+    },
+    "osm-road-geometry-2026-10-20": {
+      "url": "https://www.openstreetmap.org/#map=19/49.2603/-123.0964",
+      "title": "OpenStreetMap road geometry around Kingsway, East 11th and East 12th",
+      "checkedOn": "2026-10-20"
+    }
+  },
+  "geometryNote": "Curb lines are short, photo-bounded slices offset from the OpenStreetMap road centerlines onto the photographed curb. They stop before Broadway, East 10th, East 11th, East 12th, Guelph and reserved taxi/transit transitions; no line crosses an intersection.",
+  "restrictionNote": "Most public signs show two-hour parking, 9:30am–6pm Monday–Saturday; the final photographed section before Broadway is one-hour parking during the same period. Weekday 7am–9:30am no-parking and bus/HOV periods are schedule restrictions only. No-parking, taxi and transit portions are boundaries and are not map sections.",
+  "excludeInferredBlocks": [],
+  "sections": [
+    {
+      "id": "east-12th-north-kingsway-guelph-user-2h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "East 12th Avenue",
+      "side": "north",
+      "between": ["Kingsway", "Guelph Street"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The Guelph pole shows P 2h, 9:30am–6pm, Mon–Sat in both directions. This section maps only the photographed north curb west toward Kingsway and stops short of both junctions.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-20",
+        "imageryDate": "2026-10-20",
+        "finding": "Photos 1 and 2 show the Guelph Street pole with public two-hour parking from 9:30am to 6pm, Monday–Saturday. The adjacent 7am–9:30am weekday prohibition is retained as schedule context only.",
+        "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri"}],
+        "scope": "North curb of East 12th only; intersection clearances and driveways remain excluded."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09625, 49.25990], [-123.09595, 49.25985], [-123.09555, 49.25983], [-123.09514, 49.25982]]}
+    },
+    {
+      "id": "kingsway-northeast-e12-south-slice-user-2h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "Kingsway",
+      "side": "northeast",
+      "between": ["East 12th Avenue", "taxi/transit boundary"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The East 12th pole and the next repeated two-hour plate establish the public curb. The line begins beyond the corner and ends before the first taxi/transit direction change.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-20",
+        "imageryDate": "2026-10-20",
+        "finding": "Photos 3 and 4 show public two-hour and morning-restriction plates on the northeast curb after East 12th. Taxi and transit plates begin farther northwest and bound this section.",
+        "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri"}],
+        "scope": "Short curb slice only; taxi/transit curb is omitted."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09650, 49.25992], [-123.09668, 49.26009], [-123.09685, 49.26025]]}
+    },
+    {
+      "id": "kingsway-northeast-north-slice-e11-user-2h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "Kingsway",
+      "side": "northeast",
+      "between": ["taxi/transit boundary", "East 11th Avenue"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "Repeated P 2h, 9:30am–6pm, Mon–Sat plates resume northwest of the reserved transition. The line stops before East 11th Avenue.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{
+        "status": "user-photo-match",
+        "checkedOn": "2026-10-20",
+        "imageryDate": "2026-10-20",
+        "finding": "Photos 6 through 8 show the standard public two-hour plate continuing toward East 11th, with parked cars on the photographed curb.",
+        "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri"}],
+        "scope": "Northwest photo-confirmed curb slice only; the preceding taxi/transit interval is omitted."
+      }],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09715, 49.26051], [-123.09731, 49.26066], [-123.09744, 49.26078]]}
+    },
+    {
+      "id": "kingsway-northeast-e11-e10-user-2h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "Kingsway",
+      "side": "northeast",
+      "between": ["East 11th Avenue", "East 10th Avenue"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "Repeated P 2h plates and parked vehicles confirm the northeast curb between East 11th and East 10th. The line stops before both intersections.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photos 1 through 4 of the second batch show public two-hour parking from 9:30am to 6pm, Monday–Saturday, with parked cars along the northeast curb. The bus/HOV and no-parking plates apply during the weekday morning period.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri bus/HOV period"}], "scope": "Northeast curb only, clear of East 11th and East 10th."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09750, 49.26084], [-123.09778, 49.26113], [-123.09808, 49.26146], [-123.09835, 49.26173], [-123.09856, 49.26193]]}
+    },
+    {
+      "id": "kingsway-northeast-e10-broadway-user-2h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "Kingsway",
+      "side": "northeast",
+      "between": ["East 10th Avenue", "one-hour transition before Broadway"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 120,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The East 10th pole and the following pole show P 2h, 9:30am–6pm, Mon–Sat. The line begins after the East 10th corner and ends before the photographed one-hour sign transition.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photos 5 through 7 show the two-hour rule continuing north of East 10th. Morning bus and no-parking arrows are treated as restrictions, not public parking sections.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri bus/HOV period"}], "scope": "Northeast curb after East 10th, ending at the one-hour transition."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09875, 49.26208], [-123.09891, 49.26224], [-123.09908, 49.26242], [-123.09917, 49.26251]]}
+    },
+    {
+      "id": "kingsway-northeast-broadway-user-1h",
+      "area": "mount-pleasant-kingsway-e11-e12",
+      "street": "Kingsway",
+      "side": "northeast",
+      "between": ["one-hour transition", "East Broadway"],
+      "category": "time-limited",
+      "publicSign": true,
+      "limitMinutes": 60,
+      "schedule": {"days": [1, 2, 3, 4, 5, 6], "start": 570, "end": 1080, "label": "Mon–Sat"},
+      "outsideSchedule": "free",
+      "verification": "user-photo-match",
+      "geometryStatus": "photo-bounded-curb-offset",
+      "splitBoundaryNote": "The final public sign before Broadway reads P 1h, 9:30am–6pm, Mon–Sat. The line ends before the Broadway intersection and the bus/HOV endpoint.",
+      "sourceIds": ["user-photos-2026-10-20", "osm-road-geometry-2026-10-20"],
+      "spotChecks": [{"status": "user-photo-match", "checkedOn": "2026-10-20", "imageryDate": "2026-10-20", "finding": "Photo 8 clearly shows P 1h, 9:30am–6pm, Mon–Sat. Photo 9 shows the morning bus/HOV restriction ending at Broadway; no public line is drawn into the junction.", "restrictions": [{"kind": "no-parking", "days": [1, 2, 3, 4, 5], "start": 420, "end": 570, "label": "Mon–Fri bus/HOV period"}], "scope": "Short northeast-curb section immediately southeast of Broadway."}],
+      "geometry": {"type": "LineString", "coordinates": [[-123.09923, 49.26257], [-123.09934, 49.26268], [-123.09944, 49.26278]]}
+    }
+  ]
+}
