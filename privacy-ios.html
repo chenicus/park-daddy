@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Privacy information for the Park Daddy iOS app.">
+  <title>Park Daddy for iOS — Privacy</title>
+  <style>
+    :root { color-scheme: light dark; font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 22px 64px; color: CanvasText; background: Canvas; }
+    h1 { line-height: 1.15; }
+    h2 { margin-top: 2em; font-size: 1.2em; }
+    a { color: LinkText; }
+    .updated { margin-top: 3em; color: GrayText; font-size: .9em; }
+  </style>
+</head>
+<body>
+  <main>
+    <p><a href="/">Park Daddy</a></p>
+    <h1>Privacy for Park Daddy for iOS</h1>
+    <p>Park Daddy does not require an account. The iOS app has no advertising or usage-analytics SDK.</p>
+
+    <h2>Information stored on your device</h2>
+    <p>Your chosen city, appearance preference, recent searches, last saved covered location, and scanned parking signs are stored on your device. A saved sign can include its photo, recognized text, and capture location. You can clear recent searches in Search and delete saved signs in My Scanned Signs. Removing the app or its data removes these local records.</p>
+
+    <h2>Reading parking signs</h2>
+    <p>Confirmed details can suggest matching signs on this phone. Local suggestions require you to check the photo. When no local match is available, or you choose AI reading, Park Daddy sends the photo, recognized text, and city through its Supabase server to Google Gemini to interpret the rules. Precise GPS coordinates are not sent to Google Gemini, and nonessential image metadata is removed before upload. Park Daddy does not store the raw image or recognized text in its interpretation database; structured interpretations and content hashes are cached for up to seven days. On Google's free tier, submitted content may be used to improve Google's products. A copy of your scan and its marker remain on your device. Scans are not automatically published to other users.</p>
+
+    <h2>Location</h2>
+    <p>Location permission is optional. When allowed, the app uses your location while you use the app to show nearby parking, recenter the map, and support navigation. The app does not request background location access. When you request directions, route endpoints are sent to the routing service.</p>
+
+    <h2>Services and information sent to them</h2>
+    <p>When the app connects to online services, those services receive your device's IP address. The app uses:</p>
+    <ul>
+      <li><strong>CARTO</strong> for map tiles and styles.</li>
+      <li><strong>Search services.</strong> When TomTom search is enabled, your search query and map area are sent through Park Daddy's Supabase service to TomTom. Otherwise, Nominatim and Komoot Photon provide search. Recent TomTom searches remain in the app session only.</li>
+      <li><strong>Valhalla</strong> for route calculations. Route endpoints are sent when you request directions.</li>
+      <li><strong>Supabase</strong> for temporary search-abuse counters, parking reports, and feedback that you choose to submit. Abuse counters use daily keyed IP digests rather than storing raw IP addresses in the counter table.</li>
+      <li><strong>ArcGIS</strong> for live parking availability in Kirkland, and public city datasets and charger services for parking information.</li>
+    </ul>
+
+    <h2>Reports and feedback you submit</h2>
+    <p>If you choose to submit a parking report, the app sends the reported location and details you provide. You may attach a sign photo; submitted report photos can be viewed by other users. If you send feedback, your message and the contact email you provide are sent to Supabase. Please avoid including sensitive information in reports or feedback. To request deletion of information you submitted, contact us using the in-app feedback feature.</p>
+
+    <h2>Your choices</h2>
+    <p>You can deny or change location access in iOS Settings. You can use the map without granting location access. You can use manual sign confirmation without uploading a photo for AI interpretation. You can delete saved scans from My scanned signs. Photos are sent for remote AI reading as described above, or when you separately choose to attach a photo to a report.</p>
+
+    <h2>Contact</h2>
+    <p>For privacy questions or deletion requests, use Leave Feedback in the app or contact <a href="https://www.instagram.com/charlotttechen">@charlotttechen</a>.</p>
+
+    <p class="updated">Last updated October 23, 2026.</p>
+  </main>
+</body>
+</html>
